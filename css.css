@@ -1,0 +1,145 @@
+/* Generic */
+
+* {
+	font-family: "Roboto";
+	font-weight: 400;
+}
+
+/* JQuery Resizable */
+.ui-resizable { position: relative;}
+.ui-resizable-handle { position: absolute;font-size: 0.1px; display: block; }
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
+.ui-resizable-n { cursor: n-resize; height: 7px; width: 100%; top: -5px; left: 0; }
+.ui-resizable-s { cursor: s-resize; height: 7px; width: 100%; bottom: -5px; left: 0; }
+.ui-resizable-e { cursor: e-resize; width: 7px; right: -5px; top: 0; height: 100%; }
+.ui-resizable-w { cursor: w-resize; width: 7px; left: -5px; top: 0; height: 100%; }
+.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
+.ui-resizable-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
+.ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
+.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
+
+/* JQuery Tabs */
+
+.ui-tabs {
+	position: relative;
+	padding: 0.5em;
+	zoom: 1;
+}
+
+.ui-tabs .ui-tabs-nav {
+	margin: 0px;
+	padding: 0px;
+	padding-bottom: 2.2em;
+	border: 5px;
+	border-color: #000;
+}
+
+.ui-tabs .ui-tabs-nav li {
+	list-style: none;
+	float: left;
+	position: relative;
+	top: 0px;
+	margin: 0;
+	border-bottom: 0 !important;
+	padding: 0;
+	white-space: nowrap;
+}
+
+.ui-tabs .ui-tabs-nav li a {
+	display: block;
+	float: left;
+	padding: .5em 1em;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	max-width: 150px;
+	min-width: 25px;
+	text-decoration: none;
+}
+
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a {
+	cursor: text;
+}
+
+.ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
+	cursor: pointer;
+}
+
+.ui-tabs .ui-tabs-panel {
+	padding: 10px;
+	min-height: 700px;
+	max-height: none;
+}
+
+.ui-tabs .ui-tabs-hide {
+	display: none !important;
+}
+
+.tabpane {
+	background-color: #c5c5c5;
+	margin: 0px;
+	padding: 0px;
+}
+
+.tabs {
+	background-color: #ececec;
+}
+
+.tab>a {
+	color: #000000;
+	background-color: #d6d6d6;
+	transition: background-color 0.2s, font-weight 0.2s;
+}
+
+.tab.ui-state-hover>a{
+	background-color: #d0d0d0;
+}
+
+.tab.ui-state-active>a {
+	font-weight: bold;
+	background-color: #c5c5c5;
+}
+
+/* Draggables */
+
+/*.draggable {
+	cursor: grab;
+}*/
+
+.tcanvas {
+	background-color: #ffffff;
+	min-width: 500px;
+	min-height: 750px;
+	width: inherit;
+	height: inherit;
+	overflow: hidden;
+}
+
+/* Node */
+
+.node {
+	width: 100px;
+	height: 75px;
+	border: 4px solid #33333366;
+	border-radius: 15px;
+	background-color: #cccccccc;
+	overflow: hidden;
+}
+
+.node.resizable {
+	border-bottom-right-radius: 0px;
+}
+
+.node>header{
+	padding: 0.1em 0.3em;
+	background-color: #aaaaaacc;
+	color: #000000;
+}
+
+.node>textarea{
+	font-size: 15px;
+	overflow: scroll;
+	margin: 5px;
+	height: calc(100% - 37px);
+	width: calc(100% - 15px);
+	background-color: #00000000;
+}
