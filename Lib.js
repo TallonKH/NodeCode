@@ -67,4 +67,12 @@ class Point {
 	length() {
 		return Math.sqrt(this.lengthSquared());
 	}
+
+	min(a, b){
+		return new Point(Math.min(a.x,b.x), Math.min(a.y,b.y));
+	}
+
+	max(a, b){
+		return new Point(Math.max(a.x,b.x), Math.max(a.y,b.y));
+	}
 }

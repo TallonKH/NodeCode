@@ -8,11 +8,5 @@ $(function() {
 			}
 		});
 	}
-	// JQuery Draggable
-	$(".draggable").draggable({
-		containment: "parent",
-		scroll: false
-	});
-
-	window.onresize = fixAllCanvasSizes;
+	// window.onresize = fixAllCanvasSizes;
 });

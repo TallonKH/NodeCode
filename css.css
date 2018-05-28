@@ -6,17 +6,84 @@
 }
 
 /* JQuery Resizable */
-.ui-resizable { position: relative;}
-.ui-resizable-handle { position: absolute;font-size: 0.1px; display: block; }
-.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle { display: none; }
-.ui-resizable-n { cursor: n-resize; height: 7px; width: 100%; top: -5px; left: 0; }
-.ui-resizable-s { cursor: s-resize; height: 7px; width: 100%; bottom: -5px; left: 0; }
-.ui-resizable-e { cursor: e-resize; width: 7px; right: -5px; top: 0; height: 100%; }
-.ui-resizable-w { cursor: w-resize; width: 7px; left: -5px; top: 0; height: 100%; }
-.ui-resizable-se { cursor: se-resize; width: 12px; height: 12px; right: 1px; bottom: 1px; }
-.ui-resizable-sw { cursor: sw-resize; width: 9px; height: 9px; left: -5px; bottom: -5px; }
-.ui-resizable-nw { cursor: nw-resize; width: 9px; height: 9px; left: -5px; top: -5px; }
-.ui-resizable-ne { cursor: ne-resize; width: 9px; height: 9px; right: -5px; top: -5px;}
+
+.ui-resizable {
+	position: relative;
+}
+
+.ui-resizable-handle {
+	position: absolute;
+	font-size: 0.1px;
+	display: block;
+}
+
+.ui-resizable-disabled .ui-resizable-handle, .ui-resizable-autohide .ui-resizable-handle {
+	display: none;
+}
+
+.ui-resizable-n {
+	cursor: n-resize;
+	height: 7px;
+	width: 100%;
+	top: -5px;
+	left: 0;
+}
+
+.ui-resizable-s {
+	cursor: s-resize;
+	height: 7px;
+	width: 100%;
+	bottom: -5px;
+	left: 0;
+}
+
+.ui-resizable-e {
+	cursor: e-resize;
+	width: 7px;
+	right: -5px;
+	top: 0;
+	height: 100%;
+}
+
+.ui-resizable-w {
+	cursor: w-resize;
+	width: 7px;
+	left: -5px;
+	top: 0;
+	height: 100%;
+}
+
+.ui-resizable-se {
+	cursor: se-resize;
+	width: 12px;
+	height: 12px;
+	right: 1px;
+	bottom: 1px;
+}
+
+.ui-resizable-sw {
+	cursor: sw-resize;
+	width: 9px;
+	height: 9px;
+	left: -5px;
+	bottom: -5px;
+}
+
+.ui-resizable-nw {
+	cursor: nw-resize;
+	width: 9px;
+	height: 9px;
+	left: -5px;
+	top: -5px;
+}
+
+.ui-resizable-ne {
+	cursor: ne-resize;
+	width: 9px;
+	height: 9px;
+	right: -5px;
+	top: -5px;
+}
 
 /* JQuery Tabs */
 
@@ -90,7 +157,7 @@
 	transition: background-color 0.2s, font-weight 0.2s;
 }
 
-.tab.ui-state-hover>a{
+.tab.ui-state-hover>a {
 	background-color: #d0d0d0;
 }
 
@@ -105,41 +172,98 @@
 	cursor: grab;
 }*/
 
-.tcanvas {
+.board {
+	/*background-color: #323232;*/
 	background-color: #ffffff;
 	min-width: 500px;
 	min-height: 750px;
 	width: inherit;
 	height: inherit;
 	overflow: hidden;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
 }
 
 /* Node */
 
 .node {
-	width: 100px;
+	width: 150px;
+	min-width: 100px;
 	height: 75px;
-	border: 4px solid #33333366;
+	border: 4px solid #6b6b6b;
 	border-radius: 15px;
-	background-color: #cccccccc;
+	background-color: #d7d7d70c;
 	overflow: hidden;
+	position: absolute;
+}
+
+.node[selected] {
+	box-shadow: 0px 0px 2px 1px #ffcf00;
+	border: 4px solid #938400;
+}
+
+.node[selected]>header {
+	/*background-color: #8c9065cc;*/
 }
 
 .node.resizable {
 	border-bottom-right-radius: 0px;
 }
 
-.node>header{
+.node>header {
 	padding: 0.1em 0.3em;
-	background-color: #aaaaaacc;
+	background-color: #858585cc;
 	color: #000000;
 }
 
-.node>textarea{
+.node>textarea {
 	font-size: 15px;
 	overflow: scroll;
 	margin: 5px;
 	height: calc(100% - 37px);
 	width: calc(100% - 15px);
 	background-color: #00000000;
+}
+
+/* Pins */
+
+.node>.pins {
+	background-color: #c1c1c1;
+	width: 50px;
+	height: 100%;
+}
+
+.node>.inpins {
+	float: left;
+}
+
+.node>.outpins {
+	float: right;
+}
+
+/* Selection Box */
+
+.selectbox {
+	position: absolute;
+	background-color: #fff50055;
+	border: 3px solid #fccc0088;
+	pointer-events: none;
+}
+
+.selectbox[anti] {
+	background: repeating-linear-gradient(135deg, #fff50055, #fff50055 .25em, #fccc0055 0, #fccc0055 .75em);
+	border: 3px solid #fc000088;
+}
+
+/* Pins */
+
+.pin {}
+
+.container {
+	position: relative;
+	pointer-events: painted;
 }
