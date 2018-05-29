@@ -17,6 +17,8 @@ class Board {
 		this.nodesPendingDelete = {};
 		this.selectedNodes = {};
 
+		this.actionStack = [];
+		this.actionStackIndex = -1;
 
 		this.dragging = false;
 		this.selectionBox = null;
@@ -49,6 +51,9 @@ class Board {
 			this.sBoxContainer.className = "container";
 			this.selectionBox = document.createElement("div");
 			this.selectionBox.className = "selectbox";
+			if (this.env.altDown) {
+				this.selectionBox.setAttribute('anti', true);
+			}
 			this.sBoxContainer.append(this.selectionBox);
 			this.boardDiv.append(this.sBoxContainer);
 		}
@@ -104,19 +109,26 @@ class Board {
 						if (cv.clickDistance <= 30) {
 							// clicked board
 							if (cv.clickStartTarget == cv.boardDiv) {
-								cv.deselectAllNodes();
+								if (Object.keys(cv.selectedNodes).length > 0) {
+									cv.addAction(new ActDeselectAll(cv));
+									cv.deselectAllNodes();
+								}
 							} else /* Non-board click logic */ {
 								const upTargetClasses = cv.clickStartTarget.classList;
 
 								// click selection logic
 								if (upTargetClasses.contains("nodepart")) {
+									const divNode = cv.getDivNode(cv.clickEndTarget);
 									if (cv.env.shiftDown) {
-										cv.selectNode(cv.getDivNode(cv.clickEndTarget));
+										cv.addAction(new ActSelect(cv, [divNode]));
+										cv.selectNode(divNode);
 									} else if (cv.env.altDown) {
-										cv.toggleSelectNode(cv.getDivNode(cv.clickEndTarget)); // TODO - get actual node from clickEndTarget
+										cv.addAction(new ActToggleSelect(cv, [divNode]));
+										cv.toggleSelectNode(divNode); // TODO - get actual node from clickEndTarget
 									} else {
+										cv.addAction(new Macro(new ActDeselectAll(cv), new ActSelect(cv, [divNode])));
 										cv.deselectAllNodes();
-										cv.selectNode(cv.getDivNode(cv.clickEndTarget));
+										cv.selectNode(divNode);
 									}
 								}
 							}
@@ -125,29 +137,55 @@ class Board {
 							if (cv.clickStartTarget == cv.boardDiv) {
 								if (cv.env.altDown) {
 									// deselect in box
+									const deselectedNodes = [];
 									for (const nodeid in cv.selectedNodes) {
 										const node = cv.nodes[nodeid];
 										if (node.within(cv.sboxMin, cv.sboxMax)) {
+											deselectedNodes.push(node);
 											cv.deselectNode(node);
 										}
 									}
+									if (deselectedNodes.length > 0) {
+										cv.addAction(new ActDeselect(cv, deselectedNodes));
+									}
 								} else {
-									// deselect all
+									const selectedNodes = [];
+									for (const nodeid in cv.nodes) {
+										const node = cv.nodes[nodeid];
+										if (node.within(cv.sboxMin, cv.sboxMax)) {
+											selectedNodes.push(node);
+										}
+									}
+
+									if (selectedNodes.length > 0) {
+										if (cv.env.shiftDown) {
+											cv.addAction(new ActSelect(cv, selectedNodes));
+										} else {
+											cv.addAction(new Macro(new ActDeselectAll(cv), new ActSelect(cv, selectedNodes)));
+										}
+									} else {
+										if (!cv.env.shiftDown) {
+											cv.addAction(new ActDeselectAll(cv));
+										}
+									}
+
+									// deselect all if shift isn't down
 									if (!cv.env.shiftDown) {
 										cv.deselectAllNodes();
 									}
 
-									for (const nodeid in cv.nodes) {
-										const node = cv.nodes[nodeid];
-										if (node.within(cv.sboxMin, cv.sboxMax)) {
-											console.log(' W I T H I N');
-											cv.selectNode(node);
-										}
+									for (const node of selectedNodes) {
+										cv.selectNode(node);
 									}
 								}
 								cv.destroySelectionBox();
 							} else /* node drag complete */ {
-
+								const pressedNode = cv.getDivNode(cv.clickStartTarget);
+								if (pressedNode.selected) {
+									cv.addAction(new ActMoveSelectedNodes(cv, cv.clickDelta));
+								} else {
+									cv.addAction(new ActMoveNodes(cv, cv.clickDelta, [pressedNode]));
+								}
 							}
 						}
 						break;
@@ -219,6 +257,40 @@ class Board {
 				}
 				break;
 		}
+		switch (event.which) {
+			case 90:
+				if (this.env.ctrlDown) {
+					if (this.env.shiftDown) {
+						this.redo();
+					} else {
+						this.undo();
+					}
+				}
+				break;
+			case 65:
+				if (main.ctrlDown) {
+					this.addAction(new ActSelectAll(this));
+					main.activeBoard.selectAllNodes();
+				}
+				break;
+
+		}
+	}
+
+	undo() {
+		if (this.actionStackIndex == -1) {
+			return;
+		}
+		this.actionStack[this.actionStackIndex].undo();
+		this.actionStackIndex--;
+	}
+
+	redo() {
+		if (this.actionStackIndex == this.actionStack.length - 1) {
+			return;
+		}
+		this.actionStackIndex++;
+		this.actionStack[this.actionStackIndex].redo();
 	}
 
 	keyReleased(event) {
@@ -234,6 +306,12 @@ class Board {
 	scrolled(event) {
 		console.log(event);
 		this.displayOffset = this.displayOffset.add2(event.deltaX, event.deltaY);
+	}
+
+	addAction(action) {
+		this.actionStackIndex++;
+		this.actionStack = this.actionStack.slice(0, this.actionStackIndex);
+		this.actionStack.push(action);
 	}
 
 	// returns a nodepart div's node

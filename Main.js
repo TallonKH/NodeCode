@@ -75,11 +75,6 @@ $(function() {
 						$(main.mainTabDiv).tabs("option", "active", event.which - 49);
 					}
 					break;
-				case 65: // select all
-					if(main.ctrlDown) {
-						main.activeBoard.selectAllNodes();
-					}
-					break;
 				case 219: // prev tab
 					if (main.ctrlDown) {
 						$(main.mainTabDiv).tabs("option", "active",$(main.mainTabDiv).tabs("option", "active")-1);
