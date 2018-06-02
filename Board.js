@@ -179,7 +179,7 @@ class Board {
 									}
 								}
 								cv.destroySelectionBox();
-							} else /* node drag complete */ {
+							} else /* node drag complete */ if(cv.clickStartTarget.classList.contains("nodepart")){
 								const pressedNode = cv.getDivNode(cv.clickStartTarget);
 								if (pressedNode.selected) {
 									cv.addAction(new ActMoveSelectedNodes(cv, cv.clickDelta));

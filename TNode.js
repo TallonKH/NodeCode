@@ -15,9 +15,13 @@ class TNode {
 
 		this.containerDiv = null;
 		this.nodeDiv = null;
+		this.bodyDiv = null;
+		this.centerDiv = null;
 		this.headerDiv = null;
 		this.inPinDiv = null;
+		this.inPinfoDiv = null;
 		this.outPinDiv = null;
+		this.outPinfoDiv = null;
 
 		this.selected = false;
 		this.position = new Point(0,0);
@@ -45,26 +49,44 @@ class TNode {
 		}
 	}
 
-	createNodeDiv(createHeader = true) {
+	createNodeDiv() {
 		this.containerDiv = document.createElement("span");
 		this.containerDiv.className = "container";
+
 		this.nodeDiv = document.createElement("div");
-		// this.nodeDiv.className = "draggable node ui-widget-content";
 		this.nodeDiv.className = "node nodepart";
 		this.nodeDiv.setAttribute("data-nodeid", this.nodeid);
-		let ndjq = $(this.nodeDiv)
 
-		if (createHeader) {
-			this.headerDiv = document.createElement("header");
-			this.headerDiv.className = "nodepart";
-			this.headerDiv.setAttribute("data-nodeid", this.nodeid);
-			this.headerDiv.innerHTML = this.displayName;
-			this.nodeDiv.append(this.headerDiv);
-		}
+		this.bodyDiv = document.createElement("div");
+		this.bodyDiv.className = "nodepart body";
+		this.bodyDiv.setAttribute("data-nodeid", this.nodeid);
 
+		this.nodeDiv.append(this.bodyDiv);
 		this.containerDiv.append(this.nodeDiv);
 
 		return this.containerDiv;
+	}
+
+	addHeader(text = this.displayName){
+		this.headerDiv = document.createElement("header");
+		this.headerDiv.className = "nodepart";
+		this.headerDiv.setAttribute("data-nodeid", this.nodeid);
+		this.headerDiv.innerHTML = this.displayName;
+		this.nodeDiv.append(this.headerDiv);
+	}
+
+	addCenter(text = null){
+		this.centerDiv = document.createElement("div");
+		this.centerDiv.className = "nodepart center";
+		this.centerDiv.setAttribute("data-nodeid", this.nodeid);
+		if(text){
+			const txt = document.createElement("div");
+			txt.className = "nodepart text";
+			txt.setAttribute("data-nodeid", this.nodeid);
+			txt.innerHTML = text;
+			this.centerDiv.append(txt);
+		}
+		this.bodyDiv.append(this.centerDiv);
 	}
 
 	addInPin(type){
@@ -72,18 +94,34 @@ class TNode {
 			this.inPinDiv = document.createElement("div");
 			this.inPinDiv.className = "inpins pins"
 			this.inPinDiv.setAttribute("data-nodeid", this.nodeid);
-			this.nodeDiv.append(this.inPinDiv);
+			this.bodyDiv.append(this.inPinDiv);
+
+			this.inPinfoDiv = document.createElement("div");
+			this.inPinfoDiv.className = "inpinfo pinfo"
+			this.inPinfoDiv.setAttribute("data-nodeid", this.nodeid);
+			this.bodyDiv.append(this.inPinfoDiv);
+
+			this.centerDiv.remove();
+			this.bodyDiv.append(this.centerDiv);
 		}
 
 		const pin = new type(this);
 	}
 
 	addOutPin(type){
-		if(this.outPinDiv){
+		if(this.outPinDiv == null){
 			this.outPinDiv = document.createElement("div");
 			this.outPinDiv.className = "outpins pins"
 			this.outPinDiv.setAttribute("data-nodeid", this.nodeid);
-			this.nodeDiv.append(this.outPinDiv);
+			this.bodyDiv.append(this.outPinDiv);
+
+			this.outPinfoDiv = document.createElement("div");
+			this.outPinfoDiv.className = "outpinfo pinfo"
+			this.outPinfoDiv.setAttribute("data-nodeid", this.nodeid);
+			this.bodyDiv.append(this.outPinfoDiv);
+
+			this.centerDiv.remove();
+			this.bodyDiv.append(this.centerDiv);
 		}
 
 		const pin = new type(this);
@@ -125,7 +163,25 @@ class StringNode extends TNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
+		// this.addHeader();
+		this.addCenter("“”");
+		this.addOutPin(Pin);
+		return this.containerDiv;
+	}
+}
 
+class AdditionNode extends TNode {
+	constructor(board) {
+		super(board, "Add");
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		// this.addHeader();
+		this.addCenter("+");
+		this.addOutPin(Pin);
+		this.addInPin(Pin);
+		this.addInPin(Pin);
 		return this.containerDiv;
 	}
 }
@@ -136,14 +192,16 @@ class CommentNode extends TNode {
 	}
 
 	createNodeDiv() {
-		super.createNodeDiv(true);
+		super.createNodeDiv();
+		this.addHeader();
+		this.addCenter();
 		this.makeResizable();
 		this.textArea = document.createElement("textarea");
 		this.textArea.setAttribute("data-nodeid", this.nodeid);
 		this.textArea.setAttribute("data-ovrdclick", "");
 		this.textArea.setAttribute("data-ovrdkeys", "");
 		this.textArea.style.resize = "none";
-		this.nodeDiv.append(this.textArea);
+		this.centerDiv.append(this.textArea);
 		return this.containerDiv;
 	}
 }

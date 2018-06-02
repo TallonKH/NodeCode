@@ -41,6 +41,7 @@ $(function() {
 
 	cvA.addNode(StringNode);
 	cvA.addNode(CommentNode);
+	cvA.addNode(AdditionNode);
 
 	document.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute('data-ovrdkeys');
