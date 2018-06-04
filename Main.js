@@ -127,12 +127,4 @@ $(function() {
 	};
 
 	$(main.mainTabDiv).tabs("option", "active", 0);
-	// $(window).scroll(function(event) {
-	// 	if (this.ctrlDown) {
-	// 		// changeZoom(event.deltaY, windowMousePos);
-	// 	} else {
-	// 	}
-	// 	event.preventDefault();
-	// 	return false;
-	// });
 });

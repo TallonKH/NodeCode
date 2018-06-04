@@ -6,11 +6,12 @@ class NBoard {
 		this.name = name;
 		this.id = "maintab-" + env.boardCount;
 		this.zoomCounter = 0;
-		this.zoomAmount = 0;
 		this.displayOffset = new NPoint(0, 0);
+		this.zoom = 1;
 
 		this.paneDiv = null;
 		this.boardDiv = null;
+		this.containerDiv = null;
 
 		this.nodes = {};
 		this.nodesPendingCreate = {};
@@ -41,6 +42,11 @@ class NBoard {
 	}
 
 	evntToPt(event) {
+		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60).subtractp(this.displayOffset).divide1(this.zoom);
+		return p;
+	}
+
+	evntToPtCV(event) {
 		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60);
 		return p;
 	}
@@ -55,7 +61,7 @@ class NBoard {
 				this.selectionBox.setAttribute('anti', true);
 			}
 			this.sBoxContainer.append(this.selectionBox);
-			this.boardDiv.append(this.sBoxContainer);
+			this.containerDiv.append(this.sBoxContainer);
 		}
 	}
 
@@ -179,14 +185,15 @@ class NBoard {
 									}
 								}
 								cv.destroySelectionBox();
-							} else /* node drag complete */ if(cv.clickStartTarget.classList.contains("nodepart")){
-								const pressedNode = cv.getDivNode(cv.clickStartTarget);
-								if (pressedNode.selected) {
-									cv.addAction(new ActMoveSelectedNodes(cv, cv.clickDelta));
-								} else {
-									cv.addAction(new ActMoveNodes(cv, cv.clickDelta, [pressedNode]));
+							} else /* node drag complete */
+								if (cv.clickStartTarget.classList.contains("nodepart")) {
+									const pressedNode = cv.getDivNode(cv.clickStartTarget);
+									if (pressedNode.selected) {
+										cv.addAction(new ActMoveSelectedNodes(cv, cv.clickDelta));
+									} else {
+										cv.addAction(new ActMoveNodes(cv, cv.clickDelta, [pressedNode]));
+									}
 								}
-							}
 						}
 						break;
 					}
@@ -247,6 +254,20 @@ class NBoard {
 			cv.lastMousePosition = cv.currentMouse;
 			return true;
 		}
+
+		this.boardDiv.onmousewheel = function(event) {
+			if (event.ctrlKey) {
+				const prevZoom = cv.zoom;
+				cv.zoomCounter += event.deltaY;
+				cv.zoomCounter = Math.min(171, Math.max(-219, cv.zoomCounter));
+				cv.zoom = Math.pow(1.0075, -cv.zoomCounter);
+				cv.displayOffset = cv.displayOffset.subtractp(cv.evntToPtCV(event).subtractp(cv.displayOffset).divide1(prevZoom).multiply1(cv.zoom - prevZoom))
+			} else {
+				cv.displayOffset = cv.displayOffset.subtract2(event.deltaX, event.deltaY);
+			}
+			cv.updateTransform();
+			return false;
+		}
 	}
 
 	keyPressed(event) {
@@ -273,8 +294,30 @@ class NBoard {
 					main.activeBoard.selectAllNodes();
 				}
 				break;
-
+			case 187:
+				if (main.ctrlDown) {
+					const prevZoom = this.zoom;
+					if (this.zoom < 5) {
+						this.zoom *= 1.2;
+					}
+					this.updateTransform();
+				}
+				break;
+			case 189:
+				if (main.ctrlDown) {
+					const prevZoom = this.zoom;
+					if (this.zoom > 0.28) {
+						this.zoom *= 0.8333333;
+					}
+					this.updateTransform();
+				}
+				break;
 		}
+	}
+
+	updateTransform() {
+		console.log(this.zoom);
+		this.containerDiv.style.transform = "translate(" + this.displayOffset.x + "px, " + this.displayOffset.y + "px) scale(" + this.zoom + ")";
 	}
 
 	undo() {
@@ -358,15 +401,6 @@ class NBoard {
 		}
 	}
 
-	changeZoom(change, center) {
-		const prevZoom = this.zoomAmount;
-		this.zoomCounter -= change;
-		this.zoomCounter = Math.max(Math.min(zoomCounter, 1000), -400);
-		this.zoomAmount = 1 + this.zoomCounter / 500;
-		diff = (this.zoomAmount - prevZoom);
-		this.viewportPos = this.viewportPos.addp(center.addp(this.viewportPos).divide1(prevZoom).multiply1(diff))
-	}
-
 	fixSize() {
 		const h = window.innerHeight - 90;
 		const w = window.innerWidth - 52;
@@ -407,6 +441,10 @@ class NBoard {
 		this.boardDiv.className = "board";
 		this.paneDiv.append(this.boardDiv);
 
+		this.containerDiv = document.createElement("div");
+		this.containerDiv.className = "container";
+		this.boardDiv.append(this.containerDiv);
+
 		this.addListeners();
 
 		return this.paneDiv;
@@ -415,7 +453,7 @@ class NBoard {
 	addNode(type) {
 		const node = new type(this);
 		const d = node.createNodeDiv();
-		this.boardDiv.append(d);
+		this.containerDiv.append(d);
 		this.nodes[node.nodeid] = node;
 		return node;
 	}

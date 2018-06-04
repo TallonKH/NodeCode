@@ -141,7 +141,7 @@ class NNode {
 
 	updatePosition(){
 		this.offset = new NPoint(this.containerDiv.offsetLeft, this.containerDiv.offsetTop);
-		this.offset = new NPoint(this.containerDiv.getBoundingClientRect().left, this.containerDiv.getBoundingClientRect().top);
+		// this.offset = new NPoint(this.containerDiv.getBoundingClientRect().left, this.containerDiv.getBoundingClientRect().top);
 		this.displayPosition = this.position.subtractp(this.offset);
 		this.nodeDiv.style.left = this.displayPosition.x + "px";
 		this.nodeDiv.style.top = this.displayPosition.y + "px";

@@ -12,6 +12,7 @@
 }
 
 .container {
+	transform-origin: 0px 0px;
 	position: relative;
 	overflow: visible;
 	pointer-events: painted;
@@ -155,6 +156,9 @@
 
 .tabpane {
 	background-color: #c5c5c5;
+	overflow: hidden;
+	width: calc(100%-30px);
+	height: 100%;
 	margin: 0px;
 	padding: 0px;
 }
@@ -295,8 +299,8 @@
 }
 
 .pinfo {
-	flex: 0 1;
-	background-color: #98989866;
+	flex: 0 1 0;
+	background-color: #98989800;
 	height: 100%;
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay), border-right var(--pinfo-transition-time) ease var(--pinfo-delay), border-left var(--pinfo-transition-time) ease var(--pinfo-delay), background-color var(--pinfo-transition-time) ease var(--pinfo-delay);
 	display: flex;
@@ -323,12 +327,12 @@
 
 .inpinfo {
 	order: 1;
-	border-right: 2px solid #98989800;
+	border-right: 0px solid #98989800;
 }
 
 .outpinfo {
 	order: 9;
-	border-left: 2px solid #98989800;
+	border-left: 0px solid #98989800;
 }
 
 .pins:hover+.inpinfo, .inpinfo[opened], .inpinfo:hover {
