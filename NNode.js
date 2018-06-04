@@ -7,7 +7,7 @@
 //	data-ovrdclick	:		if div should override click functionality (select/drag)
 //	data-ovrdkeys		:		if div should override keyboard functionality
 
-class TNode {
+class NNode {
 	constructor(board, displayName = "Unknode") {
 		this.displayName = displayName;
 		this.board = board;
@@ -18,15 +18,15 @@ class TNode {
 		this.bodyDiv = null;
 		this.centerDiv = null;
 		this.headerDiv = null;
-		this.inPinDiv = null;
+		this.inPinsDiv = null;
 		this.inPinfoDiv = null;
-		this.outPinDiv = null;
+		this.outPinsDiv = null;
 		this.outPinfoDiv = null;
 
 		this.selected = false;
-		this.position = new Point(0,0);
-		this.offset = new Point(0,0);
-		this.displayPosition = new Point(0,0);
+		this.position = new NPoint(0,0);
+		this.offset = new NPoint(0,0);
+		this.displayPosition = new NPoint(0,0);
 
 		this.nodeid = ~~(Math.random() * 4294967295) // generate random int as ID
 		this.inpins = {};
@@ -89,12 +89,14 @@ class TNode {
 		this.bodyDiv.append(this.centerDiv);
 	}
 
-	addInPin(type){
-		if(this.inPinDiv == null){
-			this.inPinDiv = document.createElement("div");
-			this.inPinDiv.className = "inpins pins"
-			this.inPinDiv.setAttribute("data-nodeid", this.nodeid);
-			this.bodyDiv.append(this.inPinDiv);
+	addInPin(pin){
+		pin.node == this;
+		pin.side = true;
+		if(this.inPinsDiv == null){
+			this.inPinsDiv = document.createElement("div");
+			this.inPinsDiv.className = "inpins pins"
+			this.inPinsDiv.setAttribute("data-nodeid", this.nodeid);
+			this.bodyDiv.append(this.inPinsDiv);
 
 			this.inPinfoDiv = document.createElement("div");
 			this.inPinfoDiv.className = "inpinfo pinfo"
@@ -104,16 +106,17 @@ class TNode {
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
-
-		const pin = new type(this);
+		this.inPinsDiv.append(pin.createPinDiv());
 	}
 
-	addOutPin(type){
-		if(this.outPinDiv == null){
-			this.outPinDiv = document.createElement("div");
-			this.outPinDiv.className = "outpins pins"
-			this.outPinDiv.setAttribute("data-nodeid", this.nodeid);
-			this.bodyDiv.append(this.outPinDiv);
+	addOutPin(pin){
+		pin.node = this;
+		pin.side = false;
+		if(this.outPinsDiv == null){
+			this.outPinsDiv = document.createElement("div");
+			this.outPinsDiv.className = "outpins pins"
+			this.outPinsDiv.setAttribute("data-nodeid", this.nodeid);
+			this.bodyDiv.append(this.outPinsDiv);
 
 			this.outPinfoDiv = document.createElement("div");
 			this.outPinfoDiv.className = "outpinfo pinfo"
@@ -123,8 +126,7 @@ class TNode {
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
-
-		const pin = new type(this);
+		this.outPinsDiv.append(pin.createPinDiv());
 	}
 
 	move(delta){
@@ -138,8 +140,8 @@ class TNode {
 	}
 
 	updatePosition(){
-		this.offset = new Point(this.containerDiv.offsetLeft, this.containerDiv.offsetTop);
-		this.offset = new Point(this.containerDiv.getBoundingClientRect().left, this.containerDiv.getBoundingClientRect().top);
+		this.offset = new NPoint(this.containerDiv.offsetLeft, this.containerDiv.offsetTop);
+		this.offset = new NPoint(this.containerDiv.getBoundingClientRect().left, this.containerDiv.getBoundingClientRect().top);
 		this.displayPosition = this.position.subtractp(this.offset);
 		this.nodeDiv.style.left = this.displayPosition.x + "px";
 		this.nodeDiv.style.top = this.displayPosition.y + "px";
@@ -148,15 +150,12 @@ class TNode {
 	// returns if node is within points
 	within(a,b){
 		const min = this.displayPosition;
-		const max = new Point(min.x + this.nodeDiv.clientWidth, min.y + this.nodeDiv.clientHeight);
-		console.log(this.displayName);
-		console.log(min);
-		console.log(max);
+		const max = new NPoint(min.x + this.nodeDiv.clientWidth, min.y + this.nodeDiv.clientHeight);
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
 }
 
-class StringNode extends TNode {
+class StringNode extends NNode {
 	constructor(board) {
 		super(board, "String");
 	}
@@ -165,12 +164,29 @@ class StringNode extends TNode {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("“”");
-		this.addOutPin(Pin);
+		this.addOutPin(new NPin("Value", false, NString));
 		return this.containerDiv;
 	}
 }
 
-class AdditionNode extends TNode {
+class SubstringNode extends NNode {
+	constructor(board) {
+		super(board, "Substring");
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader();
+		this.addCenter();
+		this.addInPin(new NPin("String", false, NString));
+		this.addInPin(new NPin("Start Index", false, NInteger));
+		this.addInPin(new NPin("End Index", false, NInteger));
+		this.addOutPin(new NPin("Substring", false, NString));
+		return this.containerDiv;
+	}
+}
+
+class AdditionNode extends NNode {
 	constructor(board) {
 		super(board, "Add");
 	}
@@ -179,14 +195,14 @@ class AdditionNode extends TNode {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("+");
-		this.addOutPin(Pin);
-		this.addInPin(Pin);
-		this.addInPin(Pin);
+		this.addInPin(new NPin("", false, NInteger, NDouble));
+		this.addInPin(new NPin("", false, NInteger, NDouble));
+		this.addOutPin(new NPin("Sum", false, NInteger, NDouble));
 		return this.containerDiv;
 	}
 }
 
-class CommentNode extends TNode {
+class CommentNode extends NNode {
 	constructor(board) {
 		super(board, "Comment");
 	}
@@ -201,6 +217,17 @@ class CommentNode extends TNode {
 		this.textArea.setAttribute("data-ovrdclick", "");
 		this.textArea.setAttribute("data-ovrdkeys", "");
 		this.textArea.style.resize = "none";
+		const tasty = this.textArea.style;
+		const cd = this.centerDiv;
+		$(this.nodeDiv).on("resize", function(e, ui){
+			let w = getComputedStyle(cd).width;
+			w = parseInt(w.substring(0,w.length-2));
+			let h = getComputedStyle(cd).height;
+			h = parseInt(h.substring(0,h.length-2));
+			tasty.width = w - 15 + "px";
+			tasty.height = h - 15 + "px";
+		})
+
 		this.centerDiv.append(this.textArea);
 		return this.containerDiv;
 	}

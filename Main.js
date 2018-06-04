@@ -12,7 +12,7 @@ class Main {
 	}
 
 	newBoard(name) {
-		const cv = new Board(this, name);
+		const cv = new NBoard(this, name);
 		this.mainTabDiv.append(cv.createPaneDiv());
 		this.mainTabListDiv.append(cv.createTabDiv());
 		$(this.mainTabDiv).tabs("refresh");
@@ -39,9 +39,9 @@ $(function() {
 	let cvB = main.newBoard("TEST B");
 	let cvC = main.newBoard("TEST C");
 
-	cvA.addNode(StringNode);
-	cvA.addNode(CommentNode);
-	cvA.addNode(AdditionNode);
+	cvA.addNode(StringNode).position = new NPoint(50,50);
+	cvA.addNode(SubstringNode).position = new NPoint(200,50);
+	cvA.addNode(AdditionNode).position = new NPoint(200,50);
 
 	document.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute('data-ovrdkeys');
@@ -126,6 +126,7 @@ $(function() {
 		return main.metaDown || event.target.hasAttribute('data-ovrdkeys');
 	};
 
+	$(main.mainTabDiv).tabs("option", "active", 0);
 	// $(window).scroll(function(event) {
 	// 	if (this.ctrlDown) {
 	// 		// changeZoom(event.deltaY, windowMousePos);

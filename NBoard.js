@@ -1,4 +1,4 @@
-class Board {
+class NBoard {
 	constructor(env, name) {
 		console.log("Created board " + name);
 		this.env = env;
@@ -7,7 +7,7 @@ class Board {
 		this.id = "maintab-" + env.boardCount;
 		this.zoomCounter = 0;
 		this.zoomAmount = 0;
-		this.displayOffset = new Point(0, 0);
+		this.displayOffset = new NPoint(0, 0);
 
 		this.paneDiv = null;
 		this.boardDiv = null;
@@ -22,8 +22,8 @@ class Board {
 
 		this.dragging = false;
 		this.selectionBox = null;
-		this.sboxMin = new Point(0, 0);
-		this.sboxMax = new Point(0, 0);
+		this.sboxMin = new NPoint(0, 0);
+		this.sboxMax = new NPoint(0, 0);
 
 		// mouse stuff
 		this.leftMDown = false;
@@ -31,17 +31,17 @@ class Board {
 		this.lastMouseButton = -1;
 		this.clickStartTarget = null;
 		this.clickEndTarget = null;
-		this.clickStart = new Point(0, 0);
-		this.clickEnd = new Point(0, 0);
-		this.clickDelta = new Point(0, 0);
+		this.clickStart = new NPoint(0, 0);
+		this.clickEnd = new NPoint(0, 0);
+		this.clickDelta = new NPoint(0, 0);
 		this.clickDistance = 0;
-		this.lastMousePosition = new Point(0, 0);
-		this.currentMouse = new Point(0, 0);
-		this.frameMouseDelta = new Point(0, 0);
+		this.lastMousePosition = new NPoint(0, 0);
+		this.currentMouse = new NPoint(0, 0);
+		this.frameMouseDelta = new NPoint(0, 0);
 	}
 
 	evntToPt(event) {
-		const p = new Point(event.clientX, event.clientY).subtract2(25, 60);
+		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60);
 		return p;
 	}
 
@@ -126,7 +126,7 @@ class Board {
 										cv.addAction(new ActToggleSelect(cv, [divNode]));
 										cv.toggleSelectNode(divNode); // TODO - get actual node from clickEndTarget
 									} else {
-										cv.addAction(new Macro(new ActDeselectAll(cv), new ActSelect(cv, [divNode])));
+										cv.addAction(new NMacro(new ActDeselectAll(cv), new ActSelect(cv, [divNode])));
 										cv.deselectAllNodes();
 										cv.selectNode(divNode);
 									}
@@ -161,7 +161,7 @@ class Board {
 										if (cv.env.shiftDown) {
 											cv.addAction(new ActSelect(cv, selectedNodes));
 										} else {
-											cv.addAction(new Macro(new ActDeselectAll(cv), new ActSelect(cv, selectedNodes)));
+											cv.addAction(new NMacro(new ActDeselectAll(cv), new ActSelect(cv, selectedNodes)));
 										}
 									} else {
 										if (!cv.env.shiftDown) {
@@ -213,8 +213,8 @@ class Board {
 				if (cv.clickStartTarget == cv.boardDiv) {
 					if (cv.clickDistance > 30) {
 						cv.makeSelectionBox(cv.clickStart);
-						cv.sboxMin = Point.prototype.min(cv.clickStart, cv.currentMouse);
-						cv.sboxMax = Point.prototype.max(cv.clickStart, cv.currentMouse);
+						cv.sboxMin = NPoint.prototype.min(cv.clickStart, cv.currentMouse);
+						cv.sboxMax = NPoint.prototype.max(cv.clickStart, cv.currentMouse);
 
 						const sboxMin = cv.sboxMin;
 						const sboxSize = cv.sboxMax.subtractp(cv.sboxMin);
@@ -417,7 +417,6 @@ class Board {
 		const d = node.createNodeDiv();
 		this.boardDiv.append(d);
 		this.nodes[node.nodeid] = node;
-		node.updatePosition();
 		return node;
 	}
 }

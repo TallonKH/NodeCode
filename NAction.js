@@ -1,4 +1,4 @@
-class Action {
+class NAction {
 	constructor(board) {
 		this.board = board;
 	}
@@ -6,7 +6,7 @@ class Action {
 	undo() {}
 }
 
-class Macro {
+class NMacro {
 	constructor(...actions) {
 		this.actions = actions;
 	}
@@ -23,7 +23,7 @@ class Macro {
 	}
 }
 
-class ActDeselectAll extends Action {
+class ActDeselectAll extends NAction {
 	constructor(board) {
 		super(board);
 		this.prevSelected = Object.values(board.selectedNodes);
@@ -38,7 +38,7 @@ class ActDeselectAll extends Action {
 	}
 }
 
-class ActSelectAll extends Action {
+class ActSelectAll extends NAction {
 	constructor(board) {
 		super(board);
 		this.prevSelected = Object.values(board.selectedNodes);
@@ -54,7 +54,7 @@ class ActSelectAll extends Action {
 	}
 }
 
-class ActSelect extends Action {
+class ActSelect extends NAction {
 	constructor(board, nodes) {
 		super(board);
 		this.nodes = nodes;
@@ -71,7 +71,7 @@ class ActSelect extends Action {
 	}
 }
 
-class ActDeselect extends Action {
+class ActDeselect extends NAction {
 	constructor(board, nodes) {
 		super(board);
 		this.nodes = nodes;
@@ -88,7 +88,7 @@ class ActDeselect extends Action {
 	}
 }
 
-class ActToggleSelect extends Action {
+class ActToggleSelect extends NAction {
 	constructor(board, nodes) {
 		super(board);
 		this.nodes = nodes;
@@ -104,7 +104,7 @@ class ActToggleSelect extends Action {
 	}
 }
 
-class ActMoveSelectedNodes extends Action {
+class ActMoveSelectedNodes extends NAction {
 	constructor(board, delta) {
 		super(board);
 		this.delta = delta;
@@ -124,7 +124,7 @@ class ActMoveSelectedNodes extends Action {
 	}
 }
 
-class ActMoveNodes extends Action {
+class ActMoveNodes extends NAction {
 	constructor(board, delta, nodes) {
 		super(board);
 		this.delta = delta;

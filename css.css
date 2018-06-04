@@ -1,8 +1,20 @@
 /* Generic */
 
+:root {
+	--pinfo-transition-time: 0.2s;
+	--pinfo-delay: 0.2s;
+}
+
 * {
 	font-family: "Roboto";
 	font-weight: 400;
+	/*overflow:visible !important;*/
+}
+
+.container {
+	position: relative;
+	overflow: visible;
+	pointer-events: painted;
 }
 
 /* JQuery Resizable */
@@ -200,9 +212,10 @@
 	position: absolute;
 	display: flex;
 	flex-direction: column;
+	transition: transform 2s;
 }
 
-.node>.body {
+.body {
 	display: flex;
 	height: 100%;
 	width: 100%;
@@ -223,7 +236,7 @@
 	background-color: #c1c1c144;
 	padding: 0em 0.3em;
 	height: 15px;
-	color: #00000000;
+	color: none;
 	transition: background-color 0.3s, color 0.3s, flex 0.3s, padding 0.3s;
 }
 
@@ -233,73 +246,97 @@
 	background-color: #9f9f9fcc;
 	color: #000000;
 	order: 0;
+	border-bottom: 2px solid #6b6b6b;
 }
 
-.node>.body>textarea {
+.center>textarea {
 	font-size: 15px;
 	overflow: scroll;
+	width: calc(100%-10px);
+	height: 35px;
+	border: none;
 	margin: 5px;
-	height: 100% width: 100%;
-	background-color: #00000000;
+	background-color: none;
 }
 
 /* Node Inner */
 
-.node>.body>.center {
+.center {
 	order: 5;
 	flex: 1 1;
 	overflow: hidden;
-	transition: flex 0.3s;
+	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
 }
 
-.node>.body>.center>.text {
+.center>.text {
 	text-align: center;
 	font-family: "Roboto";
 	font-weight: 800;
 	font-size: 50px;
-	margin: 5px;
+	/*margin: 5px;*/
+	height: 100%;
 	color: #bdbdbd;
 }
 
 /* Pins */
 
-.node>.body>.pins {
-	background-color: #c1c1c166;
+.pins {
+	background-color: #98989866;
 	flex: 0 0 15px;
 	height: 100%;
 	overflow: visible;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: space-around;
+	/* this fixes the outpins shaking */
+	-webkit-backface-visibility: hidden;
+	-webkit-transform: translateZ(0) scale(1.0, 1.0);
 }
 
-.node>.body>.pinfo {
+.pinfo {
 	flex: 0 1;
+	background-color: #98989866;
 	height: 100%;
-	transition: flex 0.3s;
+	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay), border-right var(--pinfo-transition-time) ease var(--pinfo-delay), border-left var(--pinfo-transition-time) ease var(--pinfo-delay), background-color var(--pinfo-transition-time) ease var(--pinfo-delay);
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
 }
-.node>.body>.pins:hover+.pinfo,
-.node>.body>.pinfo:hover {
-	background-color: #c1c1c1aa;
+
+.pins:hover+.pinfo, .pinfo[opened], .pinfo:hover {
+	background-color: #98989866;
 	flex: 1 0;
 }
 
-.node>.body>.pins:hover~.center,
-.node>.body>.pinfo:hover~.center {
+.pins:hover~.center, .pinfo[opened]~.center, .pinfo:hover~.center {
 	flex: 0 1;
 }
 
-.node>.body>.inpins {
+.inpins {
 	order: 0;
 }
 
-.node>.body>.inpinfo {
-	order: 1;
-}
-
-.node>.body>.outpinfo {
-	order: 9;
-}
-
-.node>.body>.outpins {
+.outpins {
 	order: 10;
+}
+
+.inpinfo {
+	order: 1;
+	border-right: 2px solid #98989800;
+}
+
+.outpinfo {
+	order: 9;
+	border-left: 2px solid #98989800;
+}
+
+.pins:hover+.inpinfo, .inpinfo[opened], .inpinfo:hover {
+	border-right: 2px solid #6b6b6b;
+}
+
+.pins:hover+.outpinfo, .outpinfo[opened], .outpinfo:hover {
+	border-left: 2px solid #6b6b6b;
 }
 
 /* Selection Box */
@@ -316,11 +353,22 @@
 	border: 3px solid #fc000088;
 }
 
-/* Pins */
+/* Pin */
 
-.pin {}
+.pin {
+	border: 2px solid #00000011;
+	background-position: 0px -5px;
+	border-radius: 50px;
+	width: 9px;
+	height: 9px;
+}
 
-.container {
-	position: relative;
-	pointer-events: painted;
+.pin:hover, .pin[active] {
+	border: 2px solid #f8ff77 !important;
+}
+
+.outpin {
+}
+
+.inpin {
 }
