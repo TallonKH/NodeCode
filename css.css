@@ -8,7 +8,6 @@
 * {
 	font-family: "Roboto";
 	font-weight: 400;
-	/*overflow:visible !important;*/
 }
 
 .container {
@@ -128,11 +127,12 @@
 .ui-tabs .ui-tabs-nav li a {
 	display: block;
 	float: left;
-	padding: .5em 1em;
+	padding: 8px;
 	text-overflow: ellipsis;
 	overflow: hidden;
 	max-width: 150px;
 	min-width: 25px;
+	height: 19px;
 	text-decoration: none;
 }
 
@@ -154,17 +154,26 @@
 	display: none !important;
 }
 
-.tabpane {
-	background-color: #c5c5c5;
-	overflow: hidden;
-	width: calc(100%-30px);
+html {
 	height: 100%;
-	margin: 0px;
-	padding: 0px;
+}
+
+body {
+	margin: 10px;
+	height: calc(100% - 20px);
 }
 
 .tabs {
 	background-color: #ececec;
+	height: calc(100% - 20px);
+}
+
+.tabpane {
+	height: calc(100% - 54px);
+	background-color: #c5c5c5;
+	overflow: hidden;
+	margin: 0px;
+	padding: 0px;
 }
 
 .tab>a {
@@ -182,26 +191,28 @@
 	background-color: #c5c5c5;
 }
 
-/* Draggables */
-
-/*.draggable {
-	cursor: grab;
-}*/
+/* board */
 
 .board {
 	/*background-color: #323232;*/
 	background-color: #ffffff;
-	min-width: 500px;
-	min-height: 750px;
-	width: inherit;
-	height: inherit;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
+	padding: 0px;
+	margin: 0px;
 	-webkit-touch-callout: none;
 	-webkit-user-select: none;
 	-khtml-user-select: none;
 	-moz-user-select: none;
 	-ms-user-select: none;
 	user-select: none;
+}
+
+canvas {
+	pointer-events: none;
+	width: 100%;
+	height: 100%;
 }
 
 /* Node */
@@ -371,8 +382,6 @@
 	border: 2px solid #f8ff77 !important;
 }
 
-.outpin {
-}
+.outpin {}
 
-.inpin {
-}
+.inpin {}

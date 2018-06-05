@@ -90,8 +90,13 @@ class NNode {
 	}
 
 	addInPin(pin){
+		if(this.inpins[pin.name]){
+			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
+			return false;
+		}
 		pin.node == this;
 		pin.side = true;
+		this.inpins[pin.name] = pin;
 		if(this.inPinsDiv == null){
 			this.inPinsDiv = document.createElement("div");
 			this.inPinsDiv.className = "inpins pins"
@@ -110,8 +115,13 @@ class NNode {
 	}
 
 	addOutPin(pin){
+		if(this.outpins[pin.name]){
+			console.log("An outpin with the name '" + pin.name + "' already exists on this node!");
+			return false;
+		}
 		pin.node = this;
 		pin.side = false;
+		this.outpins[pin.name] = pin;
 		if(this.outPinsDiv == null){
 			this.outPinsDiv = document.createElement("div");
 			this.outPinsDiv.className = "outpins pins"
@@ -145,6 +155,7 @@ class NNode {
 		this.displayPosition = this.position.subtractp(this.offset);
 		this.nodeDiv.style.left = this.displayPosition.x + "px";
 		this.nodeDiv.style.top = this.displayPosition.y + "px";
+		this.board.redraw();
 	}
 
 	// returns if node is within points
@@ -195,8 +206,8 @@ class AdditionNode extends NNode {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("+");
-		this.addInPin(new NPin("", false, NInteger, NDouble));
-		this.addInPin(new NPin("", false, NInteger, NDouble));
+		this.addInPin(new NPin("_", false, NInteger, NDouble));
+		this.addInPin(new NPin("__", false, NInteger, NDouble));
 		this.addOutPin(new NPin("Sum", false, NInteger, NDouble));
 		return this.containerDiv;
 	}

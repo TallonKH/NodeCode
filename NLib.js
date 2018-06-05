@@ -76,3 +76,28 @@ class NPoint {
 		return new NPoint(Math.max(a.x,b.x), Math.max(a.y,b.y));
 	}
 }
+
+divPos = function(div){
+	const rect = div.getBoundingClientRect();
+	return new NPoint(rect.left, rect.top);
+}
+
+divCenter = function(div){
+	const rect = div.getBoundingClientRect();
+	return new NPoint((rect.left + rect.right)/2, (rect.top + rect.bottom)/2);
+}
+
+avgHex = function(...colors){
+	let avgr = 0;
+	let avgg = 0;
+	let avgb = 0;
+	for (const color of colors){
+		avgr += parseInt(color.substring(1,3),16);
+		avgg += parseInt(color.substring(3,5),16);
+		avgb += parseInt(color.substring(5,7),16);
+	}
+	avgr = Math.max(Math.trunc(avgr/colors.length - 20), 0).toString(16);
+	avgg = Math.max(Math.trunc(avgg/colors.length - 20), 0).toString(16);
+	avgb = Math.max(Math.trunc(avgb/colors.length - 20), 0).toString(16);
+	return "#" + avgr + avgg + avgb;
+}

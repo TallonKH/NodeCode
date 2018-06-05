@@ -1,3 +1,4 @@
+const TAU = 2 * Math.PI;
 class Main {
 	constructor() {
 		this.mainTabListDiv;
@@ -12,14 +13,14 @@ class Main {
 	}
 
 	newBoard(name) {
-		const cv = new NBoard(this, name);
-		this.mainTabDiv.append(cv.createPaneDiv());
-		this.mainTabListDiv.append(cv.createTabDiv());
+		const brd = new NBoard(this, name);
+		this.mainTabDiv.append(brd.createPaneDiv());
+		this.mainTabListDiv.append(brd.createTabDiv());
 		$(this.mainTabDiv).tabs("refresh");
-		this.boards.push(cv);
-		cv.fixSize();
-		this.activeBoard = cv;
-		return cv;
+		this.boards.push(brd);
+		brd.fixSize();
+		this.activeBoard = brd;
+		return brd;
 	}
 }
 
@@ -35,13 +36,13 @@ $(function() {
 		}
 	});
 
-	let cvA = main.newBoard("TEST A");
-	let cvB = main.newBoard("TEST B");
-	let cvC = main.newBoard("TEST C");
+	let brdA = main.newBoard("TEST A");
+	let brdB = main.newBoard("TEST B");
+	let brdC = main.newBoard("TEST C");
 
-	cvA.addNode(StringNode).position = new NPoint(50,50);
-	cvA.addNode(SubstringNode).position = new NPoint(200,50);
-	cvA.addNode(AdditionNode).position = new NPoint(200,50);
+	brdA.addNode(StringNode).position = new NPoint(50,50);
+	brdA.addNode(SubstringNode).position = new NPoint(200,50);
+	brdA.addNode(AdditionNode).position = new NPoint(200,50);
 
 	document.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute('data-ovrdkeys');

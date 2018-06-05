@@ -11,6 +11,7 @@ class NBoard {
 
 		this.paneDiv = null;
 		this.boardDiv = null;
+		this.canvasDiv = null;
 		this.containerDiv = null;
 
 		this.nodes = {};
@@ -46,7 +47,7 @@ class NBoard {
 		return p;
 	}
 
-	evntToPtCV(event) {
+	evntToPtBrd(event) {
 		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60);
 		return p;
 	}
@@ -74,18 +75,18 @@ class NBoard {
 	}
 
 	addListeners() {
-		const cv = this;
+		const brd = this;
 		this.boardDiv.onmousedown = function(event) {
-			cv.lastMouseButton = event.which;
-			cv.clickStart = cv.evntToPt(event);
-			cv.clickStartTarget = event.target;
-			cv.clickDistance = 0;
+			brd.lastMouseButton = event.which;
+			brd.clickStart = brd.evntToPt(event);
+			brd.clickStartTarget = event.target;
+			brd.clickDistance = 0;
 			// Left mouse button
 
 			switch (event.which) {
 				case 1:
 					{
-						cv.leftMDown = true;
+						brd.leftMDown = true;
 						break;
 					}
 				case 2:
@@ -94,7 +95,7 @@ class NBoard {
 					}
 				case 3:
 					{
-						cv.rightMDown = true;
+						brd.rightMDown = true;
 					}
 			}
 
@@ -104,94 +105,94 @@ class NBoard {
 		this.boardDiv.onmouseup = function(event) {
 			const button = event.which;
 			// Left mouse button
-			cv.clickEnd = cv.evntToPt(event);
-			cv.clickDelta = cv.clickEnd.subtractp(cv.clickStart);
-			cv.clickEndTarget = event.target;
+			brd.clickEnd = brd.evntToPt(event);
+			brd.clickDelta = brd.clickEnd.subtractp(brd.clickStart);
+			brd.clickEndTarget = event.target;
 			switch (button) {
 				case 1: // LEFT MOUSE
 					{
-						cv.leftMDown = false;
+						brd.leftMDown = false;
 						// Click (no drag) logic
-						if (cv.clickDistance <= 30) {
+						if (brd.clickDistance <= 30) {
 							// clicked board
-							if (cv.clickStartTarget == cv.boardDiv) {
-								if (Object.keys(cv.selectedNodes).length > 0) {
-									cv.addAction(new ActDeselectAll(cv));
-									cv.deselectAllNodes();
+							if (brd.clickStartTarget == brd.boardDiv) {
+								if (Object.keys(brd.selectedNodes).length > 0) {
+									brd.addAction(new ActDeselectAll(brd));
+									brd.deselectAllNodes();
 								}
 							} else /* Non-board click logic */ {
-								const upTargetClasses = cv.clickStartTarget.classList;
+								const upTargetClasses = brd.clickStartTarget.classList;
 
 								// click selection logic
 								if (upTargetClasses.contains("nodepart")) {
-									const divNode = cv.getDivNode(cv.clickEndTarget);
-									if (cv.env.shiftDown) {
-										cv.addAction(new ActSelect(cv, [divNode]));
-										cv.selectNode(divNode);
-									} else if (cv.env.altDown) {
-										cv.addAction(new ActToggleSelect(cv, [divNode]));
-										cv.toggleSelectNode(divNode); // TODO - get actual node from clickEndTarget
+									const divNode = brd.getDivNode(brd.clickEndTarget);
+									if (brd.env.shiftDown) {
+										brd.addAction(new ActSelect(brd, [divNode]));
+										brd.selectNode(divNode);
+									} else if (brd.env.altDown) {
+										brd.addAction(new ActToggleSelect(brd, [divNode]));
+										brd.toggleSelectNode(divNode); // TODO - get actual node from clickEndTarget
 									} else {
-										cv.addAction(new NMacro(new ActDeselectAll(cv), new ActSelect(cv, [divNode])));
-										cv.deselectAllNodes();
-										cv.selectNode(divNode);
+										brd.addAction(new NMacro(new ActDeselectAll(brd), new ActSelect(brd, [divNode])));
+										brd.deselectAllNodes();
+										brd.selectNode(divNode);
 									}
 								}
 							}
 						} else /* mouse moved */ {
 							// selection box confirmed
-							if (cv.clickStartTarget == cv.boardDiv) {
-								if (cv.env.altDown) {
+							if (brd.clickStartTarget == brd.boardDiv) {
+								if (brd.env.altDown) {
 									// deselect in box
 									const deselectedNodes = [];
-									for (const nodeid in cv.selectedNodes) {
-										const node = cv.nodes[nodeid];
-										if (node.within(cv.sboxMin, cv.sboxMax)) {
+									for (const nodeid in brd.selectedNodes) {
+										const node = brd.nodes[nodeid];
+										if (node.within(brd.sboxMin, brd.sboxMax)) {
 											deselectedNodes.push(node);
-											cv.deselectNode(node);
+											brd.deselectNode(node);
 										}
 									}
 									if (deselectedNodes.length > 0) {
-										cv.addAction(new ActDeselect(cv, deselectedNodes));
+										brd.addAction(new ActDeselect(brd, deselectedNodes));
 									}
 								} else {
 									const selectedNodes = [];
-									for (const nodeid in cv.nodes) {
-										const node = cv.nodes[nodeid];
-										if (node.within(cv.sboxMin, cv.sboxMax)) {
+									for (const nodeid in brd.nodes) {
+										const node = brd.nodes[nodeid];
+										if (node.within(brd.sboxMin, brd.sboxMax)) {
 											selectedNodes.push(node);
 										}
 									}
 
 									if (selectedNodes.length > 0) {
-										if (cv.env.shiftDown) {
-											cv.addAction(new ActSelect(cv, selectedNodes));
+										if (brd.env.shiftDown) {
+											brd.addAction(new ActSelect(brd, selectedNodes));
 										} else {
-											cv.addAction(new NMacro(new ActDeselectAll(cv), new ActSelect(cv, selectedNodes)));
+											brd.addAction(new NMacro(new ActDeselectAll(brd), new ActSelect(brd, selectedNodes)));
 										}
 									} else {
-										if (!cv.env.shiftDown) {
-											cv.addAction(new ActDeselectAll(cv));
+										if (!brd.env.shiftDown) {
+											brd.addAction(new ActDeselectAll(brd));
 										}
 									}
 
 									// deselect all if shift isn't down
-									if (!cv.env.shiftDown) {
-										cv.deselectAllNodes();
+									if (!brd.env.shiftDown) {
+										brd.deselectAllNodes();
 									}
 
 									for (const node of selectedNodes) {
-										cv.selectNode(node);
+										brd.selectNode(node);
 									}
 								}
-								cv.destroySelectionBox();
+								brd.destroySelectionBox();
 							} else /* node drag complete */
-								if (cv.clickStartTarget.classList.contains("nodepart")) {
-									const pressedNode = cv.getDivNode(cv.clickStartTarget);
+								if (brd.clickStartTarget.classList.contains("nodepart")) {
+									const pressedNode = brd.getDivNode(brd.clickStartTarget);
 									if (pressedNode.selected) {
-										cv.addAction(new ActMoveSelectedNodes(cv, cv.clickDelta));
+										brd.addAction(new ActMoveSelectedNodes(brd, brd.clickDelta));
 									} else {
-										cv.addAction(new ActMoveNodes(cv, cv.clickDelta, [pressedNode]));
+										brd.addAction(new ActMoveNodes(brd, brd.clickDelta, [pressedNode]));
 									}
 								}
 						}
@@ -203,7 +204,7 @@ class NBoard {
 					}
 				case 3: // RIGHT MOUSE
 					{
-						cv.rightMDown = false;
+						brd.rightMDown = false;
 					}
 			}
 
@@ -211,61 +212,61 @@ class NBoard {
 		};
 
 		this.boardDiv.onmousemove = function(event) {
-			cv.currentMouse = cv.evntToPt(event);
-			cv.frameMouseDelta = cv.currentMouse.subtractp(cv.lastMousePosition);
-			cv.clickDistance += cv.frameMouseDelta.lengthSquared();
+			brd.currentMouse = brd.evntToPt(event);
+			brd.frameMouseDelta = brd.currentMouse.subtractp(brd.lastMousePosition);
+			brd.clickDistance += brd.frameMouseDelta.lengthSquared();
 
 			// click & drag on board
-			if (cv.leftMDown) {
-				if (cv.clickStartTarget == cv.boardDiv) {
-					if (cv.clickDistance > 30) {
-						cv.makeSelectionBox(cv.clickStart);
-						cv.sboxMin = NPoint.prototype.min(cv.clickStart, cv.currentMouse);
-						cv.sboxMax = NPoint.prototype.max(cv.clickStart, cv.currentMouse);
+			if (brd.leftMDown) {
+				if (brd.clickStartTarget == brd.boardDiv) {
+					if (brd.clickDistance > 30) {
+						brd.makeSelectionBox(brd.clickStart);
+						brd.sboxMin = NPoint.prototype.min(brd.clickStart, brd.currentMouse);
+						brd.sboxMax = NPoint.prototype.max(brd.clickStart, brd.currentMouse);
 
-						const sboxMin = cv.sboxMin;
-						const sboxSize = cv.sboxMax.subtractp(cv.sboxMin);
-						cv.selectionBox.style.left = sboxMin.x + "px";
-						cv.selectionBox.style.top = sboxMin.y + "px";
-						cv.selectionBox.style.width = sboxSize.x + "px";
-						cv.selectionBox.style.height = sboxSize.y + "px";
+						const sboxMin = brd.sboxMin;
+						const sboxSize = brd.sboxMax.subtractp(brd.sboxMin);
+						brd.selectionBox.style.left = sboxMin.x + "px";
+						brd.selectionBox.style.top = sboxMin.y + "px";
+						brd.selectionBox.style.width = sboxSize.x + "px";
+						brd.selectionBox.style.height = sboxSize.y + "px";
 					}
 
 				} else /* click & drag elsewhere */ {
-					const upTargetClasses = cv.clickStartTarget.classList;
+					const upTargetClasses = brd.clickStartTarget.classList;
 
 					// drag on node
 					if (upTargetClasses.contains("nodepart")) {
-						const pressedNode = cv.getDivNode(cv.clickStartTarget);
+						const pressedNode = brd.getDivNode(brd.clickStartTarget);
 
 						// drag on selected nodes
 						if (pressedNode.selected) {
-							for (const sNodeID in cv.selectedNodes) {
-								const selectedNode = cv.selectedNodes[sNodeID];
-								selectedNode.move(cv.frameMouseDelta);
+							for (const sNodeID in brd.selectedNodes) {
+								const selectedNode = brd.selectedNodes[sNodeID];
+								selectedNode.move(brd.frameMouseDelta);
 							}
 						} else /* drag on unselected node */ {
-							pressedNode.move(cv.frameMouseDelta);
+							pressedNode.move(brd.frameMouseDelta);
 						}
 					}
 				}
 			}
 
-			cv.lastMousePosition = cv.currentMouse;
+			brd.lastMousePosition = brd.currentMouse;
 			return true;
 		}
 
 		this.boardDiv.onmousewheel = function(event) {
 			if (event.ctrlKey) {
-				const prevZoom = cv.zoom;
-				cv.zoomCounter += event.deltaY;
-				cv.zoomCounter = Math.min(171, Math.max(-219, cv.zoomCounter));
-				cv.zoom = Math.pow(1.0075, -cv.zoomCounter);
-				cv.displayOffset = cv.displayOffset.subtractp(cv.evntToPtCV(event).subtractp(cv.displayOffset).divide1(prevZoom).multiply1(cv.zoom - prevZoom))
+				const prevZoom = brd.zoom;
+				brd.zoomCounter += event.deltaY;
+				brd.zoomCounter = Math.min(171, Math.max(-219, brd.zoomCounter));
+				brd.zoom = Math.pow(1.0075, -brd.zoomCounter);
+				brd.displayOffset = brd.displayOffset.subtractp(brd.evntToPtBrd(event).subtractp(brd.displayOffset).divide1(prevZoom).multiply1(brd.zoom - prevZoom))
 			} else {
-				cv.displayOffset = cv.displayOffset.subtract2(event.deltaX, event.deltaY);
+				brd.displayOffset = brd.displayOffset.subtract2(event.deltaX, event.deltaY);
 			}
-			cv.updateTransform();
+			brd.updateTransform();
 			return false;
 		}
 	}
@@ -316,8 +317,8 @@ class NBoard {
 	}
 
 	updateTransform() {
-		console.log(this.zoom);
 		this.containerDiv.style.transform = "translate(" + this.displayOffset.x + "px, " + this.displayOffset.y + "px) scale(" + this.zoom + ")";
+		this.redraw();
 	}
 
 	undo() {
@@ -347,7 +348,6 @@ class NBoard {
 	}
 
 	scrolled(event) {
-		console.log(event);
 		this.displayOffset = this.displayOffset.add2(event.deltaX, event.deltaY);
 	}
 
@@ -435,7 +435,7 @@ class NBoard {
 		this.paneDiv = document.createElement("div");
 		this.paneDiv.className = "tabpane";
 		this.paneDiv.id = this.id;
-		let cv = this;
+		let brd = this;
 
 		this.boardDiv = document.createElement("div");
 		this.boardDiv.className = "board";
@@ -445,9 +445,56 @@ class NBoard {
 		this.containerDiv.className = "container";
 		this.boardDiv.append(this.containerDiv);
 
+		this.canvasDiv = document.createElement("canvas");
+		this.boardDiv.append(this.canvasDiv);
+
 		this.addListeners();
 
 		return this.paneDiv;
+	}
+
+	redraw() {
+		this.canvasDiv.width = this.canvasDiv.clientWidth;
+		this.canvasDiv.height = this.canvasDiv.clientHeight;
+		window.requestAnimationFrame(this.draw.bind(this));
+	}
+
+	draw() {
+		const ctx = this.canvasDiv.getContext("2d");
+		const cvOffset = divPos(this.canvasDiv);
+
+		for (const node1id in this.nodes) {
+			for (const node2id in this.nodes) {
+				if (node1id == node2id) {
+					continue;
+				}
+				const node1 = this.nodes[node1id];
+				const node2 = this.nodes[node2id];
+
+				for (const inpinid in node1.inpins) {
+					for (const outpinid in node2.outpins) {
+						const inpin = node1.inpins[inpinid];
+						const outpin = node2.outpins[outpinid];
+
+						const inl = divCenter(inpin.pinDiv).subtractp(cvOffset);
+						const outl = divCenter(outpin.pinDiv).subtractp(cvOffset);
+
+						ctx.lineWidth = 4 * this.zoom;
+
+						const grad = ctx.createLinearGradient(inl.x, inl.y, outl.x, outl.y);
+						grad.addColorStop("0", inpin.color);
+						grad.addColorStop("1.0", outpin.color);
+						ctx.strokeStyle = grad;
+
+						ctx.beginPath();
+						ctx.moveTo(inl.x, inl.y);
+						const splineDist = Math.abs(inl.y - outl.y)/2;
+						ctx.bezierCurveTo(inl.x - splineDist, inl.y, outl.x + splineDist, outl.y, outl.x, outl.y);
+						ctx.stroke();
+					}
+				}
+			}
+		}
 	}
 
 	addNode(type) {

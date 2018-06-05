@@ -11,9 +11,11 @@ class NPin {
 		if (types.length == 1) {
 			this.type = types[0];
 			this.types = null;
+			this.color = types[0].color;
 		} else {
 			this.type = null;
 			this.types = types;
+			this.color = avgHex(...types.map(x=>x.color));
 		}
 
 		this.pinDiv = null;
@@ -65,31 +67,20 @@ class NPin {
 		this.pinDiv = document.createElement("div");
 		this.pinDiv.className = this.side ? "outpin pin" : "inpin pin";
 		if(this.multiTyped){
-			const end = this.types.length-1;
-			const percent = (100.0 / this.types.length);
-			let args = this.types[0].color + ", " + this.types[0].color + " " + percent + "%";
+			const colors = this.types.map(x=>x.color);
+			const end = colors.length-1;
+			const percent = (100.0 / colors.length);
+			let args = colors[0] + ", " + colors[0] + " " + percent + "%";
 			for(let i=1; i<end; i++){
 				const pc = percent * i;
-				args += ", " + this.types[i].color + " " + pc + "%, " + this.types[i+1].color + " " + pc + "%";
+				args += ", " + colors[i] + " " + pc + "%, " + colors[i+1] + " " + pc + "%";
 			}
-			args += ", " + this.types[end].color + " " + percent * end + "%";
+			args += ", " + colors[end] + " " + percent * end + "%";
 			this.pinDiv.style.background = "linear-gradient(" + args + ")";
 
-			let avgr = 0;
-			let avgg = 0;
-			let avgb = 0;
-			for (const type of this.types){
-				avgr += parseInt(type.color.substring(1,3),16);
-				avgg += parseInt(type.color.substring(3,5),16);
-				avgb += parseInt(type.color.substring(5,7),16);
-			}
-			avgr = Math.max(Math.trunc(avgr/this.types.length - 20), 0).toString(16);
-			avgg = Math.max(Math.trunc(avgg/this.types.length - 20), 0).toString(16);
-			avgb = Math.max(Math.trunc(avgb/this.types.length - 20), 0).toString(16);
-			console.log("2px solid #" + avgr + avgg + avgb);
-			this.pinDiv.style.border = "2px solid #" + avgr + avgg + avgb;
+			this.pinDiv.style.border = "2px solid " + this.color;
 		}else{
-			this.pinDiv.style.backgroundColor = this.type.color;
+			this.pinDiv.style.backgroundColor = this.color;
 		}
 		return this.pinDiv;
 	}
