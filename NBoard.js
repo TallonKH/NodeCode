@@ -488,7 +488,8 @@ class NBoard {
 
 						ctx.beginPath();
 						ctx.moveTo(inl.x, inl.y);
-						const splineDist = Math.abs(inl.y - outl.y)/2;
+						const yDiff = Math.abs(inl.y - outl.y)/2 + Math.abs((inl.x-outl.x))/4;
+						let splineDist = yDiff;
 						ctx.bezierCurveTo(inl.x - splineDist, inl.y, outl.x + splineDist, outl.y, outl.x, outl.y);
 						ctx.stroke();
 					}

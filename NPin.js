@@ -1,10 +1,11 @@
+const reTrailing = /[,._\s]+$/;
 class NPin {
 	constructor(name, byRef, ...types) {
 		this.node = null;
 		this.side = null;
 		this.name = name;
 		this.byRef = byRef;
-		if(types.length == 0){
+		if (types.length == 0) {
 			types = [NObject];
 		}
 		this.multiTyped = types.length > 1;
@@ -15,10 +16,11 @@ class NPin {
 		} else {
 			this.type = null;
 			this.types = types;
-			this.color = avgHex(...types.map(x=>x.color));
+			this.color = avgHex(...types.map(x => x.color));
 		}
 
 		this.pinDiv = null;
+		this.pinfoDiv = null;
 	}
 
 	canPlugInto(otherPin) {
@@ -66,22 +68,35 @@ class NPin {
 	createPinDiv() {
 		this.pinDiv = document.createElement("div");
 		this.pinDiv.className = this.side ? "outpin pin" : "inpin pin";
-		if(this.multiTyped){
-			const colors = this.types.map(x=>x.color);
-			const end = colors.length-1;
+		if (this.multiTyped) {
+			const colors = this.types.map(x => x.color);
+			const end = colors.length - 1;
 			const percent = (100.0 / colors.length);
 			let args = colors[0] + ", " + colors[0] + " " + percent + "%";
-			for(let i=1; i<end; i++){
+			for (let i = 1; i < end; i++) {
 				const pc = percent * i;
-				args += ", " + colors[i] + " " + pc + "%, " + colors[i+1] + " " + pc + "%";
+				args += ", " + colors[i] + " " + pc + "%, " + colors[i + 1] + " " + pc + "%";
 			}
 			args += ", " + colors[end] + " " + percent * end + "%";
 			this.pinDiv.style.background = "linear-gradient(" + args + ")";
 
 			this.pinDiv.style.border = "2px solid " + this.color;
-		}else{
+		} else {
 			this.pinDiv.style.backgroundColor = this.color;
 		}
 		return this.pinDiv;
+	}
+
+	createPinfoDiv(name = this.name.replace(reTrailing, "")) {
+		this.pinfoDiv = document.createElement("div");
+		this.pinfoDiv.className = "pinfo " + (this.side ? "inpinfo" : "outpinfo");
+		if (name) {
+			const text = document.createElement("div");
+			text.className = "text";
+			text.innerHTML = name;
+			text.style.color = darkenHex(this.color, 50);
+			this.pinfoDiv.append(text);
+		}
+		return this.pinfoDiv;
 	}
 }

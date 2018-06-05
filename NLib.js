@@ -101,3 +101,13 @@ avgHex = function(...colors){
 	avgb = Math.max(Math.trunc(avgb/colors.length - 20), 0).toString(16);
 	return "#" + avgr + avgg + avgb;
 }
+
+darkenHex = function(color, amt){
+		let r = parseInt(color.substring(1,3),16);
+		let g = parseInt(color.substring(3,5),16);
+		let b = parseInt(color.substring(5,7),16);
+	r = Math.max(Math.trunc(r)-amt, 0).toString(16);
+	g = Math.max(Math.trunc(g)-amt, 0).toString(16);
+	b = Math.max(Math.trunc(b)-amt, 0).toString(16);
+	return "#" + r + g + b;
+}

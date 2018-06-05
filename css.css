@@ -309,22 +309,42 @@ canvas {
 	-webkit-transform: translateZ(0) scale(1.0, 1.0);
 }
 
-.pinfo {
+.pinfos {
 	flex: 0 1 0;
 	background-color: #98989800;
 	height: 100%;
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay), border-right var(--pinfo-transition-time) ease var(--pinfo-delay), border-left var(--pinfo-transition-time) ease var(--pinfo-delay), background-color var(--pinfo-transition-time) ease var(--pinfo-delay);
 	display: flex;
 	flex-direction: column;
+	overflow: hidden;
 	justify-content: space-around;
 }
 
-.pins:hover+.pinfo, .pinfo[opened], .pinfo:hover {
-	background-color: #98989866;
+.pinfo {
+	height: 12px;
+	position: relative;
+}
+
+.pinfo>.text {
+	margin: -2.5px 4px 0px 4px;
+	font-size: 14px;
+	display: block;
+}
+
+.inpinfo>.text {
+	text-align: left;
+}
+
+.outpinfo>.text {
+	text-align: right;
+}
+
+.pins:hover+.pinfos, .pinfos[opened], .pinfos:hover {
+	background-color: #bebebe66;
 	flex: 1 0;
 }
 
-.pins:hover~.center, .pinfo[opened]~.center, .pinfo:hover~.center {
+.pins:hover~.center, .pinfos[opened]~.center, .pinfos:hover~.center {
 	flex: 0 1;
 }
 
@@ -336,21 +356,21 @@ canvas {
 	order: 10;
 }
 
-.inpinfo {
+.inpinfos {
 	order: 1;
 	border-right: 0px solid #98989800;
 }
 
-.outpinfo {
+.outpinfos {
 	order: 9;
 	border-left: 0px solid #98989800;
 }
 
-.pins:hover+.inpinfo, .inpinfo[opened], .inpinfo:hover {
+.pins:hover+.inpinfos, .inpinfos[opened], .inpinfos:hover {
 	border-right: 2px solid #6b6b6b;
 }
 
-.pins:hover+.outpinfo, .outpinfo[opened], .outpinfo:hover {
+.pins:hover+.outpinfos, .outpinfos[opened], .outpinfos:hover {
 	border-left: 2px solid #6b6b6b;
 }
 

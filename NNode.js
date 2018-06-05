@@ -19,9 +19,9 @@ class NNode {
 		this.centerDiv = null;
 		this.headerDiv = null;
 		this.inPinsDiv = null;
-		this.inPinfoDiv = null;
+		this.inPinfosDiv = null;
 		this.outPinsDiv = null;
-		this.outPinfoDiv = null;
+		this.outPinfosDiv = null;
 
 		this.selected = false;
 		this.position = new NPoint(0,0);
@@ -103,15 +103,16 @@ class NNode {
 			this.inPinsDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.inPinsDiv);
 
-			this.inPinfoDiv = document.createElement("div");
-			this.inPinfoDiv.className = "inpinfo pinfo"
-			this.inPinfoDiv.setAttribute("data-nodeid", this.nodeid);
-			this.bodyDiv.append(this.inPinfoDiv);
+			this.inPinfosDiv = document.createElement("div");
+			this.inPinfosDiv.className = "inpinfos pinfos"
+			this.inPinfosDiv.setAttribute("data-nodeid", this.nodeid);
+			this.bodyDiv.append(this.inPinfosDiv);
 
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.inPinsDiv.append(pin.createPinDiv());
+		this.inPinfosDiv.append(pin.createPinfoDiv());
 	}
 
 	addOutPin(pin){
@@ -128,15 +129,16 @@ class NNode {
 			this.outPinsDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.outPinsDiv);
 
-			this.outPinfoDiv = document.createElement("div");
-			this.outPinfoDiv.className = "outpinfo pinfo"
-			this.outPinfoDiv.setAttribute("data-nodeid", this.nodeid);
-			this.bodyDiv.append(this.outPinfoDiv);
+			this.outPinfosDiv = document.createElement("div");
+			this.outPinfosDiv.className = "outpinfos pinfos"
+			this.outPinfosDiv.setAttribute("data-nodeid", this.nodeid);
+			this.bodyDiv.append(this.outPinfosDiv);
 
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.outPinsDiv.append(pin.createPinDiv());
+		this.outPinfosDiv.append(pin.createPinfoDiv());
 	}
 
 	move(delta){
@@ -206,8 +208,8 @@ class AdditionNode extends NNode {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("+");
-		this.addInPin(new NPin("_", false, NInteger, NDouble));
-		this.addInPin(new NPin("__", false, NInteger, NDouble));
+		this.addInPin(new NPin("A", false, NInteger, NDouble));
+		this.addInPin(new NPin("B", false, NInteger, NDouble));
 		this.addOutPin(new NPin("Sum", false, NInteger, NDouble));
 		return this.containerDiv;
 	}
