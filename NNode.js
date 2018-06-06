@@ -8,11 +8,11 @@
 //	data-ovrdkeys		:		if div should override keyboard functionality
 
 class NNode {
-	constructor(board, displayName = "Unknode") {
+	constructor(displayName = "Unknode") {
 		this.displayName = displayName;
-		this.board = board;
 		this.resizable = false;
 
+		this.board = null;
 		this.containerDiv = null;
 		this.nodeDiv = null;
 		this.bodyDiv = null;
@@ -28,7 +28,7 @@ class NNode {
 		this.offset = new NPoint(0,0);
 		this.displayPosition = new NPoint(0,0);
 
-		this.nodeid = ~~(Math.random() * 4294967295) // generate random int as ID
+		this.nodeid = ~~(Math.random() * 8388607) // generate random int as ID
 		this.inpins = {};
 		this.inpinOrder = [];
 		this.outpins = {};
@@ -73,6 +73,7 @@ class NNode {
 		this.headerDiv.setAttribute("data-nodeid", this.nodeid);
 		this.headerDiv.innerHTML = this.displayName;
 		this.nodeDiv.append(this.headerDiv);
+		this.updateHeight();
 	}
 
 	addCenter(text = null){
@@ -94,9 +95,15 @@ class NNode {
 			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
-		pin.node == this;
-		pin.side = true;
+		pin.node = this;
+		pin.side = false;
+		pin.setTypes(...pin.types);
 		this.inpins[pin.name] = pin;
+		this.inpinOrder.push(pin.name);
+		this.board.pins[pin.pinid] = pin;
+
+		this.updateHeight();
+
 		if(this.inPinsDiv == null){
 			this.inPinsDiv = document.createElement("div");
 			this.inPinsDiv.className = "inpins pins"
@@ -121,8 +128,14 @@ class NNode {
 			return false;
 		}
 		pin.node = this;
-		pin.side = false;
+		pin.side = true;
+		pin.setTypes(...pin.types);
 		this.outpins[pin.name] = pin;
+		this.outpinOrder.push(pin.name);
+		this.board.pins[pin.pinid] = pin;
+
+		this.updateHeight();
+
 		if(this.outPinsDiv == null){
 			this.outPinsDiv = document.createElement("div");
 			this.outPinsDiv.className = "outpins pins"
@@ -146,6 +159,16 @@ class NNode {
 		this.updatePosition();
 	}
 
+	updateHeight(){
+		// pins
+		let h = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 20;
+		// header
+		if(this.headerDiv){
+			h += 22;
+		}
+		this.nodeDiv.style.height = h + "px";
+	}
+
 	setPosition(pos){
 		this.position = pos;
 		this.updatePosition()
@@ -158,6 +181,10 @@ class NNode {
 		this.nodeDiv.style.left = this.displayPosition.x + "px";
 		this.nodeDiv.style.top = this.displayPosition.y + "px";
 		this.board.redraw();
+	}
+
+	pinLinked(selfPin, otherPin){
+
 	}
 
 	// returns if node is within points
@@ -177,47 +204,64 @@ class StringNode extends NNode {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("“”");
-		this.addOutPin(new NPin("Value", false, NString));
+		this.addOutPin(new NPin("Value", NString));
 		return this.containerDiv;
 	}
 }
 
 class SubstringNode extends NNode {
-	constructor(board) {
-		super(board, "Substring");
+	constructor() {
+		super("Substring");
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 		this.addHeader();
 		this.addCenter();
-		this.addInPin(new NPin("String", false, NString));
-		this.addInPin(new NPin("Start Index", false, NInteger));
-		this.addInPin(new NPin("End Index", false, NInteger));
-		this.addOutPin(new NPin("Substring", false, NString));
+		this.addInPin(new NPin("String", NString));
+		this.addInPin(new NPin("Start Index", NInteger));
+		this.addInPin(new NPin("End Index", NInteger));
+		this.addOutPin(new NPin("Substring", NString));
 		return this.containerDiv;
 	}
 }
 
 class AdditionNode extends NNode {
-	constructor(board) {
-		super(board, "Add");
+	constructor() {
+		super("Add");
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("+");
-		this.addInPin(new NPin("A", false, NInteger, NDouble));
-		this.addInPin(new NPin("B", false, NInteger, NDouble));
-		this.addOutPin(new NPin("Sum", false, NInteger, NDouble));
+		this.addInPin(new NPin("A", NInteger, NDouble));
+		this.addInPin(new NPin("B", NInteger, NDouble));
+		this.addOutPin(new NPin("Sum", NInteger, NDouble));
+		return this.containerDiv;
+	}
+}
+
+class IncrementNode extends NNode {
+	constructor() {
+		super("Increment");
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		// this.addHeader();
+		this.addCenter("+=");
+		this.addInPin(new NPin("==>", NExecution));
+		this.addInPin(new NPin("Variable", NInteger, NDouble).setIsByRef(true));
+		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal(1));
+		this.addOutPin(new NPin("==>", NExecution));
 		return this.containerDiv;
 	}
 }
 
 class CommentNode extends NNode {
-	constructor(board) {
-		super(board, "Comment");
+	constructor() {
+		super("Comment");
 	}
 
 	createNodeDiv() {

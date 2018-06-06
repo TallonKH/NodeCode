@@ -10,6 +10,10 @@ class Main {
 		this.altDown = false;
 		this.ctrlDown = false;
 		this.metaDown = false;
+
+		this.maxPanDist = 100;
+		this.dragDistance = 15;
+		this.panSpeed = 0.5;
 	}
 
 	newBoard(name) {
@@ -18,7 +22,6 @@ class Main {
 		this.mainTabListDiv.append(brd.createTabDiv());
 		$(this.mainTabDiv).tabs("refresh");
 		this.boards.push(brd);
-		brd.fixSize();
 		this.activeBoard = brd;
 		return brd;
 	}
@@ -31,8 +34,10 @@ $(function() {
 
 	// set active board on tab switch
 	$(main.mainTabDiv).tabs({
-		activate: function(event, ui){
+		activate: function(event, ui) {
 			main.activeBoard = main.boards[ui.newTab.index()];
+			main.activeBoard.redraw();
+			main.activeBoard.fixSize();
 		}
 	});
 
@@ -40,9 +45,18 @@ $(function() {
 	let brdB = main.newBoard("TEST B");
 	let brdC = main.newBoard("TEST C");
 
-	brdA.addNode(StringNode).position = new NPoint(50,50);
-	brdA.addNode(SubstringNode).position = new NPoint(200,50);
-	brdA.addNode(AdditionNode).position = new NPoint(200,50);
+	brdA.addNode(StringNode).position = new NPoint(50, 50);
+	brdA.addNode(SubstringNode).position = new NPoint(250, 50);
+	brdA.addNode(AdditionNode).position = new NPoint(450, 50);
+	brdA.addNode(IncrementNode).position = new NPoint(650, 50);
+	brdA.addNode(StringNode).position = new NPoint(50, 150);
+	brdA.addNode(SubstringNode).position = new NPoint(250, 150);
+	brdA.addNode(AdditionNode).position = new NPoint(450, 150);
+	brdA.addNode(IncrementNode).position = new NPoint(650, 150);
+	brdA.addNode(StringNode).position = new NPoint(50, 250);
+	brdA.addNode(SubstringNode).position = new NPoint(250, 250);
+	brdA.addNode(AdditionNode).position = new NPoint(450, 250);
+	brdA.addNode(IncrementNode).position = new NPoint(650, 250);
 
 	document.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute('data-ovrdkeys');
@@ -79,12 +93,12 @@ $(function() {
 					break;
 				case 219: // prev tab
 					if (main.ctrlDown) {
-						$(main.mainTabDiv).tabs("option", "active",$(main.mainTabDiv).tabs("option", "active")-1);
+						$(main.mainTabDiv).tabs("option", "active", $(main.mainTabDiv).tabs("option", "active") - 1);
 					}
 					break;
 				case 221: // next tab
 					if (main.ctrlDown) {
-						$(main.mainTabDiv).tabs("option", "active",$(main.mainTabDiv).tabs("option", "active")+1);
+						$(main.mainTabDiv).tabs("option", "active", $(main.mainTabDiv).tabs("option", "active") + 1);
 					}
 					break;
 

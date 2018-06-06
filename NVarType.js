@@ -28,7 +28,8 @@ class NVarType {
 		return this == parent || this.isChildOf(parent);
 	}
 }
-const NObject = new NVarType("Object", function(nvar){}, "#0f4aad");
+const NObject = new NVarType("Object", function(nvar){}, "#afafaf");
+const NExecution = new NVarType("Execution", function(nvar){}, "#404040");
 const NInteger = new NVarType("Integer", function(nvar){nvar.int = 0;}, "#64d4ed", NObject);
 const NDouble = new NVarType("Double", function(nvar){nvar.double = 0.0;}, "#7bed3e", NObject);
 const NBoolean = new NVarType("Boolean", function(nvar){nvar.boolean = false;}, "#ed2121", NObject);

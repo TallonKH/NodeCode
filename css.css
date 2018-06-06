@@ -257,7 +257,7 @@ canvas {
 
 .node>header {
 	padding: 0.1em 0.3em;
-	flex: 0 0 15px;
+	height: 15px;
 	background-color: #9f9f9fcc;
 	color: #000000;
 	order: 0;
@@ -287,7 +287,7 @@ canvas {
 	text-align: center;
 	font-family: "Roboto";
 	font-weight: 800;
-	font-size: 50px;
+	font-size: 40px;
 	/*margin: 5px;*/
 	height: 100%;
 	color: #bdbdbd;
@@ -297,7 +297,7 @@ canvas {
 
 .pins {
 	background-color: #98989866;
-	flex: 0 0 15px;
+	flex: 0 0 25px;
 	height: 100%;
 	overflow: visible;
 	display: flex;
@@ -328,6 +328,9 @@ canvas {
 .pinfo>.text {
 	margin: -2.5px 4px 0px 4px;
 	font-size: 14px;
+	overflow: hidden;
+	flex: 1 0;
+	white-space: nowrap;
 	display: block;
 }
 
@@ -392,14 +395,22 @@ canvas {
 
 .pin {
 	border: 2px solid #00000011;
-	background-position: 0px -5px;
-	border-radius: 50px;
-	width: 9px;
-	height: 9px;
+	border-radius: 50%;
+	width: 12px;
+	height: 12px;
 }
 
-.pin:hover, .pin[active] {
+.pin[ref] {
+	border-radius: 0;
+}
+
+.board:not([linking]) .pin:hover, .pin:hover[match], .pin[active], .pin[linking] {
 	border: 2px solid #f8ff77 !important;
+}
+
+.board[linking] .pin:not([match]):not([active]):not([linking]) {
+	border: 2px solid #00000044 !important;
+	background: #00000000 !important;
 }
 
 .outpin {}
