@@ -280,7 +280,7 @@ canvas {
 	order: 5;
 	flex: 1 1;
 	overflow: hidden;
-	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
+	transition: flex 0.1s ease 0s;
 }
 
 .center>.text {
@@ -313,7 +313,7 @@ canvas {
 	flex: 0 1 0;
 	background-color: #98989800;
 	height: 100%;
-	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay), border-right var(--pinfo-transition-time) ease var(--pinfo-delay), border-left var(--pinfo-transition-time) ease var(--pinfo-delay), background-color var(--pinfo-transition-time) ease var(--pinfo-delay);
+	transition: all 0.1s ease 0s;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -343,11 +343,13 @@ canvas {
 }
 
 .pins:hover+.pinfos, .pinfos[opened], .pinfos:hover {
+	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	background-color: #bebebe66;
 	flex: 1 0;
 }
 
 .pins:hover~.center, .pinfos[opened]~.center, .pinfos:hover~.center {
+	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
 	flex: 0 1;
 }
 
