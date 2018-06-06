@@ -62,7 +62,7 @@ $(function() {
 	brdA.addNode(AdditionNode).position = new NPoint(450, 250);
 	brdA.addNode(IncrementNode).position = new NPoint(650, 250);
 
-	document.onkeydown = function(event) {
+	window.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute('data-ovrdkeys');
 		switch (event.key) {
 			case 'Shift':
@@ -116,7 +116,7 @@ $(function() {
 		return main.metaDown || divCaptures;
 	};
 
-	document.onkeyup = function(event) {
+	window.onkeyup = function(event) {
 		switch (event.key) {
 			case 'Shift':
 				{
@@ -144,6 +144,19 @@ $(function() {
 		}
 		return main.metaDown || event.target.hasAttribute('data-ovrdkeys');
 	};
+
+	window.onmousedown = function(event){
+		return main.activeBoard.mouseDown(event);
+	}
+	window.onmouseup = function(event){
+		return main.activeBoard.mouseUp(event);
+	}
+	window.onmousemove = function(event){
+		return main.activeBoard.mouseMoved(event);
+	}
+	window.onmousewheel = function(event){
+		return main.activeBoard.mouseWheel(event);
+	}
 
 	$(main.mainTabDiv).tabs("option", "active", 0);
 });
