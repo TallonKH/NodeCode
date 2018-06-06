@@ -197,7 +197,6 @@ class NBoard {
 							}
 							// successful link
 							if (brd.clickEndTarget.classList.contains("pin")) {
-								console.log("link attempt!");
 								const lank = brd.draggedPin.linkTo(brd.getDivPin(brd.clickEndTarget));
 							}
 							delete brd.links[brd.draggedPin.pinid];
@@ -289,7 +288,6 @@ class NBoard {
 						for(const nodeid in brd.nodes){
 							const node = brd.nodes[nodeid];
 							if(brd.draggedPin.side){
-								console.log(brd.draggedPin.side);
 								for(const pinid in node.inpins){
 									const pin = node.inpins[pinid]
 									if(brd.draggedPin.canPlugInto(pin)){
@@ -499,6 +497,7 @@ class NBoard {
 		this.canvasDiv.width = this.rectDims.x;
 		this.canvasDiv.height = this.rectDims.y;
 		this.cvOffset = divPos(this.canvasDiv);
+		this.redraw();
 	}
 
 	createTabDiv() {

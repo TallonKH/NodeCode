@@ -41,6 +41,10 @@ $(function() {
 		}
 	});
 
+	$(window).on("resize", function(e){
+		main.activeBoard.fixSize();
+	});
+
 	let brdA = main.newBoard("TEST A");
 	let brdB = main.newBoard("TEST B");
 	let brdC = main.newBoard("TEST C");
