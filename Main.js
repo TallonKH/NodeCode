@@ -14,6 +14,7 @@ class Main {
 		this.maxPanDist = 100;
 		this.dragDistance = 15;
 		this.panSpeed = 0.5;
+		this.maxExecIterations = 10000;
 	}
 
 	newBoard(name) {

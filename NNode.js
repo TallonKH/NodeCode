@@ -24,9 +24,9 @@ class NNode {
 		this.outPinfosDiv = null;
 
 		this.selected = false;
-		this.position = new NPoint(0,0);
-		this.offset = new NPoint(0,0);
-		this.displayPosition = new NPoint(0,0);
+		this.position = new NPoint(0, 0);
+		this.offset = new NPoint(0, 0);
+		this.displayPosition = new NPoint(0, 0);
 
 		this.nodeid = ~~(Math.random() * 8388607) // generate random int as ID
 		this.inpins = {};
@@ -67,7 +67,7 @@ class NNode {
 		return this.containerDiv;
 	}
 
-	addHeader(text = this.displayName){
+	addHeader(text = this.displayName) {
 		this.headerDiv = document.createElement("header");
 		this.headerDiv.className = "nodepart";
 		this.headerDiv.setAttribute("data-nodeid", this.nodeid);
@@ -76,11 +76,11 @@ class NNode {
 		this.updateHeight();
 	}
 
-	addCenter(text = null){
+	addCenter(text = null) {
 		this.centerDiv = document.createElement("div");
 		this.centerDiv.className = "nodepart center";
 		this.centerDiv.setAttribute("data-nodeid", this.nodeid);
-		if(text){
+		if (text) {
 			const txt = document.createElement("div");
 			txt.className = "nodepart text";
 			txt.setAttribute("data-nodeid", this.nodeid);
@@ -90,8 +90,8 @@ class NNode {
 		this.bodyDiv.append(this.centerDiv);
 	}
 
-	addInPin(pin){
-		if(this.inpins[pin.name]){
+	addInPin(pin) {
+		if (this.inpins[pin.name]) {
 			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
@@ -104,7 +104,7 @@ class NNode {
 
 		this.updateHeight();
 
-		if(this.inPinsDiv == null){
+		if (this.inPinsDiv == null) {
 			this.inPinsDiv = document.createElement("div");
 			this.inPinsDiv.className = "inpins pins"
 			this.inPinsDiv.setAttribute("data-nodeid", this.nodeid);
@@ -122,8 +122,8 @@ class NNode {
 		this.inPinfosDiv.append(pin.createPinfoDiv());
 	}
 
-	addOutPin(pin){
-		if(this.outpins[pin.name]){
+	addOutPin(pin) {
+		if (this.outpins[pin.name]) {
 			console.log("An outpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
@@ -136,7 +136,7 @@ class NNode {
 
 		this.updateHeight();
 
-		if(this.outPinsDiv == null){
+		if (this.outPinsDiv == null) {
 			this.outPinsDiv = document.createElement("div");
 			this.outPinsDiv.className = "outpins pins"
 			this.outPinsDiv.setAttribute("data-nodeid", this.nodeid);
@@ -154,27 +154,27 @@ class NNode {
 		this.outPinfosDiv.append(pin.createPinfoDiv());
 	}
 
-	move(delta){
+	move(delta) {
 		this.position = this.position.addp(delta);
 		this.updatePosition();
 	}
 
-	updateHeight(){
+	updateHeight() {
 		// pins
 		let h = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 20;
 		// header
-		if(this.headerDiv){
+		if (this.headerDiv) {
 			h += 22;
 		}
 		this.nodeDiv.style.height = h + "px";
 	}
 
-	setPosition(pos){
+	setPosition(pos) {
 		this.position = pos;
 		this.updatePosition()
 	}
 
-	updatePosition(){
+	updatePosition() {
 		this.offset = new NPoint(this.containerDiv.offsetLeft, this.containerDiv.offsetTop);
 		// this.offset = new NPoint(this.containerDiv.getBoundingClientRect().left, this.containerDiv.getBoundingClientRect().top);
 		this.displayPosition = this.position.subtractp(this.offset);
@@ -183,12 +183,54 @@ class NNode {
 		this.board.redraw();
 	}
 
-	pinLinked(selfPin, otherPin){
+	pinLinked(selfPin, otherPin) {}
 
+	pinUnlinked(selfPin, otherPin) {}
+
+	returnValRequested(pin) {}
+
+	inputExecuted(pin) {}
+
+	getValue(pin) {
+		if (pin.isExec) {
+			console.log("Can't get a return value from an exec pin! (" + pin.name + ")");
+			return null;
+		}
+		if (pin.side) { // if called on an output, run node logic
+			return this.returnValRequested(pin);
+		} else { // if called on an input, get value from the connected output
+			if (this.links) {
+				return pin.getSingleLinked().getValue();
+			} else { // has no connected output...
+				return pin.defaultVal;
+			}
+		}
+	}
+
+	execute(pin) {
+		if (!pin.isExec) {
+			console.log("Can't execute a non-exec pin! (" + pin.name + ")");
+			return null;
+		}
+
+		if (this.side) { // execute the connected input
+			if(this.links){
+				pin.getSingleLinked().execute();
+			}else{
+				// nothing to execute! reached end of branch
+			}
+		} else { // execute this input
+			this.board.execIterCount++;
+			if(this.board.execIterCount >= this.board.env.maxExecIterations){
+				console.log("REACHED MAXIMUM EXECUTION ITERATIONS - STOPPING");
+				return null;
+			}
+			this.inputExecuted(pin);
+		}
 	}
 
 	// returns if node is within points
-	within(a,b){
+	within(a, b) {
 		const min = this.displayPosition;
 		const max = new NPoint(min.x + this.nodeDiv.clientWidth, min.y + this.nodeDiv.clientHeight);
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
@@ -276,11 +318,11 @@ class CommentNode extends NNode {
 		this.textArea.style.resize = "none";
 		const tasty = this.textArea.style;
 		const cd = this.centerDiv;
-		$(this.nodeDiv).on("resize", function(e, ui){
+		$(this.nodeDiv).on("resize", function(e, ui) {
 			let w = getComputedStyle(cd).width;
-			w = parseInt(w.substring(0,w.length-2));
+			w = parseInt(w.substring(0, w.length - 2));
 			let h = getComputedStyle(cd).height;
-			h = parseInt(h.substring(0,h.length-2));
+			h = parseInt(h.substring(0, h.length - 2));
 			tasty.width = w - 15 + "px";
 			tasty.height = h - 15 + "px";
 		})

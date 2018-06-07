@@ -18,8 +18,10 @@ class NPin {
 		this.type;
 		this.byRef = false;
 		this.pinDiv;
+		this.defaultVal;
 		this.pinfoDiv;
 		this.links = {};
+		this.linkList = [];
 	}
 
 	setTypes(...types) {
@@ -62,6 +64,19 @@ class NPin {
 	setDefaultVal(v) {
 		this.defaultVal = v;
 		return this;
+	}
+
+	getValue(){
+		return this.node.getValue(this);
+	}
+
+	execute(){
+		this.node.execute(this);
+	}
+
+	// WARNING: must assume pin is linked to exactly 1 other pin
+	getSingleLinked(){
+		return Object.values(this.links)[0];
 	}
 
 	linkTo(otherPin) {

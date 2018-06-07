@@ -21,6 +21,7 @@ class NBoard {
 
 		this.actionStack = [];
 		this.actionStackIndex = -1;
+		this.execIterCount = 0;
 
 		this.draggedNodes = null;
 		this.draggedPin = null;
