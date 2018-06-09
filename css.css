@@ -218,7 +218,7 @@ canvas {
 /* Node */
 
 .node {
-	min-width: 100px;
+	/*min-width: 100px;*/
 	height: 75px;
 	border: 4px solid #6b6b6b;
 	border-radius: 15px;
@@ -256,12 +256,13 @@ canvas {
 }
 
 .node>header {
-	padding: 0.1em 0.3em;
+	padding: 0.1em 0.3em 0.3em 0.3em;
 	height: 15px;
 	background-color: #9f9f9fcc;
 	color: #000000;
 	order: 0;
 	border-bottom: 2px solid #6b6b6b;
+	white-space: nowrap;
 }
 
 .center>textarea {
@@ -281,9 +282,13 @@ canvas {
 	flex: 1 1;
 	overflow: hidden;
 	transition: flex 0.1s ease 0s;
+	display: table;
+	height: 100%;
 }
 
 .center>.text {
+	display: table-cell;
+	vertical-align: middle;
 	text-align: center;
 	font-family: "Roboto";
 	font-weight: 800;
@@ -300,6 +305,7 @@ canvas {
 	flex: 0 0 25px;
 	height: 100%;
 	overflow: visible;
+	border: none;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -313,6 +319,7 @@ canvas {
 	flex: 0 1 0;
 	background-color: #98989800;
 	height: 100%;
+	border-bottom: none;
 	transition: all 0.1s ease 0s;
 	display: flex;
 	flex-direction: column;
@@ -403,7 +410,10 @@ canvas {
 }
 
 .pin[ref] {
+	transform: rotateZ(45deg);
 	border-radius: 0;
+	width: 8px;
+	height: 8px;
 }
 
 .board:not([linking]) .pin:hover, .pin:hover[match], .pin[active], .pin[linking] {

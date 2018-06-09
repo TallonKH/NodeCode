@@ -71,9 +71,9 @@ class NNode {
 		this.headerDiv = document.createElement("header");
 		this.headerDiv.className = "nodepart";
 		this.headerDiv.setAttribute("data-nodeid", this.nodeid);
-		this.headerDiv.innerHTML = this.displayName;
+		this.headerDiv.innerHTML = text;
 		this.nodeDiv.append(this.headerDiv);
-		this.updateHeight();
+		this.updateDims();
 	}
 
 	addCenter(text = null) {
@@ -97,12 +97,12 @@ class NNode {
 		}
 		pin.node = this;
 		pin.side = false;
-		pin.setTypes(...pin.types);
+		pin.setTypes(true, ...pin.types);
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.push(pin.name);
 		this.board.pins[pin.pinid] = pin;
 
-		this.updateHeight();
+		this.updateDims();
 
 		if (this.inPinsDiv == null) {
 			this.inPinsDiv = document.createElement("div");
@@ -129,12 +129,12 @@ class NNode {
 		}
 		pin.node = this;
 		pin.side = true;
-		pin.setTypes(...pin.types);
+		pin.setTypes(true, ...pin.types);
 		this.outpins[pin.name] = pin;
 		this.outpinOrder.push(pin.name);
 		this.board.pins[pin.pinid] = pin;
 
-		this.updateHeight();
+		this.updateDims();
 
 		if (this.outPinsDiv == null) {
 			this.outPinsDiv = document.createElement("div");
@@ -159,14 +159,47 @@ class NNode {
 		this.updatePosition();
 	}
 
-	updateHeight() {
+	updateDims() {
+		//HEIGHT
 		// pins
-		let h = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 20;
+		const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 20;
+		// center
+		if (this.centerDiv) {
+			var hc = this.centerDiv.scrollHeight;
+			for(const child of this.centerDiv.children){
+				hc = Math.max(hc, child.scrollHeight);
+			}
+		}
 		// header
+		let h = Math.max(hp, hc);
 		if (this.headerDiv) {
 			h += 22;
 		}
+
 		this.nodeDiv.style.height = h + "px";
+
+		//WIDTH
+		let w = 0;
+		// center
+		if(this.centerDiv){
+			w = this.centerDiv.scrollWidth;
+		}
+		// header
+		if(this.headerDiv){
+			w = Math.max(w,this.headerDiv.scrollWidth);
+		}
+		// pinfo
+		if(this.inPinfosDiv){
+			for(const div of this.inPinfosDiv.children){
+				w = Math.max(w, div.scrollWidth);
+			}
+		}
+		if(this.outPinfosDiv){
+			for(const div of this.outPinfosDiv.children){
+				w = Math.max(w, div.scrollWidth);
+			}
+		}
+		this.nodeDiv.style.minWidth = w + "px";
 	}
 
 	setPosition(pos) {
@@ -187,6 +220,10 @@ class NNode {
 
 	pinUnlinked(selfPin, otherPin) {}
 
+	linkedPinChangedType(thisPin, changedPin, from, to) {}
+
+	linkedPinChangedByRef(thisPin, changedPin, from, to) {}
+
 	returnValRequested(pin) {}
 
 	inputExecuted(pin) {}
@@ -199,12 +236,23 @@ class NNode {
 		if (pin.side) { // if called on an output, run node logic
 			return this.returnValRequested(pin);
 		} else { // if called on an input, get value from the connected output
-			if (this.links) {
+			if (pin.linkNum > 0) {
 				return pin.getSingleLinked().getValue();
 			} else { // has no connected output...
+				// console.log("Returning default value for pin \'" + pin.name + "\'");
 				return pin.defaultVal;
 			}
 		}
+	}
+
+	// shortcut to get input by name
+	inputN(inpinName) {
+		return this.getValue(this.inpins[inpinName]);
+	}
+
+	// shortcut to execute by name
+	execN(outpinName) {
+		this.execute(this.outpins[outpinName]);
 	}
 
 	execute(pin) {
@@ -213,15 +261,15 @@ class NNode {
 			return null;
 		}
 
-		if (this.side) { // execute the connected input
-			if(this.links){
+		if (pin.side) { // execute the connected input
+			if (pin.linkNum > 0) {
 				pin.getSingleLinked().execute();
-			}else{
+			} else {
 				// nothing to execute! reached end of branch
 			}
 		} else { // execute this input
 			this.board.execIterCount++;
-			if(this.board.execIterCount >= this.board.env.maxExecIterations){
+			if (this.board.execIterCount >= this.board.env.maxExecIterations) {
 				console.log("REACHED MAXIMUM EXECUTION ITERATIONS - STOPPING");
 				return null;
 			}
@@ -239,15 +287,81 @@ class NNode {
 
 class StringNode extends NNode {
 	constructor(board) {
-		super(board, "String");
+		super("String");
+		this.val = NString.construct();
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 		// this.addHeader();
+		this.addHeader("Variable (String)");
 		this.addCenter("“”");
-		this.addOutPin(new NPin("Value", NString));
+		this.addOutPin(new NPin("Value", NString).setIsByRef(false, true));
 		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+}
+
+class IntegerNode extends NNode {
+	constructor(board) {
+		super("Integer");
+		this.val = NInteger.construct();
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Variable (Int)");
+		this.addCenter("0");
+		this.addOutPin(new NPin("Value", NInteger).setIsByRef(false, true));
+		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+}
+
+class DoubleNode extends NNode {
+	constructor(board) {
+		super("Integer");
+		this.val = NInteger.construct();
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Variable (Double)");
+		this.addCenter("0.0");
+		this.addOutPin(new NPin("Value", NDouble).setIsByRef(false, true));
+		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+}
+
+class DisplayNode extends NNode {
+	constructor() {
+		super("Display");
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		// this.addHeader();
+		this.addCenter("");
+		this.addHeader();
+		this.addInPin(new NPin("_", NExecution));
+		this.addInPin(new NPin("Value", NObject));
+		this.addOutPin(new NPin("__", NExecution));
+		return this.containerDiv;
+	}
+
+	inputExecuted(pin) {
+		console.log(this.inputN("Value"));
+		this.execN("__");
 	}
 }
 
@@ -266,11 +380,17 @@ class SubstringNode extends NNode {
 		this.addOutPin(new NPin("Substring", NString));
 		return this.containerDiv;
 	}
+
+	returnValRequested(pin) {
+		return {"string":this.inputN("String").string.substring(this.inputN("Start Index").int, this.inputN("End Index").int)};
+	}
 }
 
 class AdditionNode extends NNode {
 	constructor() {
 		super("Add");
+		this.intlock = false;
+		this.doublelocks = new Set();
 	}
 
 	createNodeDiv() {
@@ -281,6 +401,64 @@ class AdditionNode extends NNode {
 		this.addInPin(new NPin("B", NInteger, NDouble));
 		this.addOutPin(new NPin("Sum", NInteger, NDouble));
 		return this.containerDiv;
+	}
+
+	linkedPinChangedType(self, linked, from, to){
+		this.pinUnlinked(self,linked);
+		this.pinLinked(self,linked);
+	}
+
+	pinUnlinked(self, other){
+		if(self.side){
+			if(this.intlock){
+				this.intlock = false;
+				for(const inn in this.inpins){
+					this.inpins[inn].setTypes(false, NInteger, NDouble);
+				}
+			}
+		}else{
+			if(this.doublelocks.delete(self)){
+				if(this.doublelocks.size == 0){
+					this.outpins["Sum"].setTypes(false, NInteger, NDouble);
+				}
+			}
+		}
+	}
+
+	pinLinked(self, other){
+		if(self.side){
+			if(other.multiTyped){
+				var isInt = !NDouble.areAny(other.types);
+			}else{
+				var isInt = other.type.isA(NInteger)
+			}
+			if(isInt){
+				this.intlock = true;
+				for(const inn in this.inpins){
+					this.inpins[inn].setTypes(false, NInteger);
+				}
+			}
+		}else{
+			if(other.multiTyped){
+				if(!NInteger.areAny(other.types)){
+					this.outpins["Sum"].setTypes(false, NDouble);
+					this.doublelocks.add(self);
+				}
+			}else{
+				if(other.type.isA(NDouble) && this.outpins["Sum"].type != NDouble){
+					this.outpins["Sum"].setTypes(false, NDouble);
+					this.doublelocks.add(self);
+				}
+			}
+		}
+	}
+
+	returnValRequested(pin) {
+		let sum = 0;
+
+		for(const inn in this.inpins){
+
+		}
 	}
 }
 
@@ -293,10 +471,10 @@ class IncrementNode extends NNode {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addCenter("+=");
-		this.addInPin(new NPin("==>", NExecution));
-		this.addInPin(new NPin("Variable", NInteger, NDouble).setIsByRef(true));
+		this.addInPin(new NPin("_", NExecution));
+		this.addInPin(new NPin("Variable", NInteger, NDouble).setIsByRef(true, true));
 		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal(1));
-		this.addOutPin(new NPin("==>", NExecution));
+		this.addOutPin(new NPin("__", NExecution));
 		return this.containerDiv;
 	}
 }

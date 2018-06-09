@@ -18,13 +18,15 @@ class NPin {
 		this.type;
 		this.byRef = false;
 		this.pinDiv;
-		this.defaultVal;
+		this.defaultVal = (types.length == 1) ? types[0].construct() : null;
 		this.pinfoDiv;
 		this.links = {};
-		this.linkList = [];
+		this.linkNum = 0;
 	}
 
-	setTypes(...types) {
+	setTypes(silent, ...types) {
+		const prev = {"types":this.types, "type":this.type, "multitype":this.multiTyped, "isExec":this.isExec, "multicon":this.multiConnective};
+
 		this.isExec = types.includes(NExecution);
 		if (types.length == 0) {
 			types = [NObject];
@@ -46,11 +48,25 @@ class NPin {
 		}
 
 		this.multiConnective = this.side ^ this.isExec;
+
+		const now = {"types":this.types, "type":this.type, "multitype":this.multiTyped, "isExec":this.isExec, "multicon":this.multiConnective};
+		if(!silent && (now != prev)){
+			for(const pin in this.links){
+				this.links[pin].linkedChangedType(this, prev, now);
+			}
+		}
+
+		if(this.pinDiv){
+			this.updateColors();
+		}
+
 		return this;
 	}
 
-	setIsByRef(r) {
+	setIsByRef(silent,r) {
+		const prev = this.byRef;
 		this.byRef = r;
+
 		if (this.pinDiv) {
 			if (r) {
 				this.pinDiv.setAttribute("ref", true);
@@ -58,6 +74,13 @@ class NPin {
 				this.pinDiv.removeAttribute("ref");
 			}
 		}
+
+		if(!silent && (r ^ prev)){
+			for(const pin in this.links){
+				this.links[pin].linkedChangedByRef(this, prev, r);
+			}
+		}
+
 		return this;
 	}
 
@@ -108,6 +131,8 @@ class NPin {
 
 		a.links[b.pinid] = b;
 		b.links[a.pinid] = a;
+		a.linkNum++;
+		b.linkNum++;
 
 		this.node.board.links[a.pinid * b.pinid] = [a, b];
 	}
@@ -119,6 +144,10 @@ class NPin {
 		if (b.pinid in a.links) {
 			delete a.links[b.pinid];
 			delete b.links[a.pinid];
+			a.linkNum--;
+			b.linkNum--;
+			a.node.pinUnlinked(a,b);
+			b.node.pinUnlinked(b,a);
 			delete this.node.board.links[a.pinid * b.pinid];
 		} else {
 			console.log("Can't unlink pins " + a.name + " & " + b.name + " because they aren't linked!");
@@ -130,6 +159,14 @@ class NPin {
 		for (const id in this.links) {
 			this.unlink(this.links[id]);
 		}
+	}
+
+	linkedChangedType(linked, from, to){
+		this.node.linkedPinChangedType(this, linked, from, to);
+	}
+
+	linkedChangedByRef(linked, from, to){
+		this.node.linkedPinChangedByRef(this, linked, from, to);
 	}
 
 	canPlugInto(otherPin) {
@@ -188,26 +225,29 @@ class NPin {
 		this.pinDiv = document.createElement("div");
 		this.pinDiv.className = this.side ? "inpin pin" : "outpin pin";
 		this.pinDiv.setAttribute("data-pinid", this.pinid);
+		this.updateColors();
+		if (this.byRef) {
+			this.pinDiv.setAttribute("ref", this.nodeid);
+		}
+		return this.pinDiv;
+	}
+
+	updateColors(){
 		if (this.multiTyped) {
 			const colors = this.types.map(x => x.color);
 			const end = colors.length - 1;
 			const percent = (100.0 / colors.length);
 			let args = colors[0] + ", " + colors[0] + " " + percent + "%";
-			for (let i = 1; i < end; i++) {
-				const pc = percent * i;
-				args += ", " + colors[i] + " " + pc + "%, " + colors[i + 1] + " " + pc + "%";
+			for (let i = 0; i < end; i++) {
+				args += ", " + colors[i] + " " + percent*(i+1) + "%, " + colors[i + 1] + " " + percent*(i+1) + "%";
 			}
 			args += ", " + colors[end] + " " + percent * end + "%";
 			this.pinDiv.style.background = "linear-gradient(" + args + ")";
-
 			this.pinDiv.style.border = "2px solid " + this.color;
 		} else {
-			this.pinDiv.style.backgroundColor = this.color;
+			this.pinDiv.style.background = this.color;
+			this.pinDiv.style.border = "2px solid " + darkenHex(this.color,20);
 		}
-		if (this.byRef) {
-			this.pinDiv.setAttribute("ref", this.nodeid);
-		}
-		return this.pinDiv;
 	}
 
 	createPinfoDiv(name = this.name.replace(reTrailing, "")) {
@@ -223,4 +263,9 @@ class NPin {
 		}
 		return this.pinfoDiv;
 	}
+}
+
+PinChange = {
+	TYPE : 0,
+	REF : 1
 }

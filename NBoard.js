@@ -115,13 +115,12 @@ class NBoard {
 		this.clickStartTarget = event.target;
 		this.clickDistance = 0;
 
-		// start ticking for screen edge panning
-		this.dragPanID = setInterval(this.dragPanLogic.bind(this), 50);
-
 		switch (event.which) {
 			// Left mouse button
 			case 1:
 				{
+					// start ticking for screen edge panning
+					this.dragPanID = setInterval(this.dragPanLogic.bind(this), 50);
 					this.leftMDown = true;
 					break;
 				}
@@ -153,7 +152,7 @@ class NBoard {
 				{
 					this.leftMDown = false;
 
-					if(this.selectionBox){ // finish selection box
+					if (this.selectionBox) { // finish selection box
 						// next 40ish lines are selection logic...
 						if (this.env.altDown) { // deselect things in box
 							const deselectedNodes = [];
@@ -198,7 +197,7 @@ class NBoard {
 							}
 						}
 						this.destroySelectionBox();
-					}else if(this.draggedNode){ // finish moving node(s)
+					} else if (this.draggedNode) { // finish moving node(s)
 						this.draggedNode = this.getDivNode(this.clickStartTarget);
 						if (this.draggedNode.selected) {
 							this.addAction(new ActMoveSelectedNodes(this, this.clickDelta));
@@ -206,17 +205,17 @@ class NBoard {
 							this.addAction(new ActMoveNodes(this, this.clickDelta, [this.draggedNode]));
 						}
 						this.draggedNode = null;
-					}else if(this.draggedPin){ // finish dragging pin
+					} else if (this.draggedPin) { // finish dragging pin
 						this.boardDiv.removeAttribute("linking");
 						this.draggedPin.pinDiv.removeAttribute("linking");
-						for(const nodeid in this.nodes){
+						for (const nodeid in this.nodes) {
 							const node = this.nodes[nodeid];
-							if(this.draggedPin.side){
-								for(const pinid in node.inpins){
+							if (this.draggedPin.side) {
+								for (const pinid in node.inpins) {
 									node.inpins[pinid].pinDiv.removeAttribute("match");
 								}
-							}else{
-								for(const pinid in node.outpins){
+							} else {
+								for (const pinid in node.outpins) {
 									node.outpins[pinid].pinDiv.removeAttribute("match");
 								}
 							}
@@ -227,9 +226,9 @@ class NBoard {
 						}
 						delete this.links[this.draggedPin.pinid];
 						this.draggedPin = null;
-					}else if(this.clickDistance > this.env.dragDistance){ // something unknown was dragged
+					} else if (this.clickDistance > this.env.dragDistance) { // something unknown was dragged
 
-					}else{ // nothing was dragged - click occured
+					} else { // nothing was dragged - click occured
 						const upTargetClasses = this.clickStartTarget.classList;
 
 						if (this.clickStartTarget == this.boardDiv) { // board clicked
@@ -238,7 +237,7 @@ class NBoard {
 								this.deselectAllNodes();
 							}
 						} else if (upTargetClasses.contains("nodepart")) { // a node was clicked
-							const divNode = this.getDivNode(this.clickEndTarget);
+							const divNode = this.getDivNode(this.clickStartTarget);
 							if (this.env.shiftDown) {
 								this.addAction(new ActSelect(this, [divNode]));
 								this.selectNode(divNode);
@@ -249,6 +248,16 @@ class NBoard {
 								this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, [divNode])));
 								this.deselectAllNodes();
 								this.selectNode(divNode);
+							}
+						} else if (upTargetClasses.contains("pin")){
+							const divPin = this.getDivPin(this.clickStartTarget);
+							if(this.env.altDown){
+								if(divPin.isExec){
+									divPin.execute();
+									console.log("Executed.");
+								}else{
+									console.log(divPin.getValue());
+								}
 							}
 						}
 					}
@@ -311,19 +320,19 @@ class NBoard {
 					this.links[this.draggedPin.pinid] = [this.draggedPin, null];
 					this.draggedPin.pinDiv.setAttribute("linking", true);
 					this.boardDiv.setAttribute("linking", true);
-					for(const nodeid in this.nodes){
+					for (const nodeid in this.nodes) {
 						const node = this.nodes[nodeid];
-						if(this.draggedPin.side){
-							for(const pinid in node.inpins){
+						if (this.draggedPin.side) {
+							for (const pinid in node.inpins) {
 								const pin = node.inpins[pinid]
-								if(this.draggedPin.canPlugInto(pin)){
+								if (this.draggedPin.canPlugInto(pin)) {
 									pin.pinDiv.setAttribute("match", true);
 								}
 							}
-						}else{
-							for(const pinid in node.outpins){
+						} else {
+							for (const pinid in node.outpins) {
 								const pin = node.outpins[pinid]
-								if(pin.canPlugInto(this.draggedPin)){
+								if (pin.canPlugInto(this.draggedPin)) {
 									pin.pinDiv.setAttribute("match", true);
 								}
 							}

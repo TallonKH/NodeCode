@@ -12,11 +12,12 @@ class NVarType {
 		this.allParents = new Set(this.allParents);
 
 		const vt = this;
-		this.construct = function(nvar) {
+		this.construct = function(nvar={}) {
 			vt.addValues(nvar);
 			for (const parent of vt.allParents) {
 				parent.addValues(nvar);
 			}
+			return nvar;
 		};
 	}
 
@@ -27,8 +28,44 @@ class NVarType {
 	isA(parent) {
 		return this == parent || this.isChildOf(parent);
 	}
+
+	areAny(children){
+		for(const c of children){
+			if(c.isA(this)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 }
-const NObject = new NVarType("Object", function(nvar){}, "#afafaf");
+getValidInTypes = function(ins, outs) {
+	const valid = new Set();
+	for(const o of outs){
+		for(const i of ins){
+			if(o.isA(i)){
+				valid.add(i);
+				break;
+			}
+		}
+	}
+	return Array.from(c);
+}
+getValidOutTypes = function(ins, outs) {
+	const valid = new Set();
+	for(const i of ins){
+		for(const o of outs){
+			if(o.isA(i)){
+				valid.add(o);
+				break;
+			}
+		}
+	}
+	return Array.from(c);
+}
+
+
+const NObject = new NVarType("Object", function(nvar){}, "#8c8c8c");
 const NExecution = new NVarType("Execution", function(nvar){}, "#404040");
 const NInteger = new NVarType("Integer", function(nvar){nvar.int = 0;}, "#64d4ed", NObject);
 const NDouble = new NVarType("Double", function(nvar){nvar.double = 0.0;}, "#7bed3e", NObject);
