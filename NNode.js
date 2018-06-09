@@ -166,7 +166,7 @@ class NNode {
 		// center
 		if (this.centerDiv) {
 			var hc = this.centerDiv.scrollHeight;
-			for(const child of this.centerDiv.children){
+			for (const child of this.centerDiv.children) {
 				hc = Math.max(hc, child.scrollHeight);
 			}
 		}
@@ -181,21 +181,21 @@ class NNode {
 		//WIDTH
 		let w = 0;
 		// center
-		if(this.centerDiv){
+		if (this.centerDiv) {
 			w = this.centerDiv.scrollWidth;
 		}
 		// header
-		if(this.headerDiv){
-			w = Math.max(w,this.headerDiv.scrollWidth);
+		if (this.headerDiv) {
+			w = Math.max(w, this.headerDiv.scrollWidth);
 		}
 		// pinfo
-		if(this.inPinfosDiv){
-			for(const div of this.inPinfosDiv.children){
+		if (this.inPinfosDiv) {
+			for (const div of this.inPinfosDiv.children) {
 				w = Math.max(w, div.scrollWidth);
 			}
 		}
-		if(this.outPinfosDiv){
-			for(const div of this.outPinfosDiv.children){
+		if (this.outPinfosDiv) {
+			for (const div of this.outPinfosDiv.children) {
 				w = Math.max(w, div.scrollWidth);
 			}
 		}
@@ -248,6 +248,11 @@ class NNode {
 	// shortcut to get input by name
 	inputN(inpinName) {
 		return this.getValue(this.inpins[inpinName]);
+	}
+
+	// shortcut to get input by index
+	inputI(i){
+		return this.getValue(this.inpinOrder[i]);
 	}
 
 	// shortcut to execute by name
@@ -382,7 +387,9 @@ class SubstringNode extends NNode {
 	}
 
 	returnValRequested(pin) {
-		return {"string":this.inputN("String").string.substring(this.inputN("Start Index").int, this.inputN("End Index").int)};
+		return {
+			"string": this.inputN("String").string.substring(this.inputN("Start Index").int, this.inputN("End Index").int)
+		};
 	}
 }
 
@@ -403,61 +410,78 @@ class AdditionNode extends NNode {
 		return this.containerDiv;
 	}
 
-	linkedPinChangedType(self, linked, from, to){
-		this.pinUnlinked(self,linked);
-		this.pinLinked(self,linked);
+	linkedPinChangedType(self, linked, from, to) {
+		this.pinUnlinked(self, linked);
+		this.pinLinked(self, linked);
 	}
 
-	pinUnlinked(self, other){
-		if(self.side){
-			if(this.intlock){
+	pinUnlinked(self, other) {
+		if (self.side) {
+			if (this.intlock) {
 				this.intlock = false;
-				for(const inn in this.inpins){
+				for (const inn in this.inpins) {
 					this.inpins[inn].setTypes(false, NInteger, NDouble);
 				}
 			}
-		}else{
-			if(this.doublelocks.delete(self)){
-				if(this.doublelocks.size == 0){
+		} else {
+			if (this.doublelocks.delete(self)) {
+				if (this.doublelocks.size == 0) {
 					this.outpins["Sum"].setTypes(false, NInteger, NDouble);
 				}
 			}
 		}
 	}
 
-	pinLinked(self, other){
-		if(self.side){
-			if(other.multiTyped){
+	pinLinked(self, other) {
+		if (self.side) {
+			if (other.multiTyped) {
 				var isInt = !NDouble.areAny(other.types);
-			}else{
+			} else {
 				var isInt = other.type.isA(NInteger)
 			}
-			if(isInt){
+			if (isInt) {
 				this.intlock = true;
-				for(const inn in this.inpins){
+				for (const inn in this.inpins) {
 					this.inpins[inn].setTypes(false, NInteger);
 				}
 			}
-		}else{
-			if(other.multiTyped){
-				if(!NInteger.areAny(other.types)){
+		} else {
+			if (other.multiTyped) {
+				if (!NInteger.areAny(other.types)) {
 					this.outpins["Sum"].setTypes(false, NDouble);
 					this.doublelocks.add(self);
+					this.intlock = false;
 				}
-			}else{
-				if(other.type.isA(NDouble) && this.outpins["Sum"].type != NDouble){
+			} else {
+				if (other.type.isA(NDouble) && this.outpins["Sum"].type != NDouble) {
 					this.outpins["Sum"].setTypes(false, NDouble);
 					this.doublelocks.add(self);
+					this.intlock = false;
 				}
 			}
 		}
 	}
 
 	returnValRequested(pin) {
-		let sum = 0;
-
-		for(const inn in this.inpins){
-
+		console.log("ADD");
+		console.log(this.intlock);
+		console.log(this.doublelocks);
+		if (this.intlock || this.doublelocks.size == 0) {
+			let sum = 0;
+			for (const inp of this.inpinOrder) {
+				if(inp.linkNum){
+					sum += this.getValue(inp).int;
+				}
+			}
+			return {"int":sum};
+		}else{
+			let sum = 0;
+			for (const inp of this.inpinOrder) {
+				if(inp.linkNum){
+					sum += double(this.getValue(inp));
+				}
+			}
+			return {"double":sum};
 		}
 	}
 }

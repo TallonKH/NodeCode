@@ -17,6 +17,7 @@ class NVarType {
 			for (const parent of vt.allParents) {
 				parent.addValues(nvar);
 			}
+			nvar["nclass"] = this;
 			return nvar;
 		};
 	}
@@ -37,7 +38,6 @@ class NVarType {
 		}
 		return false;
 	}
-
 }
 getValidInTypes = function(ins, outs) {
 	const valid = new Set();
@@ -51,6 +51,7 @@ getValidInTypes = function(ins, outs) {
 	}
 	return Array.from(c);
 }
+
 getValidOutTypes = function(ins, outs) {
 	const valid = new Set();
 	for(const i of ins){
@@ -64,6 +65,16 @@ getValidOutTypes = function(ins, outs) {
 	return Array.from(c);
 }
 
+double = function(v){
+	if(v.nclass.isA(NDouble)){
+		return v.double;
+	}
+	if(v.nclass.isA(NInteger)){
+		return v.int;
+	}
+	console.log(v.name + " is NaN!");
+	return null;
+}
 
 const NObject = new NVarType("Object", function(nvar){}, "#8c8c8c");
 const NExecution = new NVarType("Execution", function(nvar){}, "#404040");

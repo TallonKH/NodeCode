@@ -170,14 +170,15 @@ class NPin {
 	}
 
 	canPlugInto(otherPin) {
+		if (this.side == otherPin.side) {
+			return false;
+		}
+
 		if (!this.side) {
 			console.log("canPlugInto called by an input pin!");
 			return false;
 		}
 
-		if (this.side == otherPin.side) {
-			return false;
-		}
 
 		if (this.node == otherPin.node) {
 			return false;
