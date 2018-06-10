@@ -209,6 +209,38 @@ body {
 	user-select: none;
 }
 
+.ctxmenu {
+	position: absolute;
+	background-color: #eeeeeeee;
+	border: 1px solid #cccccc;
+	border-radius: 2px;
+	min-width: 150px;
+	max-width: 300px;
+	box-shadow: 6px 6px 10px #44444488;
+}
+
+.ctxmenu>header {
+font-size: 16px;
+font-weight: bold;
+padding: 0.2em 0.4em;
+background-color: #e0e0e0;
+border-bottom: 1px solid #cccccc;
+}
+
+.menu {
+	overflow: scroll;
+}
+
+.menuitem {
+	display: block;
+	font-size: 15px;
+	padding: 0.1em 0.4em;
+	border-bottom: 1px solid #e0e0e0;
+}
+.menuitem:hover {
+	background-color: #dddddd;
+}
+
 canvas {
 	pointer-events: none;
 	width: 100%;

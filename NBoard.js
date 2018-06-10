@@ -16,8 +16,9 @@ class NBoard {
 		this.nodes = {}; // nodeid : node
 		this.selectedNodes = {};
 		this.pins = {}; // pinid : pin
-
 		this.links = {}; // (pin1, (pin2|null))
+
+		this.activeMenu = null;
 
 		this.actionStack = [];
 		this.actionStackIndex = -1;
@@ -49,6 +50,7 @@ class NBoard {
 		this.trueCurrentMouse = new NPoint(0, 0);
 		this.frameMouseDelta = new NPoint(0, 0);
 	}
+
 
 	evntToPt(event) {
 		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60).subtractp(this.displayOffset).divide1(this.zoom);
@@ -109,6 +111,58 @@ class NBoard {
 		this.redraw();
 	}
 
+	closeMenu(){
+		if(this.activeMenu){
+			this.activeMenu.remove();
+			this.activeMenu = null;
+		}
+	}
+
+	contextMenu(event) {
+		const brd = this;
+
+		const main = document.createElement("div");
+		main.className = "ctxmenu";
+		main.style.left = event.clientX + "px";
+		main.style.top = event.clientY + "px";
+
+		const header = document.createElement("header");
+		header.innerHTML = this.name;
+		main.append(header);
+
+		const menu = document.createElement("div");
+		menu.className = "menu";
+		main.append(menu);
+
+		const miAddNode = document.createElement("div");
+		miAddNode.className = "menuitem";
+		miAddNode.innerHTML = "Create Node"
+		miAddNode.onclick = function(event){
+			main.remove();
+		}
+		menu.append(miAddNode);
+
+		const miSelectAll = document.createElement("div");
+		miSelectAll.className = "menuitem";
+		miSelectAll.innerHTML = "Select All"
+		miSelectAll.onclick = function(event){
+			console.log("sa");
+			brd.selectAllNodes();
+			main.remove();
+		}
+		menu.append(miSelectAll);
+
+		const mi = document.createElement("div");
+		mi.className = "menuitem";
+		mi.innerHTML = "Menu Item"
+		mi.onclick = function(event){
+			main.remove();
+		}
+		menu.append(mi);
+
+		return main;
+	}
+
 	mouseDown(event) {
 		this.lastMouseButton = event.which;
 		this.clickStart = this.evntToPt(event);
@@ -133,6 +187,10 @@ class NBoard {
 					this.rightMDown = true;
 				}
 		}
+		if(this.clickStartTarget != this.activeMenu){
+			this.closeMenu()
+		}
+
 		this.redraw();
 		return true;
 	}
@@ -249,16 +307,20 @@ class NBoard {
 								this.deselectAllNodes();
 								this.selectNode(divNode);
 							}
-						} else if (upTargetClasses.contains("pin")){
+						} else if (upTargetClasses.contains("pin")) { // a pin was clicked
 							const divPin = this.getDivPin(this.clickStartTarget);
-							if(this.env.altDown){
-								if(divPin.isExec){
+							if (this.env.altDown) {
+								if (divPin.isExec) {
+									this.execIterCount = 0;
+									console.log("Started Execution.");
 									divPin.execute();
-									console.log("Executed.");
-								}else{
+									console.log("Finished Execution.");
+								} else {
 									console.log(divPin.getValue());
 								}
 							}
+						} else { // something else was clicked
+							this.clickStartTarget.onclick(event);
 						}
 					}
 					break;
@@ -369,7 +431,9 @@ class NBoard {
 				break;
 		}
 		switch (event.which) {
-			case 90:
+			case 27: // ESC
+				this.closeMenu();
+			case 90: // Z
 				if (this.env.ctrlDown) {
 					if (this.env.shiftDown) {
 						this.redo();
@@ -378,13 +442,13 @@ class NBoard {
 					}
 				}
 				break;
-			case 65:
+			case 65: // A
 				if (main.ctrlDown) {
 					this.addAction(new ActSelectAll(this));
 					main.activeBoard.selectAllNodes();
 				}
 				break;
-			case 187:
+			case 187: // +
 				if (main.ctrlDown) {
 					const prevZoom = this.zoom;
 					if (this.zoom < 5) {
@@ -393,7 +457,7 @@ class NBoard {
 					this.redraw();
 				}
 				break;
-			case 189:
+			case 189: // /
 				if (main.ctrlDown) {
 					const prevZoom = this.zoom;
 					if (this.zoom > 0.28) {
@@ -535,6 +599,21 @@ class NBoard {
 
 		this.boardDiv = document.createElement("div");
 		this.boardDiv.className = "board";
+		this.boardDiv.oncontextmenu = function(event) {
+			brd.closeMenu();
+			if (event.target == brd.boardDiv) {
+				brd.activeMenu = brd.contextMenu(event);
+			} else if (event.target.classList.contains("nodepart")) {
+				brd.activeMenu = brd.getDivNode(event.target).contextMenu(event);
+			} else if (event.target.classList.contains("pin")) {
+				brd.activeMenu = brd.getDivPin(event.target).contextMenu(event);
+			}
+
+			if(brd.activeMenu){
+				brd.boardDiv.append(brd.activeMenu);
+			}
+			return false;
+		};
 		this.paneDiv.append(this.boardDiv);
 
 		this.containerDiv = document.createElement("div");

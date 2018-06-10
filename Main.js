@@ -14,7 +14,7 @@ class Main {
 		this.maxPanDist = 100;
 		this.dragDistance = 15;
 		this.panSpeed = 0.3;
-		this.maxExecIterations = 10000;
+		this.maxExecIterations = 500;
 	}
 
 	newBoard(name) {
@@ -42,7 +42,7 @@ $(function() {
 		}
 	});
 
-	$(window).on("resize", function(e){
+	$(window).on("resize", function(e) {
 		main.activeBoard.fixSize();
 	});
 
@@ -146,16 +146,16 @@ $(function() {
 		return main.metaDown || event.target.hasAttribute('data-ovrdkeys');
 	};
 
-	window.onmousedown = function(event){
+	window.onmousedown = function(event) {
 		return main.activeBoard.mouseDown(event);
 	}
-	window.onmouseup = function(event){
+	window.onmouseup = function(event) {
 		return main.activeBoard.mouseUp(event);
 	}
-	window.onmousemove = function(event){
+	window.onmousemove = function(event) {
 		return main.activeBoard.mouseMoved(event);
 	}
-	window.onmousewheel = function(event){
+	window.onmousewheel = function(event) {
 		return main.activeBoard.mouseWheel(event);
 	}
 
