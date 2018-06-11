@@ -113,8 +113,8 @@ class NBoard {
 		this.redraw();
 	}
 
-	closeMenu(){
-		if(this.activeMenu){
+	closeMenu() {
+		if (this.activeMenu) {
 			this.activeMenu.remove();
 			this.activeMenu = null;
 		}
@@ -139,17 +139,18 @@ class NBoard {
 		const miAddNode = document.createElement("div");
 		miAddNode.className = "menuitem";
 		miAddNode.innerHTML = "Create Node"
-		miAddNode.onclick = function(e){
+		miAddNode.onclick = function(e) {
 			brd.closeMenu();
 			brd.activeMenu = brd.nodeCreationMenu(event);
 			brd.boardDiv.append(brd.activeMenu);
+			$(".menusearch").focus();
 		}
 		menu.append(miAddNode);
 
 		const miSelectAll = document.createElement("div");
 		miSelectAll.className = "menuitem";
 		miSelectAll.innerHTML = "Select All"
-		miSelectAll.onclick = function(e){
+		miSelectAll.onclick = function(e) {
 			brd.addAction(new ActSelectAll(brd));
 			brd.selectAllNodes();
 			brd.closeMenu();
@@ -160,7 +161,7 @@ class NBoard {
 			const miUndo = document.createElement("div");
 			miUndo.className = "menuitem";
 			miUndo.innerHTML = "Undo"
-			miUndo.onclick = function(e){
+			miUndo.onclick = function(e) {
 				brd.undo();
 				brd.closeMenu();
 			}
@@ -171,7 +172,7 @@ class NBoard {
 			const miRedo = document.createElement("div");
 			miRedo.className = "menuitem";
 			miRedo.innerHTML = "Redo"
-			miRedo.onclick = function(e){
+			miRedo.onclick = function(e) {
 				brd.redo();
 				brd.closeMenu();
 			}
@@ -181,7 +182,7 @@ class NBoard {
 		const mi = document.createElement("div");
 		mi.className = "menuitem";
 		mi.innerHTML = "Menu Item"
-		mi.onclick = function(e){
+		mi.onclick = function(e) {
 			brd.closeMenu();
 		}
 		menu.append(mi);
@@ -189,7 +190,7 @@ class NBoard {
 		return main;
 	}
 
-	nodeCreationMenu(event){
+	nodeCreationMenu(event) {
 		const brd = this;
 
 		const main = document.createElement("div");
@@ -205,17 +206,78 @@ class NBoard {
 		menu.className = "menu";
 		main.append(menu);
 
-		for(const type of this.nodeTypes){
+		const items = {};
+
+		for (const type of this.nodeTypes) {
 			const mi = document.createElement("div");
 			mi.className = "menuitem";
 			mi.innerHTML = type.getName();
-			mi.onclick = function(e){
+			mi.onclick = function(e) {
 				const node = brd.addNode(type);
 				node.setPosition(brd.evntToPt(e));
 				brd.closeMenu();
 			}
+			items[type] = mi;
 			menu.append(mi);
 		}
+
+		const miSearch = document.createElement("div");
+		miSearch.className = "menuitem";
+		// miSearch.innerHTML = type.getName();
+		const searcharea = document.createElement("input");
+		searcharea.type = "text";
+		searcharea.className = "menusearch";
+		searcharea.setAttribute("data-ovrdkeys", true);
+		searcharea.oninput = function(e) {
+			const valid = [
+				[],
+				[],
+				[],
+				[]
+			];
+			const search = searcharea.value.toLowerCase().replace(' ', "");
+
+			// clear menu
+			for (const mn in items) {
+				items[mn].remove();
+			}
+
+			if (search.length == 0) { // no search
+				// add all nodes back
+				for (const mn in items) {
+					menu.append(items[mn]);
+				}
+			} else {
+				for (const type of brd.nodeTypes) {
+					const name = type.getName().toLowerCase().replace(' ', "");
+					if (name.startsWith(search)) {
+						if (name.length == search.length) { // exact name match
+							valid[0].push(type);
+						} else { // prefix name match
+							valid[2].push(type);
+						}
+					} else if (typeof type.getTags === "function") {
+						for (const tag of type.getTags()) {
+							if (tag.startsWith(search)) {
+								if (tag.length == search.length) { // exact tag match
+									valid[1].push(type);
+								} else { // prefix tag match
+									valid[3].push(type);
+								}
+								break;
+							}
+						}
+					}
+				}
+				for (const lst of valid) {
+					for (const type of lst) {
+						menu.append(items[type]);
+					}
+				}
+			}
+		}
+		miSearch.append(searcharea);
+		menu.append(miSearch);
 
 		return main;
 	}
@@ -244,7 +306,7 @@ class NBoard {
 					this.rightMDown = true;
 				}
 		}
-		if(this.clickStartTarget != this.activeMenu){
+		if (this.activeMenu != null && !this.activeMenu.contains(this.clickStartTarget)) {
 			this.closeMenu()
 		}
 
@@ -377,7 +439,9 @@ class NBoard {
 								}
 							}
 						} else { // something else was clicked
-							this.clickStartTarget.onclick(event);
+							if (typeof this.onclick === "function") {
+								this.clickStartTarget.onclick(event);
+							}
 						}
 					}
 					break;
@@ -666,7 +730,7 @@ class NBoard {
 				brd.activeMenu = brd.getDivPin(event.target).contextMenu(event);
 			}
 
-			if(brd.activeMenu){
+			if (brd.activeMenu) {
 				brd.boardDiv.append(brd.activeMenu);
 			}
 			return false;

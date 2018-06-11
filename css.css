@@ -214,9 +214,10 @@ body {
 	background-color: #eeeeeeee;
 	border: 1px solid #cccccc;
 	border-radius: 2px;
+	box-shadow: 6px 6px 10px #44444488;
 	min-width: 150px;
 	max-width: 300px;
-	box-shadow: 6px 6px 10px #44444488;
+	max-height: 600px;
 }
 
 .ctxmenu>header {
@@ -228,7 +229,13 @@ border-bottom: 1px solid #cccccc;
 }
 
 .menu {
-	overflow: scroll;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+
+.menusearch {
+	width: calc(100% - 6px);
+	margin: 1px;
 }
 
 .menuitem {

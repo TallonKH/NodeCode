@@ -64,7 +64,7 @@ $(function() {
 	brdA.addNode(IncrementNode).position = new NPoint(650, 250);
 
 	window.onkeydown = function(event) {
-		const divCaptures = event.target.hasAttribute('data-ovrdkeys');
+		const divCaptures = event.target.hasAttribute("data-ovrdkeys");
 		switch (event.key) {
 			case 'Shift':
 				main.shiftDown = true;
