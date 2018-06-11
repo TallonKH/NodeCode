@@ -53,7 +53,6 @@ class NBoard {
 		this.frameMouseDelta = new NPoint(0, 0);
 	}
 
-
 	evntToPt(event) {
 		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60).subtractp(this.displayOffset).divide1(this.zoom);
 		return p;
@@ -115,7 +114,9 @@ class NBoard {
 
 	closeMenu() {
 		if (this.activeMenu) {
-			this.activeMenu.remove();
+			try {
+				this.activeMenu.remove();
+			} catch (e) {}
 			this.activeMenu = null;
 		}
 	}
@@ -208,18 +209,6 @@ class NBoard {
 
 		const items = {};
 
-		for (const type of this.nodeTypes) {
-			const mi = document.createElement("div");
-			mi.className = "menuitem";
-			mi.innerHTML = type.getName();
-			mi.onclick = function(e) {
-				const node = brd.addNode(type);
-				node.setPosition(brd.evntToPt(e));
-				brd.closeMenu();
-			}
-			items[type] = mi;
-			menu.append(mi);
-		}
 
 		const miSearch = document.createElement("div");
 		miSearch.className = "menuitem";
@@ -228,6 +217,19 @@ class NBoard {
 		searcharea.type = "text";
 		searcharea.className = "menusearch";
 		searcharea.setAttribute("data-ovrdkeys", true);
+		searcharea.onkeydown = function(e) {
+			switch (e.which) {
+				case 13: // ENTER
+					if (menu.children.length > 1) {
+						menu.children[1].onclick(event);
+					}
+					return false;
+				case 27:
+					brd.closeMenu();
+					return false;
+			}
+			return true;
+		}
 		searcharea.oninput = function(e) {
 			const valid = [
 				[],
@@ -235,7 +237,7 @@ class NBoard {
 				[],
 				[]
 			];
-			const search = searcharea.value.toLowerCase().replace(' ', "");
+			const search = searcharea.value.toLowerCase().replace(/ /g, "");
 
 			// clear menu
 			for (const mn in items) {
@@ -278,6 +280,19 @@ class NBoard {
 		}
 		miSearch.append(searcharea);
 		menu.append(miSearch);
+
+		for (const type of this.nodeTypes) {
+			const mi = document.createElement("div");
+			mi.className = "menuitem";
+			mi.innerHTML = type.getName();
+			mi.onclick = function(e) {
+				const node = brd.addNode(type);
+				node.setPosition(brd.evntToPt(e));
+				brd.closeMenu();
+			}
+			items[type] = mi;
+			menu.append(mi);
+		}
 
 		return main;
 	}
@@ -554,6 +569,13 @@ class NBoard {
 		switch (event.which) {
 			case 27: // ESC
 				this.closeMenu();
+				break;
+			case 32: // SPACE
+				this.closeMenu();
+				this.activeMenu = this.nodeCreationMenu(this.lastMouseMoveEvent);
+				this.boardDiv.append(this.activeMenu);
+				$(".menusearch").focus();
+				break;
 			case 90: // Z
 				if (this.env.ctrlDown) {
 					if (this.env.shiftDown) {
