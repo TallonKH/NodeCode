@@ -20,6 +20,8 @@ class NBoard {
 
 		this.activeMenu = null;
 
+		this.nodeTypes = [StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode];
+
 		this.actionStack = [];
 		this.actionStackIndex = -1;
 		this.execIterCount = 0;
@@ -137,28 +139,83 @@ class NBoard {
 		const miAddNode = document.createElement("div");
 		miAddNode.className = "menuitem";
 		miAddNode.innerHTML = "Create Node"
-		miAddNode.onclick = function(event){
-			main.remove();
+		miAddNode.onclick = function(e){
+			brd.closeMenu();
+			brd.activeMenu = brd.nodeCreationMenu(event);
+			brd.boardDiv.append(brd.activeMenu);
 		}
 		menu.append(miAddNode);
 
 		const miSelectAll = document.createElement("div");
 		miSelectAll.className = "menuitem";
 		miSelectAll.innerHTML = "Select All"
-		miSelectAll.onclick = function(event){
-			console.log("sa");
+		miSelectAll.onclick = function(e){
+			brd.addAction(new ActSelectAll(brd));
 			brd.selectAllNodes();
-			main.remove();
+			brd.closeMenu();
 		}
 		menu.append(miSelectAll);
+
+		if (this.actionStackIndex > -1) {
+			const miUndo = document.createElement("div");
+			miUndo.className = "menuitem";
+			miUndo.innerHTML = "Undo"
+			miUndo.onclick = function(e){
+				brd.undo();
+				brd.closeMenu();
+			}
+			menu.append(miUndo);
+		}
+
+		if (this.actionStackIndex < this.actionStack.length - 1) {
+			const miRedo = document.createElement("div");
+			miRedo.className = "menuitem";
+			miRedo.innerHTML = "Redo"
+			miRedo.onclick = function(e){
+				brd.redo();
+				brd.closeMenu();
+			}
+			menu.append(miRedo);
+		}
 
 		const mi = document.createElement("div");
 		mi.className = "menuitem";
 		mi.innerHTML = "Menu Item"
-		mi.onclick = function(event){
-			main.remove();
+		mi.onclick = function(e){
+			brd.closeMenu();
 		}
 		menu.append(mi);
+
+		return main;
+	}
+
+	nodeCreationMenu(event){
+		const brd = this;
+
+		const main = document.createElement("div");
+		main.className = "ctxmenu";
+		main.style.left = event.clientX + "px";
+		main.style.top = event.clientY + "px";
+
+		const header = document.createElement("header");
+		header.innerHTML = "Create Node";
+		main.append(header);
+
+		const menu = document.createElement("div");
+		menu.className = "menu";
+		main.append(menu);
+
+		for(const type of this.nodeTypes){
+			const mi = document.createElement("div");
+			mi.className = "menuitem";
+			mi.innerHTML = type.getName();
+			mi.onclick = function(e){
+				const node = brd.addNode(type);
+				node.setPosition(brd.evntToPt(e));
+				brd.closeMenu();
+			}
+			menu.append(mi);
+		}
 
 		return main;
 	}

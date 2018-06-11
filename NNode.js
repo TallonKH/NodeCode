@@ -8,8 +8,7 @@
 //	data-ovrdkeys		:		if div should override keyboard functionality
 
 class NNode {
-	constructor(displayName = "Unknode") {
-		this.displayName = displayName;
+	constructor() {
 		this.resizable = false;
 
 		this.board = null;
@@ -67,7 +66,7 @@ class NNode {
 		return this.containerDiv;
 	}
 
-	addHeader(text = this.displayName) {
+	addHeader(text = this.constructor.getName()) {
 		this.headerDiv = document.createElement("header");
 		this.headerDiv.className = "nodepart";
 		this.headerDiv.setAttribute("data-nodeid", this.nodeid);
@@ -251,7 +250,7 @@ class NNode {
 	}
 
 	// shortcut to get input by index
-	inputI(i){
+	inputI(i) {
 		return this.getValue(this.inpinOrder[i]);
 	}
 
@@ -288,11 +287,15 @@ class NNode {
 		const max = new NPoint(min.x + this.nodeDiv.clientWidth, min.y + this.nodeDiv.clientHeight);
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
+
+	static getName() {
+		return "Unknode";
+	}
 }
 
 class StringNode extends NNode {
-	constructor(board) {
-		super("String");
+	constructor() {
+		super();
 		this.val = NString.construct();
 	}
 
@@ -308,11 +311,19 @@ class StringNode extends NNode {
 	returnValRequested(pin) {
 		return this.val;
 	}
+
+	static getName() {
+		return "String";
+	}
+
+	static getTags() {
+		return ["\"\"", "\'\'"];
+	}
 }
 
 class IntegerNode extends NNode {
-	constructor(board) {
-		super("Integer");
+	constructor() {
+		super();
 		this.val = NInteger.construct();
 	}
 
@@ -327,11 +338,15 @@ class IntegerNode extends NNode {
 	returnValRequested(pin) {
 		return this.val;
 	}
+
+	static getName() {
+		return "Integer";
+	}
 }
 
 class DoubleNode extends NNode {
-	constructor(board) {
-		super("Integer");
+	constructor() {
+		super();
 		this.val = NInteger.construct();
 	}
 
@@ -346,11 +361,19 @@ class DoubleNode extends NNode {
 	returnValRequested(pin) {
 		return this.val;
 	}
+
+	static getName() {
+		return "Double";
+	}
+
+	static getTags() {
+		return ["float"];
+	}
 }
 
 class DisplayNode extends NNode {
 	constructor() {
-		super("Display");
+		super();
 	}
 
 	createNodeDiv() {
@@ -367,6 +390,14 @@ class DisplayNode extends NNode {
 	inputExecuted(pin) {
 		console.log(this.inputN("Value"));
 		this.execN("__");
+	}
+
+	static getName() {
+		return "Display";
+	}
+
+	static getTags() {
+		return ["print", "log", "output", "sysout", "stdout"];
 	}
 }
 
@@ -391,11 +422,15 @@ class SubstringNode extends NNode {
 			"string": this.inputN("String").string.substring(this.inputN("Start Index").int, this.inputN("End Index").int)
 		};
 	}
+
+	static getName() {
+		return "Substring";
+	}
 }
 
 class AdditionNode extends NNode {
 	constructor() {
-		super("Add");
+		super();
 		this.intlock = false;
 		this.doublelocks = new Set();
 	}
@@ -469,26 +504,38 @@ class AdditionNode extends NNode {
 		if (this.intlock || this.doublelocks.size == 0) {
 			let sum = 0;
 			for (const inp of this.inpinOrder) {
-				if(inp.linkNum){
+				if (inp.linkNum) {
 					sum += this.getValue(inp).int;
 				}
 			}
-			return {"int":sum};
-		}else{
+			return {
+				"int": sum
+			};
+		} else {
 			let sum = 0;
 			for (const inp of this.inpinOrder) {
-				if(inp.linkNum){
+				if (inp.linkNum) {
 					sum += double(this.getValue(inp));
 				}
 			}
-			return {"double":sum};
+			return {
+				"double": sum
+			};
 		}
+	}
+
+	static getName() {
+		return "Addition";
+	}
+
+	static getTags() {
+		return ["plus", "+", "sum"];
 	}
 }
 
 class IncrementNode extends NNode {
 	constructor() {
-		super("Increment");
+		super();
 	}
 
 	createNodeDiv() {
@@ -501,11 +548,19 @@ class IncrementNode extends NNode {
 		this.addOutPin(new NPin("__", NExecution));
 		return this.containerDiv;
 	}
+
+	static getName() {
+		return "Increment";
+	}
+
+	static getTags() {
+		return ["++", "+="];
+	}
 }
 
 class CommentNode extends NNode {
 	constructor() {
-		super("Comment");
+		super();
 	}
 
 	createNodeDiv() {
@@ -531,5 +586,13 @@ class CommentNode extends NNode {
 
 		this.centerDiv.append(this.textArea);
 		return this.containerDiv;
+	}
+
+	static getName() {
+		return "Comment";
+	}
+
+	static getTags() {
+		return ["//", "#", "/*"];
 	}
 }
