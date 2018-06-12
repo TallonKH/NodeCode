@@ -24,6 +24,11 @@ class Main {
 		$(this.mainTabDiv).tabs("refresh");
 		this.boards.push(brd);
 		this.activeBoard = brd;
+		setTimeout(function(){
+			for(const nd in brd.nodes){
+				brd.nodes[nd].updatePosition();
+			}
+		},10);
 		return brd;
 	}
 }
