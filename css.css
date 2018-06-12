@@ -378,6 +378,7 @@ canvas {
 	flex: 1 0;
 	white-space: nowrap;
 	display: block;
+	pointer-events: none;
 }
 
 .inpinfo>.text {
