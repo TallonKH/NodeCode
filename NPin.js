@@ -156,8 +156,8 @@ class NPin {
 	}
 
 	unlinkAll() {
-		for (const id in this.links) {
-			this.unlink(this.links[id]);
+		for (const pin of Object.values(this.links)) {
+			this.unlink(pin);
 		}
 	}
 

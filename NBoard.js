@@ -567,6 +567,13 @@ class NBoard {
 				break;
 		}
 		switch (event.which) {
+			case 8: // BACKSPACE
+			case 46: // DELETE
+				const selected = Object.values(this.selectedNodes);
+				for(const node of selected){
+					this.destroyNode(node);
+				}
+				break;
 			case 27: // ESC
 				this.closeMenu();
 				break;
@@ -855,9 +862,16 @@ class NBoard {
 	addNode(type) {
 		const node = new type();
 		node.board = this;
-		const d = node.createNodeDiv();
-		this.containerDiv.append(d);
+		this.containerDiv.append(node.createNodeDiv());
 		this.nodes[node.nodeid] = node;
 		return node;
+	}
+
+	destroyNode(node) {
+		node.unlinkAllPins();
+		node.containerDiv.remove();
+		delete this.nodes[node.nodeid];
+		delete this.selectedNodes[node.nodeid];
+		this.redraw();
 	}
 }

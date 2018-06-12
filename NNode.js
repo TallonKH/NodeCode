@@ -49,7 +49,7 @@ class NNode {
 	}
 
 	createNodeDiv() {
-		this.containerDiv = document.createElement("span");
+		this.containerDiv = document.createElement("div");
 		this.containerDiv.className = "container";
 
 		this.nodeDiv = document.createElement("div");
@@ -64,6 +64,19 @@ class NNode {
 		this.containerDiv.append(this.nodeDiv);
 
 		return this.containerDiv;
+	}
+
+	destroy(){
+		this.board.destroyNode(this);
+	}
+
+	unlinkAllPins(){
+		for(const pin in this.inpins){
+			this.inpins[pin].unlinkAll();
+		}
+		for(const pin in this.outpins){
+			this.outpins[pin].unlinkAll();
+		}
 	}
 
 	addHeader(text = this.constructor.getName()) {
