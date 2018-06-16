@@ -11,9 +11,10 @@ class Main {
 		this.ctrlDown = false;
 		this.metaDown = false;
 
-		this.maxPanDist = 100;
+		this.maxPanDist = 25;
+		this.lineClickDistance = 10;
 		this.dragDistance = 15;
-		this.panSpeed = 0.3;
+		this.panSpeed = 0.5;
 		this.maxExecIterations = 500;
 	}
 

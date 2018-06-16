@@ -221,11 +221,11 @@ body {
 }
 
 .ctxmenu>header {
-font-size: 16px;
-font-weight: bold;
-padding: 0.2em 0.4em;
-background-color: #e0e0e0;
-border-bottom: 1px solid #cccccc;
+	font-size: 16px;
+	font-weight: bold;
+	padding: 0.2em 0.4em;
+	background-color: #e0e0e0;
+	border-bottom: 1px solid #cccccc;
 }
 
 .menu {
@@ -244,6 +244,7 @@ border-bottom: 1px solid #cccccc;
 	padding: 0.1em 0.4em;
 	border-bottom: 1px solid #e0e0e0;
 }
+
 .menuitem:hover {
 	background-color: #dddddd;
 }
@@ -468,3 +469,10 @@ canvas {
 .outpin {}
 
 .inpin {}
+
+/* Menu Item Header */
+
+.mih {
+	font-weight: bold;
+	display: inline-block;
+}

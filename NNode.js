@@ -123,7 +123,7 @@ class NNode {
 			this.bodyDiv.append(this.inPinsDiv);
 
 			this.inPinfosDiv = document.createElement("div");
-			this.inPinfosDiv.className = "inpinfos pinfos"
+			this.inPinfosDiv.className = "inpinfos pinfos nodepart"
 			this.inPinfosDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.inPinfosDiv);
 
@@ -131,7 +131,9 @@ class NNode {
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.inPinsDiv.append(pin.createPinDiv());
-		this.inPinfosDiv.append(pin.createPinfoDiv());
+		const pinfo = pin.createPinfoDiv();
+		pinfo.setAttribute("data-nodeid", this.nodeid);
+		this.inPinfosDiv.append(pinfo);
 	}
 
 	addOutPin(pin) {
@@ -155,7 +157,7 @@ class NNode {
 			this.bodyDiv.append(this.outPinsDiv);
 
 			this.outPinfosDiv = document.createElement("div");
-			this.outPinfosDiv.className = "outpinfos pinfos"
+			this.outPinfosDiv.className = "outpinfos pinfos nodepart"
 			this.outPinfosDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.outPinfosDiv);
 
@@ -163,7 +165,8 @@ class NNode {
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.outPinsDiv.append(pin.createPinDiv());
-		this.outPinfosDiv.append(pin.createPinfoDiv());
+		const pinfo = pin.createPinfoDiv();
+		this.outPinfosDiv.append(pinfo);
 	}
 
 	move(delta) {

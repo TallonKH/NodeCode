@@ -16,7 +16,8 @@ class NBoard {
 		this.nodes = {}; // nodeid : node
 		this.selectedNodes = {};
 		this.pins = {}; // pinid : pin
-		this.links = {}; // (pin1, (pin2|null))
+		this.links = {}; // linkid : [pin1, pin2]
+		this.linkLines = {}; // linkid : [p1, p2, p3, p4, ...]
 
 		this.activeMenu = null;
 
@@ -141,10 +142,7 @@ class NBoard {
 		miAddNode.className = "menuitem";
 		miAddNode.innerHTML = "Create Node"
 		miAddNode.onclick = function(e) {
-			brd.closeMenu();
-			brd.activeMenu = brd.nodeCreationMenu(event);
-			brd.boardDiv.append(brd.activeMenu);
-			$(".menusearch").focus();
+			brd.applyMenu(brd.nodeCreationMenu(event));
 		}
 		menu.append(miAddNode);
 
@@ -189,6 +187,13 @@ class NBoard {
 		menu.append(mi);
 
 		return main;
+	}
+
+	applyMenu(menu){
+		this.closeMenu();
+		this.activeMenu = menu;
+		this.boardDiv.append(menu);
+		$(".menusearch").focus();
 	}
 
 	nodeCreationMenu(event) {
@@ -570,7 +575,7 @@ class NBoard {
 			case 8: // BACKSPACE
 			case 46: // DELETE
 				const selected = Object.values(this.selectedNodes);
-				for(const node of selected){
+				for (const node of selected) {
 					this.destroyNode(node);
 				}
 				break;
@@ -752,15 +757,11 @@ class NBoard {
 		this.boardDiv.oncontextmenu = function(event) {
 			brd.closeMenu();
 			if (event.target == brd.boardDiv) {
-				brd.activeMenu = brd.contextMenu(event);
+				brd.applyMenu(brd.contextMenu(event));
 			} else if (event.target.classList.contains("nodepart")) {
-				brd.activeMenu = brd.getDivNode(event.target).contextMenu(event);
+				brd.applyMenu(brd.getDivNode(event.target).contextMenu(event));
 			} else if (event.target.classList.contains("pin")) {
-				brd.activeMenu = brd.getDivPin(event.target).contextMenu(event);
-			}
-
-			if (brd.activeMenu) {
-				brd.boardDiv.append(brd.activeMenu);
+				brd.applyMenu(brd.getDivPin(event.target).contextMenu(event));
 			}
 			return false;
 		};
@@ -852,10 +853,23 @@ class NBoard {
 			ctx.lineWidth = 8 * this.zoom;
 
 			ctx.beginPath();
-			ctx.moveTo(l1.x, l1.y);
 			const splineDist = Math.abs(l1.y - l2.y) / 2 + Math.abs((l1.x - l2.x)) / 4;
-			ctx.bezierCurveTo(l1.x - splineDist, l1.y, l2.x + splineDist, l2.y, l2.x, l2.y);
+			const p1 = new NPoint(l1.x - splineDist, l1.y);
+			const p2 = new NPoint(l2.x + splineDist, l2.y);
+			ctx.moveTo(l1.x, l1.y);
+			ctx.bezierCurveTo(p1.x, p1.y, p2.x, l2.y, l2.x, l2.y);
 			ctx.stroke();
+			// let lastp = l1;
+			// const inc = (this.env.lineClickDistance * 2)/(Math.abs(l1.x - l2.x)+Math.abs(l1.y - l2.y));
+			// for(let i=inc; i<1; i+=inc){
+			// 	const curvePt = pointOnBezier(l1,p1,p2,l2, i);
+			// 	ctx.lineWidth = 4;
+			// 	ctx.moveTo(lastp.x, lastp.y);
+			// 	ctx.beginPath();
+			// 	const slope = Math.abs(slopeOnBezier(l1,p1,p2,l2,i).y);
+			// 	ctx.arc(curvePt.x,curvePt.y,slope,0,2*Math.PI);
+			// 	ctx.stroke();
+			// }
 		}
 	}
 
