@@ -56,18 +56,18 @@ $(function() {
 	let brdB = main.newBoard("TEST B");
 	let brdC = main.newBoard("TEST C");
 
-	brdA.addNode(StringNode).position = new NPoint(50, 50);
-	brdA.addNode(SubstringNode).position = new NPoint(250, 50);
-	brdA.addNode(AdditionNode).position = new NPoint(450, 50);
-	brdA.addNode(DoubleNode).position = new NPoint(650, 50);
-	brdA.addNode(StringNode).position = new NPoint(50, 150);
-	brdA.addNode(SubstringNode).position = new NPoint(250, 150);
-	brdA.addNode(AdditionNode).position = new NPoint(450, 150);
-	brdA.addNode(IncrementNode).position = new NPoint(650, 150);
-	brdA.addNode(IntegerNode).position = new NPoint(50, 250);
-	brdA.addNode(DisplayNode).position = new NPoint(250, 250);
-	brdA.addNode(DisplayNode).position = new NPoint(450, 250);
-	brdA.addNode(IncrementNode).position = new NPoint(650, 250);
+	brdA.createNode(StringNode).position = new NPoint(50, 50);
+	brdA.createNode(SubstringNode).position = new NPoint(250, 50);
+	brdA.createNode(AdditionNode).position = new NPoint(450, 50);
+	brdA.createNode(DoubleNode).position = new NPoint(650, 50);
+	brdA.createNode(StringNode).position = new NPoint(50, 150);
+	brdA.createNode(SubstringNode).position = new NPoint(250, 150);
+	brdA.createNode(AdditionNode).position = new NPoint(450, 150);
+	brdA.createNode(IncrementNode).position = new NPoint(650, 150);
+	brdA.createNode(IntegerNode).position = new NPoint(50, 250);
+	brdA.createNode(DisplayNode).position = new NPoint(250, 250);
+	brdA.createNode(DisplayNode).position = new NPoint(450, 250);
+	brdA.createNode(IncrementNode).position = new NPoint(650, 250);
 
 	window.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute("data-ovrdkeys");

@@ -138,13 +138,13 @@ class NBoard {
 		menu.className = "menu";
 		main.append(menu);
 
-		const miAddNode = document.createElement("div");
-		miAddNode.className = "menuitem";
-		miAddNode.innerHTML = "Create Node"
-		miAddNode.onclick = function(e) {
+		const micreateNode = document.createElement("div");
+		micreateNode.className = "menuitem";
+		micreateNode.innerHTML = "Create Node"
+		micreateNode.onclick = function(e) {
 			brd.applyMenu(brd.nodeCreationMenu(event));
 		}
-		menu.append(miAddNode);
+		menu.append(micreateNode);
 
 		const miSelectAll = document.createElement("div");
 		miSelectAll.className = "menuitem";
@@ -199,10 +199,29 @@ class NBoard {
 	nodeCreationMenu(event) {
 		const brd = this;
 
+		let selectedItem = 1;
+		let validCount = 0;
+
 		const main = document.createElement("div");
 		main.className = "ctxmenu";
 		main.style.left = event.clientX + "px";
 		main.style.top = event.clientY + "px";
+		main.onkeydown = function(e){
+			switch (e.which) {
+				case 38: // up arrow
+					selectedItem--;
+					if(selectedItem == 0){
+						selectedItem = validCount;
+					}
+					break;
+				case 40: // down arrow
+					selectedItem++;
+					if(selectedItem == validCount + 1){
+						selectedItem = 1;
+					}
+					break;
+			}
+		}
 
 		const header = document.createElement("header");
 		header.innerHTML = "Create Node";
@@ -213,7 +232,6 @@ class NBoard {
 		main.append(menu);
 
 		const items = {};
-
 
 		const miSearch = document.createElement("div");
 		miSearch.className = "menuitem";
@@ -255,21 +273,26 @@ class NBoard {
 					menu.append(items[mn]);
 				}
 			} else {
+				validCount = 0;
 				for (const type of brd.nodeTypes) {
 					const name = type.getName().toLowerCase().replace(' ', "");
 					if (name.startsWith(search)) {
 						if (name.length == search.length) { // exact name match
 							valid[0].push(type);
+							validCount++;
 						} else { // prefix name match
 							valid[2].push(type);
+							validCount++;
 						}
 					} else if (typeof type.getTags === "function") {
 						for (const tag of type.getTags()) {
 							if (tag.startsWith(search)) {
 								if (tag.length == search.length) { // exact tag match
 									valid[1].push(type);
+									validCount++;
 								} else { // prefix tag match
 									valid[3].push(type);
+									validCount++;
 								}
 								break;
 							}
@@ -291,10 +314,12 @@ class NBoard {
 			mi.className = "menuitem";
 			mi.innerHTML = type.getName();
 			mi.onclick = function(e) {
-				const node = brd.addNode(type);
+				// TODO 4DD 4N 4CT1ON H3R3
+				const node = brd.createNode(type);
 				node.setPosition(brd.evntToPt(e));
 				brd.closeMenu();
 			}
+			itemCount++;
 			items[type] = mi;
 			menu.append(mi);
 		}
@@ -419,6 +444,7 @@ class NBoard {
 						}
 						// successful link
 						if (this.clickEndTarget.classList.contains("pin")) {
+							// TODO 4DD 4N 4CT1ON H3R3
 							const lank = this.draggedPin.linkTo(this.getDivPin(this.clickEndTarget));
 						}
 						delete this.links[this.draggedPin.pinid];
@@ -575,8 +601,9 @@ class NBoard {
 			case 8: // BACKSPACE
 			case 46: // DELETE
 				const selected = Object.values(this.selectedNodes);
+				// TODO 4DD 4N 4CT1ON H3R3
 				for (const node of selected) {
-					this.destroyNode(node);
+					this.removeNode(node);
 				}
 				break;
 			case 27: // ESC
@@ -873,15 +900,19 @@ class NBoard {
 		}
 	}
 
-	addNode(type) {
+	createNode(type){
 		const node = new type();
-		node.board = this;
-		this.containerDiv.append(node.createNodeDiv());
-		this.nodes[node.nodeid] = node;
+		this.addNode(node);
 		return node;
 	}
 
-	destroyNode(node) {
+	addNode(node){
+		node.board = this;
+		this.containerDiv.append(node.createNodeDiv());
+		this.nodes[node.nodeid] = node;
+	}
+
+	removeNode(node) {
 		node.unlinkAllPins();
 		node.containerDiv.remove();
 		delete this.nodes[node.nodeid];

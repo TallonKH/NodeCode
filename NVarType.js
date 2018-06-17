@@ -76,6 +76,15 @@ double = function(v){
 	return null;
 }
 
+boolean = function(v){
+	for(const key in v){
+		if(v[key]){
+			return true;
+		}
+	}
+	return false;
+}
+
 const NObject = new NVarType("Object", function(nvar){}, "#8c8c8c");
 const NExecution = new NVarType("Execution", function(nvar){}, "#404040");
 const NInteger = new NVarType("Integer", function(nvar){nvar.int = 0;}, "#64d4ed", NObject);

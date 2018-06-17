@@ -144,3 +144,33 @@ class ActMoveNodes extends NAction {
 		}
 	}
 }
+
+class ActAddNode(){
+	constructor(board, node) {
+		super(board);
+		this.node = node;
+	}
+
+	redo() {
+		board.addNode(node);
+	}
+
+	undo() {
+		board.destroyNode(node);
+	}
+}
+
+class ActDestroyNode(){
+	constructor(board, node) {
+		super(board);
+		this.info = node.save();
+	}
+
+	redo() {
+		board.destroyNode(node);
+	}
+
+	undo() {
+		board.addNode(node);
+	}
+}
