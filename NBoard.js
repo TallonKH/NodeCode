@@ -61,6 +61,7 @@ class NBoard {
 		this.currentMouse = new NPoint(0, 0);
 		this.trueCurrentMouse = new NPoint(0, 0);
 		this.frameMouseDelta = new NPoint(0, 0);
+		this.lastMouseMoveEvent = null;
 	}
 
 	evntToPt(event) {
@@ -118,7 +119,9 @@ class NBoard {
 		}
 
 		// fake a mouse move event to ensure things keep happening even if the mouse isn't moving
-		this.mouseMoved(this.lastMouseMoveEvent);
+		if(this.lastMouseMoveEvent){
+			this.mouseMoved(this.lastMouseMoveEvent);
+		}
 		this.redraw();
 	}
 

@@ -322,7 +322,7 @@ canvas {
 	order: 5;
 	flex: 1 1;
 	overflow: hidden;
-	transition: flex 0.1s ease 0s;
+	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
 	display: table;
 	height: 100%;
 }
@@ -360,7 +360,7 @@ canvas {
 	flex: 0 1 0;
 	background-color: #98989800;
 	height: 100%;
-	transition: all 0.1s ease 0s;
+	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	display: flex;
 	flex-direction: row;
 	overflow: hidden;
