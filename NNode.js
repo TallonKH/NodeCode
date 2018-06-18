@@ -69,17 +69,25 @@ class NNode {
 		return this.containerDiv;
 	}
 
-	destroy(){
+	destroy() {
 		this.board.destroyNode(this);
 	}
 
-	unlinkAllPins(){
-		for(const pin in this.inpins){
+	unlinkAllInpins(){
+		for (const pin in this.inpins) {
 			this.inpins[pin].unlinkAll();
 		}
-		for(const pin in this.outpins){
+	}
+
+	unlinkAllOutpins(){
+		for (const pin in this.outpins) {
 			this.outpins[pin].unlinkAll();
 		}
+	}
+
+	unlinkAllPins() {
+		this.unlinkAllInpins();
+		this.unlinkAllOutpins();
 	}
 
 	addHeader(text = this.constructor.getName()) {
@@ -149,7 +157,7 @@ class NNode {
 		pinfo.setAttribute("data-nodeid", this.nodeid);
 		this.ipcNameDiv.append(pinfo);
 
-		if(pin.type && pin.type.edit){
+		if (pin.type && pin.type.edit) {
 			const pinfoDiv = document.createElement("div");
 			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
 			pinfoDiv.setAttribute("data-pinid", this.pinid);
@@ -157,10 +165,10 @@ class NNode {
 
 			const node = this;
 			const pedit = pin.type.edit(pin);
-			pedit.onfocus = function(e){
+			pedit.onfocus = function(e) {
 				node.inPinfosDiv.setAttribute("opened", true);
 			}
-			pedit.onblur = function(e){
+			pedit.onblur = function(e) {
 				node.inPinfosDiv.removeAttribute("opened");
 			}
 			pinfoDiv.append(pedit);
@@ -246,9 +254,9 @@ class NNode {
 		if (this.inPinfosDiv) {
 			let lastPinfo = 0;
 			for (const div of this.inPinfosDiv.children) {
-				if(div.nodeNode == "INPUT"){
+				if (div.nodeNode == "INPUT") {
 					w = Math.max(w, div.scrollWidth);
-				}else{
+				} else {
 
 				}
 			}
@@ -348,11 +356,15 @@ class NNode {
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
 
-	save(){
-		return {"id":this.nodeid,"x":this.position.x, "y":this.position.y};
+	save() {
+		return {
+			"id": this.nodeid,
+			"x": this.position.x,
+			"y": this.position.y
+		};
 	}
 
-	load(data){
+	load(data) {
 		this.nodeid = data.id;
 		this.position = new NPoint(data.x, data.y);
 		updatePosition();
@@ -360,5 +372,109 @@ class NNode {
 
 	static getName() {
 		return "Unknode";
+	}
+
+	contextMenu(event) {
+		const node = this;
+		const brd = this.board;
+
+		const main = document.createElement("div");
+		main.className = "ctxmenu";
+		main.style.left = event.clientX + "px";
+		main.style.top = event.clientY + "px";
+
+		const header = document.createElement("header");
+		header.innerHTML = this.constructor.getName() + " Node";
+		main.append(header);
+
+		const menu = document.createElement("div");
+		menu.className = "menu";
+		main.append(menu);
+
+		const miDetails = document.createElement("div");
+		miDetails.className = "menuitem";
+		miDetails.innerHTML = "Details"
+		miDetails.onclick = function(e) {
+			brd.applyMenu(node.detailsMenu(event));
+		}
+		menu.append(miDetails);
+
+		let hasInLinks = false;
+		let hasOutLinks = false;
+		for (const pinid in this.inpins) {
+			if (this.inpins[pinid].linkNum) {
+				hasInLinks = true;
+				const miUnlinkAllIns = document.createElement("div");
+				miUnlinkAllIns.className = "menuitem";
+				miUnlinkAllIns.innerHTML = "Unlink All Inputs"
+				miUnlinkAllIns.onclick = function(e) {
+					node.unlinkAllInpins();
+					brd.closeMenu();
+				}
+				menu.append(miUnlinkAllIns);
+				break;
+			}
+		}
+		for (const pinid in this.outpins) {
+			if (this.outpins[pinid].linkNum) {
+				hasOutLinks = true;
+				const miUnlinkAllOuts = document.createElement("div");
+				miUnlinkAllOuts.className = "menuitem";
+				miUnlinkAllOuts.innerHTML = "Unlink All Outputs"
+				miUnlinkAllOuts.onclick = function(e) {
+					node.unlinkAllOutpins();
+					brd.closeMenu();
+				}
+				menu.append(miUnlinkAllOuts);
+				break;
+			}
+		}
+		if (hasInLinks && hasOutLinks) {
+			const miUnlinkAllOuts = document.createElement("div");
+			miUnlinkAllOuts.className = "menuitem";
+			miUnlinkAllOuts.innerHTML = "Unlink All"
+			miUnlinkAllOuts.onclick = function(e) {
+				node.unlinkAllPins();
+				brd.closeMenu();
+			}
+			menu.append(miUnlinkAllOuts);
+		}
+
+		return main;
+	}
+
+	detailsMenu(event) {
+		const node = this;
+		const brd = this.board;
+
+		const main = document.createElement("div");
+		main.className = "ctxmenu";
+		main.style.left = event.clientX + "px";
+		main.style.top = event.clientY + "px";
+
+		const header = document.createElement("header");
+		header.innerHTML = "Node Details";
+		main.append(header);
+
+		const menu = document.createElement("div");
+		menu.className = "menu";
+		main.append(menu);
+
+		const miName = document.createElement("div");
+		miName.className = "menuitem";
+		miName.innerHTML = "<div class=mih>Name:</div> \"" + this.constructor.getName() + "\"";
+		menu.append(miName);
+
+		const miID = document.createElement("div");
+		miID.className = "menuitem";
+		miID.innerHTML = "<div class=mih>Node ID:</div> " + this.nodeid;
+		menu.append(miID);
+
+		const miPos = document.createElement("div");
+		miPos.className = "menuitem";
+		miPos.innerHTML = "<div class=mih>Position:</div> (" + this.position.x + ", " + this.position.y+ ")";
+		menu.append(miPos);
+
+		return main;
 	}
 }
