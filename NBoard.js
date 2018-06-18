@@ -21,7 +21,16 @@ class NBoard {
 
 		this.activeMenu = null;
 
-		this.nodeTypes = [StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode];
+		this.nodeTypes = {
+			"StringNode": StringNode,
+			"IntegerNode": IntegerNode,
+			"DoubleNode": DoubleNode,
+			"DisplayNode": DisplayNode,
+			"SubstringNode": SubstringNode,
+			"AdditionNode": AdditionNode,
+			"IncrementNode": IncrementNode,
+			"CommentNode": CommentNode
+		};
 
 		this.actionStack = [];
 		this.actionStackIndex = -1;
@@ -189,7 +198,7 @@ class NBoard {
 		return main;
 	}
 
-	applyMenu(menu){
+	applyMenu(menu) {
 		this.closeMenu();
 		this.activeMenu = menu;
 		this.boardDiv.append(menu);
@@ -206,17 +215,17 @@ class NBoard {
 		main.className = "ctxmenu";
 		main.style.left = event.clientX + "px";
 		main.style.top = event.clientY + "px";
-		main.onkeydown = function(e){
+		main.onkeydown = function(e) {
 			switch (e.which) {
 				case 38: // up arrow
 					selectedItem--;
-					if(selectedItem == 0){
+					if (selectedItem == 0) {
 						selectedItem = validCount;
 					}
 					break;
 				case 40: // down arrow
 					selectedItem++;
-					if(selectedItem == validCount + 1){
+					if (selectedItem == validCount + 1) {
 						selectedItem = 1;
 					}
 					break;
@@ -239,7 +248,6 @@ class NBoard {
 		const searcharea = document.createElement("input");
 		searcharea.type = "text";
 		searcharea.className = "menusearch";
-		searcharea.setAttribute("data-ovrdkeys", true);
 		searcharea.onkeydown = function(e) {
 			switch (e.which) {
 				case 13: // ENTER
@@ -247,7 +255,7 @@ class NBoard {
 						menu.children[1].onclick(event);
 					}
 					return false;
-				case 27:
+				case 27: // ESC
 					brd.closeMenu();
 					return false;
 			}
@@ -274,7 +282,8 @@ class NBoard {
 				}
 			} else {
 				validCount = 0;
-				for (const type of brd.nodeTypes) {
+				for (const typeN in brd.nodeTypes) {
+					const type = brd.nodeTypes[typeN];
 					const name = type.getName().toLowerCase().replace(' ', "");
 					if (name.startsWith(search)) {
 						if (name.length == search.length) { // exact name match
@@ -309,7 +318,8 @@ class NBoard {
 		miSearch.append(searcharea);
 		menu.append(miSearch);
 
-		for (const type of this.nodeTypes) {
+		for (const typeN in this.nodeTypes) {
+			const type = this.nodeTypes[typeN];
 			const mi = document.createElement("div");
 			mi.className = "menuitem";
 			mi.innerHTML = type.getName();
@@ -319,7 +329,6 @@ class NBoard {
 				node.setPosition(brd.evntToPt(e));
 				brd.closeMenu();
 			}
-			itemCount++;
 			items[type] = mi;
 			menu.append(mi);
 		}
@@ -900,13 +909,13 @@ class NBoard {
 		}
 	}
 
-	createNode(type){
+	createNode(type) {
 		const node = new type();
 		this.addNode(node);
 		return node;
 	}
 
-	addNode(node){
+	addNode(node) {
 		node.board = this;
 		this.containerDiv.append(node.createNodeDiv());
 		this.nodes[node.nodeid] = node;

@@ -8,6 +8,7 @@
 * {
 	font-family: "Roboto";
 	font-weight: 400;
+	/*outline: 1px dashed #ff000033 !important;*/
 }
 
 .container {
@@ -273,7 +274,7 @@ canvas {
 .body {
 	display: flex;
 	height: 100%;
-	width: 100%;
+	/*width: 100%;*/
 	order: 1;
 	justify-content: space-between;
 }
@@ -359,24 +360,36 @@ canvas {
 	flex: 0 1 0;
 	background-color: #98989800;
 	height: 100%;
-	border-bottom: none;
 	transition: all 0.1s ease 0s;
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	overflow: hidden;
+}
+
+.pinfocol {
+	height: 100%;
+	flex-basis: 1;
+	display: flex;
+	flex-direction: column;
+	margin: 0px 6px 0px 2px;
 	justify-content: space-around;
 }
 
+
 .pinfo {
-	height: 12px;
-	position: relative;
+	flex-basis: 1;
+	height: 20px;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-around;
 }
 
 .pinfo>.text {
-	margin: -2.5px 4px 0px 4px;
+	vertical-align: middle;
+	margin: 0px;
 	font-size: 14px;
 	overflow: hidden;
-	flex: 1 0;
 	white-space: nowrap;
 	display: block;
 	pointer-events: none;
@@ -393,12 +406,12 @@ canvas {
 .pins:hover+.pinfos, .pinfos[opened], .pinfos:hover {
 	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	background-color: #bebebe66;
-	flex: 1 0;
+	flex: 1 0 0;
 }
 
 .pins:hover~.center, .pinfos[opened]~.center, .pinfos:hover~.center {
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
-	flex: 0 1;
+	flex: 0 1 0;
 }
 
 .inpins {
@@ -412,11 +425,13 @@ canvas {
 .inpinfos {
 	order: 1;
 	border-right: 0px solid #98989800;
+	justify-content: flex-start;
 }
 
 .outpinfos {
 	order: 9;
 	border-left: 0px solid #98989800;
+	justify-content: flex-end;
 }
 
 .pins:hover+.inpinfos, .inpinfos[opened], .inpinfos:hover {
@@ -425,6 +440,15 @@ canvas {
 
 .pins:hover+.outpinfos, .outpinfos[opened], .outpinfos:hover {
 	border-left: 2px solid #6b6b6b;
+}
+
+/* pin value input */
+
+.pinval {
+	margin: 0px;
+	height: 100%;
+	/*float: right;*/
+	width: 60px;
 }
 
 /* Selection Box */
@@ -448,6 +472,7 @@ canvas {
 	border-radius: 50%;
 	width: 12px;
 	height: 12px;
+	/*flex-basis: 1px;*/
 }
 
 .pin[ref] {

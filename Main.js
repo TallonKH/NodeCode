@@ -70,7 +70,7 @@ $(function() {
 	brdA.createNode(IncrementNode).position = new NPoint(650, 250);
 
 	window.onkeydown = function(event) {
-		const divCaptures = event.target.hasAttribute("data-ovrdkeys");
+		const divCaptures = event.target.hasAttribute("data-ovrdkeys") || event.target.nodeName == "INPUT";
 		switch (event.key) {
 			case 'Shift':
 				main.shiftDown = true;
@@ -149,7 +149,7 @@ $(function() {
 		if (!main.metaDown && main.activeBoard != null) {
 			main.activeBoard.keyReleased(event);
 		}
-		return main.metaDown || event.target.hasAttribute('data-ovrdkeys');
+		return main.metaDown || event.target.hasAttribute('data-ovrdkeys') || event.target.nodeName == "INPUT";
 	};
 
 	window.onmousedown = function(event) {

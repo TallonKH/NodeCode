@@ -145,7 +145,7 @@ class ActMoveNodes extends NAction {
 	}
 }
 
-class ActAddNode(){
+class ActAddNode extends NAction{
 	constructor(board, node) {
 		super(board);
 		this.node = node;
@@ -160,7 +160,7 @@ class ActAddNode(){
 	}
 }
 
-class ActDestroyNode(){
+class ActDestroyNode extends NAction{
 	constructor(board, node) {
 		super(board);
 		this.info = node.save();

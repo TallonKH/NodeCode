@@ -19,8 +19,11 @@ class NNode {
 		this.headerDiv = null;
 		this.inPinsDiv = null;
 		this.inPinfosDiv = null;
+		this.ipcNameDiv = null; // ipc = inpinfo column
+		this.ipcEditDiv = null;
 		this.outPinsDiv = null;
 		this.outPinfosDiv = null;
+		this.opcNameDiv = null; // opc = outpinfo column
 
 		this.selected = false;
 		this.position = new NPoint(0, 0);
@@ -127,13 +130,41 @@ class NNode {
 			this.inPinfosDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.inPinfosDiv);
 
+			this.ipcNameDiv = document.createElement("div");
+			this.ipcNameDiv.className = "inpinfocol pinfocol";
+			this.ipcNameDiv.setAttribute("data-nodeid", this.nodeid);
+			this.inPinfosDiv.append(this.ipcNameDiv);
+
+			this.ipcEditDiv = document.createElement("div");
+			this.ipcEditDiv.className = "inpinfocol pinfocol";
+			this.ipcEditDiv.setAttribute("data-nodeid", this.nodeid);
+			this.inPinfosDiv.append(this.ipcEditDiv);
+
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.inPinsDiv.append(pin.createPinDiv());
+
 		const pinfo = pin.createPinfoDiv();
 		pinfo.setAttribute("data-nodeid", this.nodeid);
-		this.inPinfosDiv.append(pinfo);
+		this.ipcNameDiv.append(pinfo);
+
+		if(pin.type && pin.type.edit){
+			const pinfoDiv = document.createElement("div");
+			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
+			pinfoDiv.setAttribute("data-pinid", this.pinid);
+			this.ipcEditDiv.append(pinfoDiv);
+
+			const node = this;
+			const pedit = pin.type.edit(pin);
+			pedit.onfocus = function(e){
+				node.inPinfosDiv.setAttribute("opened", true);
+			}
+			pedit.onblur = function(e){
+				node.inPinfosDiv.removeAttribute("opened");
+			}
+			pinfoDiv.append(pedit);
+		}
 	}
 
 	addOutPin(pin) {
@@ -161,12 +192,19 @@ class NNode {
 			this.outPinfosDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.outPinfosDiv);
 
+			this.opcNameDiv = document.createElement("div");
+			this.opcNameDiv.className = "outpinfocol pinfocol";
+			this.opcNameDiv.setAttribute("data-nodeid", this.nodeid);
+			this.outPinfosDiv.append(this.opcNameDiv);
+
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.outPinsDiv.append(pin.createPinDiv());
+
 		const pinfo = pin.createPinfoDiv();
-		this.outPinfosDiv.append(pinfo);
+		pinfo.setAttribute("data-nodeid", this.nodeid);
+		this.opcNameDiv.append(pinfo);
 	}
 
 	move(delta) {
@@ -177,16 +215,17 @@ class NNode {
 	updateDims() {
 		//HEIGHT
 		// pins
-		const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 20;
+		const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 24;
 		// center
 		if (this.centerDiv) {
 			var hc = this.centerDiv.scrollHeight;
+			var hc2 = 0;
 			for (const child of this.centerDiv.children) {
-				hc = Math.max(hc, child.scrollHeight);
+				hc2 += child.scrollHeight;
 			}
 		}
 		// header
-		let h = Math.max(hp, hc);
+		let h = Math.max(hp, hc, hc2);
 		if (this.headerDiv) {
 			h += 22;
 		}
@@ -203,10 +242,15 @@ class NNode {
 		if (this.headerDiv) {
 			w = Math.max(w, this.headerDiv.scrollWidth);
 		}
-		// pinfo
+		// pinfo + inputs
 		if (this.inPinfosDiv) {
+			let lastPinfo = 0;
 			for (const div of this.inPinfosDiv.children) {
-				w = Math.max(w, div.scrollWidth);
+				if(div.nodeNode == "INPUT"){
+					w = Math.max(w, div.scrollWidth);
+				}else{
+
+				}
 			}
 		}
 		if (this.outPinfosDiv) {
@@ -302,6 +346,16 @@ class NNode {
 		const min = this.displayPosition;
 		const max = new NPoint(min.x + this.nodeDiv.clientWidth, min.y + this.nodeDiv.clientHeight);
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
+	}
+
+	save(){
+		return {"id":this.nodeid,"x":this.position.x, "y":this.position.y};
+	}
+
+	load(data){
+		this.nodeid = data.id;
+		this.position = new NPoint(data.x, data.y);
+		updatePosition();
 	}
 
 	static getName() {

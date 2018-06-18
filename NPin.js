@@ -18,9 +18,7 @@ class NPin {
 		this.type;
 		this.byRef = false;
 		this.pinDiv;
-		if (!this.side) {
-			this.defaultVal = (types.length == 1) ? types[0].construct() : null;
-		}
+		this.defaultVal = (!this.side && types.length == 1) ? types[0].construct() : null;
 		this.pinfoDiv;
 		this.links = {};
 		this.linkNum = 0;
