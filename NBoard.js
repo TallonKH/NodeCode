@@ -210,25 +210,28 @@ class NBoard {
 		const brd = this;
 
 		let selectedItem = 1;
-		let validCount = 0;
+		let validCount = brd.nodeTypeList.length;
 
 		const main = document.createElement("div");
 		main.className = "ctxmenu";
 		main.style.left = event.clientX + "px";
 		main.style.top = event.clientY + "px";
 		main.onkeydown = function(e) {
+			console.log(validCount);
 			switch (e.which) {
 				case 38: // up arrow
 					selectedItem--;
 					if (selectedItem == 0) {
 						selectedItem = validCount;
 					}
+					console.log(selectedItem);
 					break;
 				case 40: // down arrow
 					selectedItem++;
 					if (selectedItem == validCount + 1) {
 						selectedItem = 1;
 					}
+					console.log(selectedItem);
 					break;
 			}
 		}
@@ -281,6 +284,7 @@ class NBoard {
 				for (const mn in items) {
 					menu.append(items[mn]);
 				}
+				validCount = brd.nodeTypeList.length;
 			} else {
 				validCount = 0;
 				for (const type of brd.nodeTypeList) {

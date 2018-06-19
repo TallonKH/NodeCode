@@ -75,11 +75,11 @@ class NNode {
 		this.board.removeNode(this);
 	}
 
-	select(){
+	select() {
 		return this.board.selectNode(this);
 	}
 
-	deselect(){
+	deselect() {
 		return this.board.deselectNode(this);
 	}
 
@@ -416,30 +416,36 @@ class NNode {
 		for (const pinid in this.inpins) {
 			if (this.inpins[pinid].linkNum) {
 				hasInLinks = true;
-				const miUnlinkAllIns = document.createElement("div");
-				miUnlinkAllIns.className = "menuitem";
-				miUnlinkAllIns.innerHTML = "Unlink All Inputs"
-				miUnlinkAllIns.onclick = function(e) {
-					node.unlinkAllInpins();
-					brd.closeMenu();
-				}
-				menu.append(miUnlinkAllIns);
-				break;
 			}
 		}
+
 		for (const pinid in this.outpins) {
 			if (this.outpins[pinid].linkNum) {
 				hasOutLinks = true;
-				const miUnlinkAllOuts = document.createElement("div");
-				miUnlinkAllOuts.className = "menuitem";
-				miUnlinkAllOuts.innerHTML = "Unlink All Outputs"
-				miUnlinkAllOuts.onclick = function(e) {
-					node.unlinkAllOutpins();
-					brd.closeMenu();
-				}
-				menu.append(miUnlinkAllOuts);
-				break;
 			}
+		}
+
+		if (hasInLinks) {
+			const miUnlinkAllIns = document.createElement("div");
+			miUnlinkAllIns.className = "menuitem";
+			miUnlinkAllIns.innerHTML = "Unlink All Inputs"
+			miUnlinkAllIns.onclick = function(e) {
+				node.unlinkAllInpins();
+				brd.closeMenu();
+			}
+			menu.append(miUnlinkAllIns);
+			break;
+		}
+		if (hasOutLinks) {
+			const miUnlinkAllOuts = document.createElement("div");
+			miUnlinkAllOuts.className = "menuitem";
+			miUnlinkAllOuts.innerHTML = "Unlink All Outputs"
+			miUnlinkAllOuts.onclick = function(e) {
+				node.unlinkAllOutpins();
+				brd.closeMenu();
+			}
+			menu.append(miUnlinkAllOuts);
+			break;
 		}
 
 		if (hasInLinks && hasOutLinks) {
@@ -453,14 +459,14 @@ class NNode {
 			menu.append(miUnlinkAll);
 		}
 
-		if(hasInLinks){
+		if (hasInLinks) {
 			const miSelectParents = document.createElement("div");
 			miSelectParents.className = "menuitem";
 			miSelectParents.innerHTML = "Select Parent Nodes"
 			miSelectParents.onclick = function(e) {
-				for(const pinid in node.inpins){
+				for (const pinid in node.inpins) {
 					const pin = node.inpins[pinid];
-					for(const link in pin.links){
+					for (const link in pin.links) {
 						pin.links[link].node.select();
 					}
 				}
@@ -469,14 +475,14 @@ class NNode {
 			menu.append(miSelectParents);
 		}
 
-		if(hasOutLinks){
+		if (hasOutLinks) {
 			const miSelectChildren = document.createElement("div");
 			miSelectChildren.className = "menuitem";
 			miSelectChildren.innerHTML = "Select Child Nodes"
 			miSelectChildren.onclick = function(e) {
-				for(const pinid in node.outpins){
+				for (const pinid in node.outpins) {
 					const pin = node.outpins[pinid];
-					for(const link in pin.links){
+					for (const link in pin.links) {
 						pin.links[link].node.select();
 					}
 				}
@@ -485,13 +491,13 @@ class NNode {
 			menu.append(miSelectChildren);
 		}
 
-		if(hasInLinks && hasOutLinks){
+		if (hasInLinks && hasOutLinks) {
 			const miSelectLinked = document.createElement("div");
 			miSelectLinked.className = "menuitem";
 			miSelectLinked.innerHTML = "Select Linked Nodes"
 			miSelectLinked.onclick = function(e) {
-				for(const pin of node.pinlist){
-					for(const link in pin.links){
+				for (const pin of node.pinlist) {
+					for (const link in pin.links) {
 						pin.links[link].node.select();
 					}
 				}
@@ -585,7 +591,7 @@ multiNodeMenu = function(brd, event, nodes) {
 	let hasLinks = false;
 	for (const node of nodes) {
 		for (const pin of node.pinlist) {
-			if(pin.linkNum){
+			if (pin.linkNum) {
 				hasLinks = true;
 			}
 			break;
@@ -611,10 +617,10 @@ multiNodeMenu = function(brd, event, nodes) {
 		miDetach.innerHTML = "Detach Group"
 		miDetach.onclick = function(e) {
 			for (const node of nodes) {
-				for(const pin of node.pinlist){
-					for(const linkid in pin.links){
+				for (const pin of node.pinlist) {
+					for (const linkid in pin.links) {
 						const other = pin.links[linkid];
-						if(!other.node.selected){
+						if (!other.node.selected) {
 							pin.unlink(other);
 						}
 					}
