@@ -4,6 +4,10 @@ class NPoint {
 		this.y = y;
 	}
 
+	toString() {
+		return "(" + this.x + ", " + this.y + ")";
+	}
+
 	addp(other) {
 		return new NPoint(this.x + other.x, this.y + other.y);
 	}
@@ -68,14 +72,21 @@ class NPoint {
 		return Math.sqrt(this.lengthSquared());
 	}
 
-	min(a, b) {
-		return new NPoint(Math.min(a.x, b.x), Math.min(a.y, b.y));
+	round(n) {
+		const factor = Math.pow(10, n);
+		return new NPoint(Math.round(this.x * factor) / factor, Math.round(this.y * factor) / factor);
 	}
 
-	max(a, b) {
-		return new NPoint(Math.max(a.x, b.x), Math.max(a.y, b.y));
+	static min(...pts) {
+		return new NPoint(Math.min(...pts.map(pt => pt.x)), Math.min(...pts.map(pt => pt.y)));
+	}
+
+	static max(...pts) {
+		return new NPoint(Math.max(...pts.map(pt => pt.x)), Math.max(...pts.map(pt => pt.y)));
 	}
 }
+
+
 
 divPos = function(div) {
 	const rect = div.getBoundingClientRect();

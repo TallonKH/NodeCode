@@ -35,6 +35,8 @@ class NNode {
 		this.inpinOrder = [];
 		this.outpins = {};
 		this.outpinOrder = [];
+
+		this.pinlist = [];
 	}
 
 	makeResizable(minWidth = 75, minHeight = 22, maxWidth = 1000, maxHeight = 750) {
@@ -69,17 +71,25 @@ class NNode {
 		return this.containerDiv;
 	}
 
-	destroy() {
-		this.board.destroyNode(this);
+	remove() {
+		this.board.removeNode(this);
 	}
 
-	unlinkAllInpins(){
+	select(){
+		return this.board.selectNode(this);
+	}
+
+	deselect(){
+		return this.board.deselectNode(this);
+	}
+
+	unlinkAllInpins() {
 		for (const pin in this.inpins) {
 			this.inpins[pin].unlinkAll();
 		}
 	}
 
-	unlinkAllOutpins(){
+	unlinkAllOutpins() {
 		for (const pin in this.outpins) {
 			this.outpins[pin].unlinkAll();
 		}
@@ -124,6 +134,7 @@ class NNode {
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.push(pin.name);
 		this.board.pins[pin.pinid] = pin;
+		this.pinlist.push(pin);
 
 		this.updateDims();
 
@@ -186,6 +197,7 @@ class NNode {
 		this.outpins[pin.name] = pin;
 		this.outpinOrder.push(pin.name);
 		this.board.pins[pin.pinid] = pin;
+		this.pinlist.push(pin);
 
 		this.updateDims();
 
@@ -384,7 +396,7 @@ class NNode {
 		main.style.top = event.clientY + "px";
 
 		const header = document.createElement("header");
-		header.innerHTML = this.constructor.getName() + " Node";
+		header.innerHTML = this.constructor.getName() + " Node" + (this.selected ? " (selected)" : "");
 		main.append(header);
 
 		const menu = document.createElement("div");
@@ -429,16 +441,73 @@ class NNode {
 				break;
 			}
 		}
+
 		if (hasInLinks && hasOutLinks) {
-			const miUnlinkAllOuts = document.createElement("div");
-			miUnlinkAllOuts.className = "menuitem";
-			miUnlinkAllOuts.innerHTML = "Unlink All"
-			miUnlinkAllOuts.onclick = function(e) {
+			const miUnlinkAll = document.createElement("div");
+			miUnlinkAll.className = "menuitem";
+			miUnlinkAll.innerHTML = "Unlink All"
+			miUnlinkAll.onclick = function(e) {
 				node.unlinkAllPins();
 				brd.closeMenu();
 			}
-			menu.append(miUnlinkAllOuts);
+			menu.append(miUnlinkAll);
 		}
+
+		if(hasInLinks){
+			const miSelectParents = document.createElement("div");
+			miSelectParents.className = "menuitem";
+			miSelectParents.innerHTML = "Select Parent Nodes"
+			miSelectParents.onclick = function(e) {
+				for(const pinid in node.inpins){
+					const pin = node.inpins[pinid];
+					for(const link in pin.links){
+						pin.links[link].node.select();
+					}
+				}
+				brd.closeMenu();
+			}
+			menu.append(miSelectParents);
+		}
+
+		if(hasOutLinks){
+			const miSelectChildren = document.createElement("div");
+			miSelectChildren.className = "menuitem";
+			miSelectChildren.innerHTML = "Select Child Nodes"
+			miSelectChildren.onclick = function(e) {
+				for(const pinid in node.outpins){
+					const pin = node.outpins[pinid];
+					for(const link in pin.links){
+						pin.links[link].node.select();
+					}
+				}
+				brd.closeMenu();
+			}
+			menu.append(miSelectChildren);
+		}
+
+		if(hasInLinks && hasOutLinks){
+			const miSelectLinked = document.createElement("div");
+			miSelectLinked.className = "menuitem";
+			miSelectLinked.innerHTML = "Select Linked Nodes"
+			miSelectLinked.onclick = function(e) {
+				for(const pin of node.pinlist){
+					for(const link in pin.links){
+						pin.links[link].node.select();
+					}
+				}
+				brd.closeMenu();
+			}
+			menu.append(miSelectLinked);
+		}
+
+		const miRemove = document.createElement("div");
+		miRemove.className = "menuitem";
+		miRemove.innerHTML = "Delete"
+		miRemove.onclick = function(e) {
+			node.remove();
+			brd.closeMenu();
+		}
+		menu.append(miRemove);
 
 		return main;
 	}
@@ -462,7 +531,7 @@ class NNode {
 
 		const miName = document.createElement("div");
 		miName.className = "menuitem";
-		miName.innerHTML = "<div class=mih>Name:</div> \"" + this.constructor.getName() + "\"";
+		miName.innerHTML = "<div class=mih>Type:</div> \"" + this.constructor.getName() + "\"";
 		menu.append(miName);
 
 		const miID = document.createElement("div");
@@ -472,9 +541,123 @@ class NNode {
 
 		const miPos = document.createElement("div");
 		miPos.className = "menuitem";
-		miPos.innerHTML = "<div class=mih>Position:</div> (" + this.position.x + ", " + this.position.y+ ")";
+		miPos.innerHTML = "<div class=mih>Position:</div> " + this.position.toString();
 		menu.append(miPos);
 
 		return main;
 	}
+
+}
+
+multiNodeMenu = function(brd, event, nodes) {
+	const main = document.createElement("div");
+	main.className = "ctxmenu";
+	main.style.left = event.clientX + "px";
+	main.style.top = event.clientY + "px";
+
+	const header = document.createElement("header");
+	header.innerHTML = "Multiple Nodes (" + nodes.length + ")";
+	main.append(header);
+
+	const menu = document.createElement("div");
+	menu.className = "menu";
+	main.append(menu);
+
+	const miDetails = document.createElement("div");
+	miDetails.className = "menuitem";
+	miDetails.innerHTML = "Details"
+	miDetails.onclick = function(e) {
+		brd.applyMenu(multiNodeDetails(brd, event, nodes));
+	}
+	menu.append(miDetails);
+
+	const miRemove = document.createElement("div");
+	miRemove.className = "menuitem";
+	miRemove.innerHTML = "Delete All"
+	miRemove.onclick = function(e) {
+		for (const node of nodes) {
+			node.remove();
+		}
+		brd.closeMenu();
+	}
+	menu.append(miRemove);
+
+	let hasLinks = false;
+	for (const node of nodes) {
+		for (const pin of node.pinlist) {
+			if(pin.linkNum){
+				hasLinks = true;
+			}
+			break;
+		}
+		if (hasLinks) {
+			break;
+		}
+	}
+	if (hasLinks) {
+		const miUnlink = document.createElement("div");
+		miUnlink.className = "menuitem";
+		miUnlink.innerHTML = "Unlink All"
+		miUnlink.onclick = function(e) {
+			for (const node of nodes) {
+				node.unlinkAllPins();
+			}
+			brd.closeMenu();
+		}
+		menu.append(miUnlink);
+
+		const miDetach = document.createElement("div");
+		miDetach.className = "menuitem";
+		miDetach.innerHTML = "Detach Group"
+		miDetach.onclick = function(e) {
+			for (const node of nodes) {
+				for(const pin of node.pinlist){
+					for(const linkid in pin.links){
+						const other = pin.links[linkid];
+						if(!other.node.selected){
+							pin.unlink(other);
+						}
+					}
+				}
+			}
+			brd.closeMenu();
+		}
+		menu.append(miDetach);
+	}
+
+	return main;
+}
+
+multiNodeDetails = function(brd, event, nodes) {
+	const main = document.createElement("div");
+	main.className = "ctxmenu";
+	main.style.left = event.clientX + "px";
+	main.style.top = event.clientY + "px";
+
+	const header = document.createElement("header");
+	header.innerHTML = "Group Details";
+	main.append(header);
+
+	const menu = document.createElement("div");
+	menu.className = "menu";
+	main.append(menu);
+
+	const miCount = document.createElement("div");
+	miCount.className = "menuitem";
+	miCount.innerHTML = "<div class=mih>Nodes:</div> " + nodes.length;
+	menu.append(miCount);
+
+	const miBounds = document.createElement("div");
+	miBounds.className = "menuitem";
+	const minp = NPoint.min(...nodes.map(x => x.position)).round(2);
+	const maxp = NPoint.max(...nodes.map(x => x.position.add2(x.nodeDiv.clientWidth, x.nodeDiv.clientHeight))).round(2);
+	miBounds.innerHTML = "<div class=mih>Bounds:</div> " + minp.toString() + ", " + maxp.toString();
+	menu.append(miBounds);
+
+	const miPos = document.createElement("div");
+	miPos.className = "menuitem";
+	miPos.innerHTML = "<div class=mih>Center:</div> " + minp.addp(maxp).divide1(2);
+	menu.append(miPos);
+
+	return main;
 }

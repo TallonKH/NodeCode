@@ -15,22 +15,20 @@ class NBoard {
 
 		this.nodes = {}; // nodeid : node
 		this.selectedNodes = {};
+		this.selectedNodeCount = 0;
 		this.pins = {}; // pinid : pin
 		this.links = {}; // linkid : [pin1, pin2]
 		this.linkLines = {}; // linkid : [p1, p2, p3, p4, ...]
 
 		this.activeMenu = null;
 
-		this.nodeTypes = {
-			"StringNode": StringNode,
-			"IntegerNode": IntegerNode,
-			"DoubleNode": DoubleNode,
-			"DisplayNode": DisplayNode,
-			"SubstringNode": SubstringNode,
-			"AdditionNode": AdditionNode,
-			"IncrementNode": IncrementNode,
-			"CommentNode": CommentNode
-		};
+		this.nodeTypeList = [
+			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode
+		];
+		this.nodeTypeDict = {};
+		for(const type of this.nodeTypeList){
+			this.nodeTypeDict[type.getName()] = type;
+		}
 
 		this.actionStack = [];
 		this.actionStackIndex = -1;
@@ -119,7 +117,7 @@ class NBoard {
 		}
 
 		// fake a mouse move event to ensure things keep happening even if the mouse isn't moving
-		if(this.lastMouseMoveEvent){
+		if (this.lastMouseMoveEvent) {
 			this.mouseMoved(this.lastMouseMoveEvent);
 		}
 		this.redraw();
@@ -285,8 +283,7 @@ class NBoard {
 				}
 			} else {
 				validCount = 0;
-				for (const typeN in brd.nodeTypes) {
-					const type = brd.nodeTypes[typeN];
+				for (const type of brd.nodeTypeList) {
 					const name = type.getName().toLowerCase().replace(' ', "");
 					if (name.startsWith(search)) {
 						if (name.length == search.length) { // exact name match
@@ -321,8 +318,7 @@ class NBoard {
 		miSearch.append(searcharea);
 		menu.append(miSearch);
 
-		for (const typeN in this.nodeTypes) {
-			const type = this.nodeTypes[typeN];
+		for (const type of this.nodeTypeList) {
 			const mi = document.createElement("div");
 			mi.className = "menuitem";
 			mi.innerHTML = type.getName();
@@ -401,19 +397,19 @@ class NBoard {
 								this.addAction(new ActDeselect(this, deselectedNodes));
 							}
 						} else {
-							const selectedNodes = [];
+							const selectedNodes2 = [];
 							for (const nodeid in this.nodes) {
 								const node = this.nodes[nodeid];
 								if (node.within(this.sboxMin, this.sboxMax)) {
-									selectedNodes.push(node);
+									selectedNodes2.push(node);
 								}
 							}
 
-							if (selectedNodes.length > 0) {
+							if (selectedNodes2.length > 0) {
 								if (this.env.shiftDown) {
-									this.addAction(new ActSelect(this, selectedNodes));
+									this.addAction(new ActSelect(this, selectedNodes2));
 								} else {
-									this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, selectedNodes)));
+									this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, selectedNodes2)));
 								}
 							} else {
 								if (!this.env.shiftDown) {
@@ -426,7 +422,7 @@ class NBoard {
 								this.deselectAllNodes();
 							}
 
-							for (const node of selectedNodes) {
+							for (const node of selectedNodes2) {
 								this.selectNode(node);
 							}
 						}
@@ -467,7 +463,7 @@ class NBoard {
 						const upTargetClasses = this.clickStartTarget.classList;
 
 						if (this.clickStartTarget == this.boardDiv) { // board clicked
-							if (Object.keys(this.selectedNodes).length > 0) {
+							if (this.selectedNodeCount) {
 								this.addAction(new ActDeselectAll(this));
 								this.deselectAllNodes();
 							}
@@ -527,8 +523,8 @@ class NBoard {
 		if (this.leftMDown) {
 			// click & drag in progress?
 			if (this.selectionBox) { // currently dragging board (selection box)
-				this.sboxMin = NPoint.prototype.min(this.clickStart, this.currentMouse);
-				this.sboxMax = NPoint.prototype.max(this.clickStart, this.currentMouse);
+				this.sboxMin = NPoint.min(this.clickStart, this.currentMouse);
+				this.sboxMax = NPoint.max(this.clickStart, this.currentMouse);
 
 				const sboxMin = this.sboxMin;
 				const sboxSize = this.sboxMax.subtractp(this.sboxMin);
@@ -718,6 +714,7 @@ class NBoard {
 			node.nodeDiv.setAttribute("selected", "");
 			node.selected = true;
 			this.selectedNodes[node.nodeid] = node;
+			this.selectedNodeCount++;
 		}
 	}
 
@@ -726,6 +723,7 @@ class NBoard {
 			node.nodeDiv.removeAttribute("selected");
 			node.selected = false;
 			delete this.selectedNodes[node.nodeid];
+			this.selectedNodeCount--;
 		}
 	}
 
@@ -742,6 +740,7 @@ class NBoard {
 			node.selected = false;
 		}
 		this.selectedNodes = {};
+		this.selectedNodeCount = 0;
 	}
 
 	toggleSelectNode(node) {
@@ -796,10 +795,33 @@ class NBoard {
 		this.boardDiv.oncontextmenu = function(event) {
 			brd.closeMenu();
 			if (event.target == brd.boardDiv) {
+				// board context menu
 				brd.applyMenu(brd.contextMenu(event));
 			} else if (event.target.classList.contains("nodepart")) {
-				brd.applyMenu(brd.getDivNode(event.target).contextMenu(event));
+				// node context menus
+				const node = brd.getDivNode(event.target);
+				if (node.selected && brd.selectedNodeCount > 1) {
+					let sameType = true;
+					// check if all node types are the same
+					for (const id in brd.selectedNodes) {
+						if (brd.nodes[id].constructor.getName() != node.constructor.getName()) {
+							sameType = false;
+							break;
+						}
+					}
+					// TODO F1GUR3 TH1S OUT
+					if (false && sameType) {
+						// menu for multiple nodes of same type
+					} else {
+						// menu for multiple nodes of varying type
+						brd.applyMenu(multiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
+					}
+				} else {
+					// menu for single node
+					brd.applyMenu(node.contextMenu(event));
+				}
 			} else if (event.target.classList.contains("pin")) {
+				// menu for pins
 				brd.applyMenu(brd.getDivPin(event.target).contextMenu(event));
 			}
 			return false;
