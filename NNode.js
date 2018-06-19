@@ -416,12 +416,14 @@ class NNode {
 		for (const pinid in this.inpins) {
 			if (this.inpins[pinid].linkNum) {
 				hasInLinks = true;
+				break;
 			}
 		}
 
 		for (const pinid in this.outpins) {
 			if (this.outpins[pinid].linkNum) {
 				hasOutLinks = true;
+				break;
 			}
 		}
 
@@ -434,7 +436,6 @@ class NNode {
 				brd.closeMenu();
 			}
 			menu.append(miUnlinkAllIns);
-			break;
 		}
 		if (hasOutLinks) {
 			const miUnlinkAllOuts = document.createElement("div");
@@ -445,7 +446,6 @@ class NNode {
 				brd.closeMenu();
 			}
 			menu.append(miUnlinkAllOuts);
-			break;
 		}
 
 		if (hasInLinks && hasOutLinks) {
