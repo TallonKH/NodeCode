@@ -1,6 +1,8 @@
 class NVarType {
 	constructor(name, addValues, color, ...parents) {
 		this.name = name;
+		this.multiInput = false;
+		this.multiOutput = true;
 		this.addValues = addValues;
 		this.color = color;
 		this.parents = new Set(parents);
@@ -20,6 +22,14 @@ class NVarType {
 			nvar["nclass"] = this;
 			return nvar;
 		};
+	}
+
+	setMultiInput(b){
+		this.multiInput = b;
+	}
+
+	setMultiOutput(b){
+		this.multiOutput = b;
 	}
 
 	isChildOf(parent) {
@@ -86,7 +96,11 @@ boolean = function(v){
 }
 
 const NObject = new NVarType("Object", function(nvar){}, "#8c8c8c");
+const NUseless = new NVarType("Object", function(nvar){}, "#bababa");
 const NExecution = new NVarType("Execution", function(nvar){}, "#404040");
+NExecution.setMultiInput(true);
+NExecution.setMultiOutput(false);
+
 const NInteger = new NVarType("Integer", function(nvar){nvar.int = 0;}, "#64d4ed", NObject);
 NInteger.edit = function(pin){
 	const inp = document.createElement("input");

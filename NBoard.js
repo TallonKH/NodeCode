@@ -326,7 +326,7 @@ class NBoard {
 				const mi = items[type];
 				mi.removeAttribute("selected");
 			}
-			if(validCount){
+			if (validCount) {
 				selectedItem = 0;
 				activeItems[selectedItem].setAttribute("selected", true);
 			}
@@ -344,8 +344,7 @@ class NBoard {
 				node.setPosition(brd.evntToPt(e));
 				brd.closeMenu();
 			}
-			mi.onmouseover = function(e){
-				console.log("asfd");
+			mi.onmouseover = function(e) {
 				activeItems[selectedItem].removeAttribute("selected");
 				selectedItem = activeItems.indexOf(mi);
 				activeItems[selectedItem].setAttribute("selected", true);
@@ -355,7 +354,7 @@ class NBoard {
 			menu.append(mi);
 		}
 
-		if(validCount){
+		if (validCount) {
 			selectedItem = 0;
 			activeItems[selectedItem].setAttribute("selected", true);
 		}
@@ -685,10 +684,6 @@ class NBoard {
 				}
 				break;
 		}
-	}
-
-	redraw() {
-		this.redraw();
 	}
 
 	undo() {

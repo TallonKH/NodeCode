@@ -53,7 +53,11 @@ class NPin {
 			this.color = avgHex(...types.map(x => x.color));
 		}
 
-		this.multiConnective = this.side ^ this.isExec;
+		if(this.multiTyped){
+			this.multiConnective = this.side;
+		}else{
+			this.multiConnective = this.side ? this.type.multiOutput : this.type.multiInput;
+		}
 
 		const now = {
 			"types": this.types,
@@ -127,6 +131,11 @@ class NPin {
 			if (!b.canPlugInto(a)) {
 				return false;
 			}
+		}
+
+		if(a.pinid in b.links){
+			console.log("link already exists!");
+			return false;
 		}
 
 		// remove existing connections if needed

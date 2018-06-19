@@ -246,7 +246,7 @@ body {
 	border-bottom: 1px solid #e0e0e0;
 }
 
-.menuitem[selected]{
+.menuitem:hover, .menuitem[selected]{
 	background-color: #dddddd;
 }
 
@@ -461,7 +461,7 @@ canvas {
 }
 
 .selectbox[anti] {
-	background: repeating-linear-gradient(135deg, #fff50055, #fff50055 .25em, #fccc0055 0, #fccc0055 .75em);
+	background: repeating-linear-gradient(135deg, #fff50055, #fff50055 .25em, #ff990055 0, #ff990055 .75em);
 	border: 3px solid #fc000088;
 }
 
