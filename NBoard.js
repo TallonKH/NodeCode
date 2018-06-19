@@ -26,7 +26,7 @@ class NBoard {
 			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode
 		];
 		this.nodeTypeDict = {};
-		for(const type of this.nodeTypeList){
+		for (const type of this.nodeTypeList) {
 			this.nodeTypeDict[type.getName()] = type;
 		}
 
@@ -209,32 +209,10 @@ class NBoard {
 	nodeCreationMenu(event) {
 		const brd = this;
 
-		let selectedItem = 1;
-		let validCount = brd.nodeTypeList.length;
-
 		const main = document.createElement("div");
 		main.className = "ctxmenu";
 		main.style.left = event.clientX + "px";
 		main.style.top = event.clientY + "px";
-		main.onkeydown = function(e) {
-			console.log(validCount);
-			switch (e.which) {
-				case 38: // up arrow
-					selectedItem--;
-					if (selectedItem == 0) {
-						selectedItem = validCount;
-					}
-					console.log(selectedItem);
-					break;
-				case 40: // down arrow
-					selectedItem++;
-					if (selectedItem == validCount + 1) {
-						selectedItem = 1;
-					}
-					console.log(selectedItem);
-					break;
-			}
-		}
 
 		const header = document.createElement("header");
 		header.innerHTML = "Create Node";
@@ -245,6 +223,9 @@ class NBoard {
 		main.append(menu);
 
 		const items = {};
+		let activeItems = [];
+		let selectedItem = 0;
+		let validCount = brd.nodeTypeList.length;
 
 		const miSearch = document.createElement("div");
 		miSearch.className = "menuitem";
@@ -253,19 +234,39 @@ class NBoard {
 		searcharea.type = "text";
 		searcharea.className = "menusearch";
 		searcharea.onkeydown = function(e) {
+
 			switch (e.which) {
 				case 13: // ENTER
 					if (menu.children.length > 1) {
-						menu.children[1].onclick(event);
+						activeItems[selectedItem].onclick(event);
 					}
 					return false;
 				case 27: // ESC
 					brd.closeMenu();
 					return false;
 			}
+			if (validCount) {
+				activeItems[selectedItem].removeAttribute("selected");
+				switch (e.which) {
+					case 38: // up arrow
+						selectedItem--;
+						if (selectedItem == -1) {
+							selectedItem = validCount - 1;
+						}
+						break;
+					case 40: // down arrow
+						selectedItem++;
+						if (selectedItem == validCount) {
+							selectedItem = 0;
+						}
+						break;
+				}
+				activeItems[selectedItem].setAttribute("selected", true);
+			}
 			return true;
 		}
 		searcharea.oninput = function(e) {
+			activeItems = [];
 			const valid = [
 				[],
 				[],
@@ -284,7 +285,8 @@ class NBoard {
 				for (const mn in items) {
 					menu.append(items[mn]);
 				}
-				validCount = brd.nodeTypeList.length;
+				activeItems = Object.values(items);
+				validCount = activeItems.length;
 			} else {
 				validCount = 0;
 				for (const type of brd.nodeTypeList) {
@@ -314,9 +316,19 @@ class NBoard {
 				}
 				for (const lst of valid) {
 					for (const type of lst) {
-						menu.append(items[type]);
+						const item = items[type];
+						activeItems.push(item);
+						menu.append(item);
 					}
 				}
+			}
+			for (const type in items) {
+				const mi = items[type];
+				mi.removeAttribute("selected");
+			}
+			if(validCount){
+				selectedItem = 0;
+				activeItems[selectedItem].setAttribute("selected", true);
 			}
 		}
 		miSearch.append(searcharea);
@@ -332,8 +344,20 @@ class NBoard {
 				node.setPosition(brd.evntToPt(e));
 				brd.closeMenu();
 			}
+			mi.onmouseover = function(e){
+				console.log("asfd");
+				activeItems[selectedItem].removeAttribute("selected");
+				selectedItem = activeItems.indexOf(mi);
+				activeItems[selectedItem].setAttribute("selected", true);
+			}
 			items[type] = mi;
+			activeItems.push(mi);
 			menu.append(mi);
+		}
+
+		if(validCount){
+			selectedItem = 0;
+			activeItems[selectedItem].setAttribute("selected", true);
 		}
 
 		return main;

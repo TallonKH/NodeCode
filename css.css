@@ -246,7 +246,7 @@ body {
 	border-bottom: 1px solid #e0e0e0;
 }
 
-.menuitem:hover {
+.menuitem[selected]{
 	background-color: #dddddd;
 }
 
