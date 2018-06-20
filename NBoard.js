@@ -646,7 +646,9 @@ class NBoard {
 				break;
 			case 32: // SPACE
 				this.closeMenu();
-				this.activeMenu = this.nodeCreationMenu(this.lastMouseMoveEvent);
+				if(this.lastMouseMoveEvent){
+					this.activeMenu = this.nodeCreationMenu(this.lastMouseMoveEvent);
+				}
 				this.boardDiv.append(this.activeMenu);
 				$(".menusearch").focus();
 				break;
