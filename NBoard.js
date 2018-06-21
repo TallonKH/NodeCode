@@ -126,240 +126,75 @@ class NBoard {
 	closeMenu() {
 		if (this.activeMenu) {
 			try {
-				this.activeMenu.remove();
+				this.activeMenu.containerDiv.remove();
 			} catch (e) {}
 			this.activeMenu = null;
 		}
 	}
 
-	contextMenu(event) {
+	makeContextMenu(event) {
 		const brd = this;
+		const menu = new NMenu(this, event);
+		menu.setHeader("Board - " + this.name);
 
-		const main = document.createElement("div");
-		main.className = "ctxmenu";
-		main.style.left = event.clientX + "px";
-		main.style.top = event.clientY + "px";
+		let op;
 
-		const header = document.createElement("header");
-		header.innerHTML = this.name;
-		main.append(header);
-
-		const menu = document.createElement("div");
-		menu.className = "menu";
-		main.append(menu);
-
-		const micreateNode = document.createElement("div");
-		micreateNode.className = "menuitem";
-		micreateNode.innerHTML = "Create Node"
-		micreateNode.onclick = function(e) {
-			brd.applyMenu(brd.nodeCreationMenu(event));
+		op = new NMenuOption("Create Node");
+		op.action = function(e){
+			brd.applyMenu(brd.makeNodeCreationMenu(event));
+			return true;
 		}
-		menu.append(micreateNode);
+		menu.addOption(op);
 
-		const miSelectAll = document.createElement("div");
-		miSelectAll.className = "menuitem";
-		miSelectAll.innerHTML = "Select All"
-		miSelectAll.onclick = function(e) {
+		op = new NMenuOption("Select All");
+		op.action = function(e) {
 			brd.addAction(new ActSelectAll(brd));
 			brd.selectAllNodes();
-			brd.closeMenu();
-		}
-		menu.append(miSelectAll);
+		};
+		menu.addOption(op);
 
 		if (this.actionStackIndex > -1) {
-			const miUndo = document.createElement("div");
-			miUndo.className = "menuitem";
-			miUndo.innerHTML = "Undo"
-			miUndo.onclick = function(e) {
-				brd.undo();
-				brd.closeMenu();
-			}
-			menu.append(miUndo);
+			op = new NMenuOption("Undo");
+			op.action = e=>brd.undo();
+			menu.addOption(op);
 		}
 
 		if (this.actionStackIndex < this.actionStack.length - 1) {
-			const miRedo = document.createElement("div");
-			miRedo.className = "menuitem";
-			miRedo.innerHTML = "Redo"
-			miRedo.onclick = function(e) {
-				brd.redo();
-				brd.closeMenu();
-			}
-			menu.append(miRedo);
+			op = new NMenuOption("Redo");
+			op.action = e=>brd.redo();
+			menu.addOption(op);
 		}
 
-		const mi = document.createElement("div");
-		mi.className = "menuitem";
-		mi.innerHTML = "Menu Item"
-		mi.onclick = function(e) {
-			brd.closeMenu();
-		}
-		menu.append(mi);
-
-		return main;
+		return menu;
 	}
 
 	applyMenu(menu) {
 		this.closeMenu();
 		this.activeMenu = menu;
-		this.boardDiv.append(menu);
-		$(".menusearch").focus();
+		this.boardDiv.append(menu.createDiv());
+		if (menu.searchable) {
+			menu.searchDiv.focus();
+		}
 	}
 
-	nodeCreationMenu(event) {
+	makeNodeCreationMenu(event) {
 		const brd = this;
-
-		const main = document.createElement("div");
-		main.className = "ctxmenu";
-		main.style.left = event.clientX + "px";
-		main.style.top = event.clientY + "px";
-
-		const header = document.createElement("header");
-		header.innerHTML = "Create Node";
-		main.append(header);
-
-		const menu = document.createElement("div");
-		menu.className = "menu";
-		main.append(menu);
-
-		const items = {};
-		let activeItems = [];
-		let selectedItem = 0;
-		let validCount = brd.nodeTypeList.length;
-
-		const miSearch = document.createElement("div");
-		miSearch.className = "menuitem";
-		// miSearch.innerHTML = type.getName();
-		const searcharea = document.createElement("input");
-		searcharea.type = "text";
-		searcharea.className = "menusearch";
-		searcharea.onkeydown = function(e) {
-
-			switch (e.which) {
-				case 13: // ENTER
-					if (menu.children.length > 1) {
-						activeItems[selectedItem].onclick(event);
-					}
-					return false;
-				case 27: // ESC
-					brd.closeMenu();
-					return false;
-			}
-			if (validCount) {
-				activeItems[selectedItem].removeAttribute("selected");
-				switch (e.which) {
-					case 38: // up arrow
-						selectedItem--;
-						if (selectedItem == -1) {
-							selectedItem = validCount - 1;
-						}
-						break;
-					case 40: // down arrow
-						selectedItem++;
-						if (selectedItem == validCount) {
-							selectedItem = 0;
-						}
-						break;
-				}
-				activeItems[selectedItem].setAttribute("selected", true);
-			}
-			return true;
-		}
-		searcharea.oninput = function(e) {
-			activeItems = [];
-			const valid = [
-				[],
-				[],
-				[],
-				[]
-			];
-			const search = searcharea.value.toLowerCase().replace(/ /g, "");
-
-			// clear menu
-			for (const mn in items) {
-				items[mn].remove();
-			}
-
-			if (search.length == 0) { // no search
-				// add all nodes back
-				for (const mn in items) {
-					menu.append(items[mn]);
-				}
-				activeItems = Object.values(items);
-				validCount = activeItems.length;
-			} else {
-				validCount = 0;
-				for (const type of brd.nodeTypeList) {
-					const name = type.getName().toLowerCase().replace(' ', "");
-					if (name.startsWith(search)) {
-						if (name.length == search.length) { // exact name match
-							valid[0].push(type);
-							validCount++;
-						} else { // prefix name match
-							valid[2].push(type);
-							validCount++;
-						}
-					} else if (typeof type.getTags === "function") {
-						for (const tag of type.getTags()) {
-							if (tag.startsWith(search)) {
-								if (tag.length == search.length) { // exact tag match
-									valid[1].push(type);
-									validCount++;
-								} else { // prefix tag match
-									valid[3].push(type);
-									validCount++;
-								}
-								break;
-							}
-						}
-					}
-				}
-				for (const lst of valid) {
-					for (const type of lst) {
-						const item = items[type];
-						activeItems.push(item);
-						menu.append(item);
-					}
-				}
-			}
-			for (const type in items) {
-				const mi = items[type];
-				mi.removeAttribute("selected");
-			}
-			if (validCount) {
-				selectedItem = 0;
-				activeItems[selectedItem].setAttribute("selected", true);
-			}
-		}
-		miSearch.append(searcharea);
-		menu.append(miSearch);
+		const menu = new NMenu(this, event);
+		menu.setHeader("Create Node");
 
 		for (const type of this.nodeTypeList) {
-			const mi = document.createElement("div");
-			mi.className = "menuitem";
-			mi.innerHTML = type.getName();
-			mi.onclick = function(e) {
-				// TODO 4DD 4N 4CT1ON H3R3
+			const op = new NMenuOption(type.getName());
+			op.action = function(e){
 				const node = brd.createNode(type);
 				node.setPosition(brd.evntToPt(e));
-				brd.closeMenu();
 			}
-			mi.onmouseover = function(e) {
-				activeItems[selectedItem].removeAttribute("selected");
-				selectedItem = activeItems.indexOf(mi);
-				activeItems[selectedItem].setAttribute("selected", true);
+			if(type.getTags){
+				op.setTags(...type.getTags());
 			}
-			items[type] = mi;
-			activeItems.push(mi);
-			menu.append(mi);
+			menu.addOption(op);
 		}
 
-		if (validCount) {
-			selectedItem = 0;
-			activeItems[selectedItem].setAttribute("selected", true);
-		}
-
-		return main;
+		return menu;
 	}
 
 	mouseDown(event) {
@@ -386,7 +221,7 @@ class NBoard {
 					this.rightMDown = true;
 				}
 		}
-		if (this.activeMenu != null && !this.activeMenu.contains(this.clickStartTarget)) {
+		if (this.activeMenu != null && !this.activeMenu.containerDiv.contains(this.clickStartTarget)) {
 			this.closeMenu()
 		}
 
@@ -646,11 +481,9 @@ class NBoard {
 				break;
 			case 32: // SPACE
 				this.closeMenu();
-				if(this.lastMouseMoveEvent){
-					this.activeMenu = this.nodeCreationMenu(this.lastMouseMoveEvent);
+				if (this.lastMouseMoveEvent) {
+					this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent));
 				}
-				this.boardDiv.append(this.activeMenu);
-				$(".menusearch").focus();
 				break;
 			case 90: // Z
 				if (this.env.ctrlDown) {
@@ -821,7 +654,7 @@ class NBoard {
 			brd.closeMenu();
 			if (event.target == brd.boardDiv) {
 				// board context menu
-				brd.applyMenu(brd.contextMenu(event));
+				brd.applyMenu(brd.makeContextMenu(event));
 			} else if (event.target.classList.contains("nodepart")) {
 				// node context menus
 				const node = brd.getDivNode(event.target);
@@ -839,15 +672,15 @@ class NBoard {
 						// menu for multiple nodes of same type
 					} else {
 						// menu for multiple nodes of varying type
-						brd.applyMenu(multiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
+						brd.applyMenu(makeMultiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
 					}
 				} else {
 					// menu for single node
-					brd.applyMenu(node.contextMenu(event));
+					brd.applyMenu(node.makeContextMenu(event));
 				}
 			} else if (event.target.classList.contains("pin")) {
 				// menu for pins
-				brd.applyMenu(brd.getDivPin(event.target).contextMenu(event));
+				brd.applyMenu(brd.getDivPin(event.target).makeContextMenu(event));
 			}
 			return false;
 		};

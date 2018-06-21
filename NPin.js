@@ -286,121 +286,68 @@ class NPin {
 		return this.pinfoDiv;
 	}
 
-	contextMenu(event) {
+	makeContextMenu(event) {
 		const pin = this;
 		const brd = this.node.board;
+		const menu = new NMenu(this.node.board, event);
+		menu.setHeader("Pin " + (this.side ? "(output)" : "(input)"));
 
-		const main = document.createElement("div");
-		main.className = "ctxmenu";
-		main.style.left = event.clientX + "px";
-		main.style.top = event.clientY + "px";
+		let op;
 
-		const header = document.createElement("header");
-		header.innerHTML = "Pin " + (this.side ? "(output)" : "(input)");
-		main.append(header);
-
-		const menu = document.createElement("div");
-		menu.className = "menu";
-		main.append(menu);
-
-		const miDetails = document.createElement("div");
-		miDetails.className = "menuitem";
-		miDetails.innerHTML = "Details"
-		miDetails.onclick = function(e) {
-			brd.applyMenu(pin.detailsMenu(event));
+		op = new NMenuOption("Details");
+		op.action = function(e){
+			brd.applyMenu(pin.makeDetailsMenu(event));
+			return true;
 		}
-		menu.append(miDetails);
+		menu.addOption(op);
 
 		if (this.linkNum) {
-			const miUnlinkAll = document.createElement("div");
-			miUnlinkAll.className = "menuitem";
-			miUnlinkAll.innerHTML = "Unlink All"
-			miUnlinkAll.onclick = function(e) {
+			op = new NMenuOption("Unlink All");
+			op.action = function(e){
+				//TODO 4DD 4N 4CT1ON H3R3
 				pin.unlinkAll();
-				brd.closeMenu();
 			}
-			menu.append(miUnlinkAll);
-
+			menu.addOption(op);
 
 			for (const pinid in this.links) {
 				const linked = this.links[pinid];
 
-				const mi = document.createElement("div");
-				mi.className = "menuitem";
-				mi.innerHTML = "Unlink From " + linked.node.constructor.getName() + ":" + linked.name;
-				mi.onclick = function(e) {
+				op = new NMenuOption("Unlink From " + linked.node.constructor.getName() + ":" + linked.name + " (" + linked.pinid + ")");
+				op.action = function(e){
+					//TODO 4DD 4N 4CT1ON H3R3
 					pin.unlink(linked);
-					brd.closeMenu();
 				}
-				menu.append(mi);
+				menu.addOption(op);
 			}
 		}
 
-		return main;
+		return menu;
 	}
 
-	detailsMenu(event) {
+	makeDetailsMenu(event) {
 		const pin = this;
 		const brd = this.node.board;
+		const menu = new NMenu(this.node.board, event);
+		menu.setHeader("Pin Details");
 
-		const main = document.createElement("div");
-		main.className = "ctxmenu";
-		main.style.left = event.clientX + "px";
-		main.style.top = event.clientY + "px";
-
-		const header = document.createElement("header");
-		header.innerHTML = "Pin Details";
-		main.append(header);
-
-		const menu = document.createElement("div");
-		menu.className = "menu";
-		main.append(menu);
-
-		const miName = document.createElement("div");
-		miName.className = "menuitem";
-		miName.innerHTML = "<div class=mih>Name:</div> \"" + this.name + "\"";
-		menu.append(miName);
-
-		const miMType = document.createElement("div");
-		miMType.className = "menuitem";
-		miMType.innerHTML = "<div class=mih>Multityped:</div> " + (this.multiTyped ? "Yes" : "No");
-		menu.append(miMType);
-
-		const miRef = document.createElement("div");
-		miRef.className = "menuitem";
-		miRef.innerHTML = "<div class=mih>By Reference:</div> " + (this.byRef ? "Yes" : "No");
-		menu.append(miRef);
+		menu.addOption(new NMenuOption("<div class=mih>Name:</div> \"" + this.name + "\""));
+		menu.addOption(new NMenuOption("<div class=mih>Multityped:</div> " + (this.multiTyped ? "Yes" : "No")));
+		menu.addOption(new NMenuOption("<div class=mih>By Reference:</div> " + (this.byRef ? "Yes" : "No")));
 
 		if (this.multiTyped) {
-			const miTypes = document.createElement("div");
-			miTypes.className = "menuitem";
-			miTypes.innerHTML = "<div class=mih>Types:</div> " + this.types.map(x => x.name).join(", ");
-			menu.append(miTypes);
+			menu.addOption(new NMenuOption("<div class=mih>Types:</div> " + this.types.map(x => x.name).join(", ")));
 		} else {
-			const miType = document.createElement("div");
-			miType.className = "menuitem";
-			miType.innerHTML = "<div class=mih>Type:</div> " + this.type.name;
-			menu.append(miType);
+			menu.addOption(new NMenuOption("<div class=mih>Type:</div> " + this.type.name));
 		}
 
 		if (this.defaultVal) {
-			const miDefVal = document.createElement("div");
-			miDefVal.className = "menuitem";
-			miDefVal.innerHTML = "<div class=mih>Default Value:</div> " + shallowStringify(this.defaultVal, 1, 0);
-			menu.append(miDefVal);
+			menu.addOption(new NMenuOption("<div class=mih>Default Value:</div> " + shallowStringify(this.defaultVal, 1, 0)));
 		}
 
-		const miID = document.createElement("div");
-		miID.className = "menuitem";
-		miID.innerHTML = "<div class=mih>Pin ID:</div> " + this.pinid;
-		menu.append(miID);
+		menu.addOption(new NMenuOption("<div class=mih>Pin ID:</div> " + this.pinid));
+		menu.addOption(new NMenuOption("<div class=mih>Links (" + this.linkNum + "): </div> " + Object.values(this.links).map(x => x.node.constructor.getName() + ":" + x.name).join(", ")));
 
-		const miLinks = document.createElement("div");
-		miLinks.className = "menuitem";
-		miLinks.innerHTML = "<div class=mih>Links (" + this.linkNum + "): </div> " + Object.values(this.links).map(x => x.node.constructor.getName() + ":" + x.name).join(", ");
-		menu.append(miLinks);
-
-		return main;
+		return menu;
 	}
 }
 
