@@ -414,15 +414,10 @@ class NNode {
 
 	load(data) {
 		this.nodeid = data.id;
-		applyPinIDs(data);
-		loadDefVals();
-		// links are loaded in a separate pass!
+		this.applyPinIDs(data);
+		this.loadDefVals(data);
 		this.position = new NPoint(data.x, data.y);
-		updatePosition();
-	}
-
-	loadLinks(data) {
-
+		this.updatePosition();
 	}
 
 	// override pin default values with those from saved node data
@@ -446,10 +441,10 @@ class NNode {
 	// override pin ID's with ID's from saved node data
 	// assume existing pins are in same order as data
 	applyPinIDs(data) {
-		for (const i = 0; i < this.inpinOrder.length; i++) {
+		for (let i = 0; i < this.inpinOrder.length; i++) {
 			this.inpins[this.inpinOrder[i]].pinid = data.ipids[i];
 		}
-		for (const i = 0; i < this.outpinOrder.length; i++) {
+		for (let i = 0; i < this.outpinOrder.length; i++) {
 			this.outpins[this.outpinOrder[i]].pinid = data.opids[i];
 		}
 	}

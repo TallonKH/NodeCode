@@ -812,9 +812,16 @@ class NBoard {
 		return data;
 	}
 
-	loadNode(nodata, loadid) {
-		const node = createNode(this.nodeTypeDict[nodata.type], nodata);
-		node.load(nodata, loadid);
+	loadNodes(data) {
+		const nodatas = data.nodes;
+		for(const nodata of nodatas){
+			const node = this.loadNode(nodata);
+		}
+	}
+
+	loadNode(nodata) {
+		const node = this.createNode(this.nodeTypeDict[nodata.type], nodata);
+		node.load(nodata);
 	}
 
 	createNode(type, data = undefined) {

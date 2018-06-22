@@ -53,7 +53,7 @@ $(function() {
 	});
 
 	let brdA = main.newBoard("TEST A");
-
+	brdA.loadNodes(JSON.parse(`{"nodes":[{"type":"Substring","id":3053875,"ipids":[1593399,1791931,2586554],"opids":[6689788],"x":413,"y":272,"defV":{"0":{"string":"asd","nclass":"String"},"1":{"int":"1","nclass":"Integer"},"2":{"int":"1","nclass":"Integer"}}}]}`));
 	window.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute("data-ovrdkeys") || event.target.nodeName == "INPUT";
 		switch (event.key) {
