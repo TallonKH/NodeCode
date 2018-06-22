@@ -801,8 +801,8 @@ class NBoard {
 		const data = {};
 		const nodata = []; // nodedata, not no-data
 
-		data.nids = nodeids;
-		data.pids = pinids;
+		// data.nids = nodeids;
+		// data.pids = pinids;
 		data.nodes = nodata;
 
 		for (const node of nodes) {

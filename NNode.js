@@ -397,6 +397,8 @@ class NNode {
 			if(pin.linkNum){
 				inLinks[inni] = Object.keys(pin.links).map(id => idRepl(pinids, id));
 			}
+			console.log(pin.defaultVal);
+			console.log(pin.defaultDefaultVal);
 			if (pin.defaultVal != pin.defaultDefaultVal) {
 				defVals[inni] = pin.defaultVal;
 			}
