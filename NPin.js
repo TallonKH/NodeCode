@@ -21,6 +21,7 @@ class NPin {
 		this.defaultVal = (!this.side && types.length == 1) ? types[0].construct() : null;
 		this.defaultDefaultVal = Object.assign({}, this.defaultVal);
 		this.pinfoDiv;
+		this.editDiv;
 		this.links = {};
 		this.linkNum = 0;
 	}
@@ -103,8 +104,11 @@ class NPin {
 
 	setDefaultVal(v, defdef) {
 		this.defaultVal = v;
-		if(defdef) { // should this be the default default value?
+		if(defdef) { // should also set the default default value?
 			this.defaultDefaultVal = Object.assign({}, v);
+		}
+		if(this.editDiv){
+			this.type.changeVal(this.editDiv, v);
 		}
 		return this;
 	}

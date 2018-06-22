@@ -174,12 +174,12 @@ class NNode {
 		pinfo.setAttribute("data-nodeid", this.nodeid);
 		this.ipcNameDiv.append(pinfo);
 
-		if (pin.type && pin.type.edit) {
-			const pinfoDiv = document.createElement("div");
-			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
-			pinfoDiv.setAttribute("data-pinid", this.pinid);
-			this.ipcEditDiv.append(pinfoDiv);
+		const pinfoDiv = document.createElement("div");
+		pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
+		pinfoDiv.setAttribute("data-pinid", this.pinid);
+		this.ipcEditDiv.append(pinfoDiv);
 
+		if (pin.type && pin.type.edit) {
 			const node = this;
 			const pedit = pin.type.edit(pin);
 			pedit.onfocus = function(e) {
@@ -189,6 +189,7 @@ class NNode {
 				node.inPinfosDiv.removeAttribute("opened");
 			}
 			pinfoDiv.append(pedit);
+			pin.editDiv = pedit;
 		}
 	}
 

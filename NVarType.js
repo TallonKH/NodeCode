@@ -109,7 +109,7 @@ NInteger.edit = function(pin){
 	inp.className = "pinval integer";
 	inp.type = "number";
 	console.log(pin);
-	inp.value = "\"" + pin.defaultVal.int.toString() + "\"";
+	inp.value = pin.defaultVal.int;
 	inp.step = "1";
 	inp.oninput = function(e){
 		pin.defaultVal.int = inp.value;
@@ -125,13 +125,16 @@ NInteger.edit = function(pin){
 	}
 	return inp;
 };
+NInteger.changeVal = function(inp, nval){
+	inp.value = nval.int;
+}
 
 const NDouble = new NVarType("Double", function(nvar){nvar.double = 0.0;}, "#7bed3e", NObject);
 NDouble.edit = function(pin){
 	const inp = document.createElement("input");
 	inp.className = "pinval double";
 	inp.type = "number";
-	inp.value = "\"" + pin.defaultVal.double.toString() + "\"";
+	inp.value = pin.defaultVal.double;
 	inp.oninput = function(e){
 		pin.defaultVal.double = inp.value;
 	}
@@ -146,6 +149,9 @@ NDouble.edit = function(pin){
 	}
 	return inp;
 };
+NDouble.changeVal = function(inp, nval){
+	inp.value = nval.double;
+}
 
 const NBoolean = new NVarType("Boolean", function(nvar){nvar.boolean = false;}, "#ed2121", NObject);
 NBoolean.edit = function(pin){
@@ -190,3 +196,6 @@ NString.edit = function(pin){
 	}
 	return inp;
 };
+NString.changeVal = function(inp, nval){
+	inp.value = nval.string;
+}
