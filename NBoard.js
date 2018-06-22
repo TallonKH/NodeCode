@@ -814,14 +814,29 @@ class NBoard {
 
 	loadNodes(data) {
 		const nodatas = data.nodes;
-		for(const nodata of nodatas){
-			const node = this.loadNode(nodata);
+		const addedNodes = [];
+		console.log(this.pins);
+		for (const nodata of nodatas) {
+			addedNodes.push(this.loadNode(nodata));
+		}
+		console.log(this.pins);
+		for (let i = 0, l = addedNodes.length; i < l; i++) {
+			const node = addedNodes[i];
+			const pins = nodatas[i].links;
+			for (const pindex in pins) {
+				const pin = pins[pindex];
+				for (const linkID of pin) {
+					console.log(linkID);
+					node.inpins[node.inpinOrder[pindex]].linkTo(this.pins[linkID]);
+				}
+			}
 		}
 	}
 
 	loadNode(nodata) {
 		const node = this.createNode(this.nodeTypeDict[nodata.type], nodata);
 		node.load(nodata);
+		return node;
 	}
 
 	createNode(type, data = undefined) {

@@ -299,6 +299,7 @@ class NNode {
 	}
 
 	updatePosition() {
+		this.position = this.position.round(2);
 		this.offset = new NPoint(this.containerDiv.offsetLeft, this.containerDiv.offsetTop);
 		// this.offset = new NPoint(this.containerDiv.getBoundingClientRect().left, this.containerDiv.getBoundingClientRect().top);
 		this.displayPosition = this.position.subtractp(this.offset);
@@ -577,7 +578,7 @@ class NNode {
 
 		menu.addOption(new NMenuOption("<div class=mih>Type:</div> \"" + this.constructor.getName() + "\""));
 		menu.addOption(new NMenuOption("<div class=mih>Node ID:</div> " + this.nodeid));
-		menu.addOption(new NMenuOption("<div class=mih>Position:</div> " + this.position.toString()));
+		menu.addOption(new NMenuOption("<div class=mih>Position:</div> " + this.position.round(2).toString()));
 
 		return menu;
 	}

@@ -108,7 +108,6 @@ NInteger.edit = function(pin){
 	const inp = document.createElement("input");
 	inp.className = "pinval integer";
 	inp.type = "number";
-	console.log(pin);
 	inp.value = pin.defaultVal.int;
 	inp.step = "1";
 	inp.oninput = function(e){
