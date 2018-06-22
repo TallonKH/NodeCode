@@ -140,9 +140,15 @@ class NBoard {
 		let op;
 
 		op = new NMenuOption("Create Node");
-		op.action = function(e){
+		op.action = function(e) {
 			brd.applyMenu(brd.makeNodeCreationMenu(event));
 			return true;
+		}
+		menu.addOption(op);
+
+		op = new NMenuOption("Log");
+		op.action = function(e) {
+			console.log(brd.saveAllNodes());
 		}
 		menu.addOption(op);
 
@@ -155,13 +161,13 @@ class NBoard {
 
 		if (this.actionStackIndex > -1) {
 			op = new NMenuOption("Undo");
-			op.action = e=>brd.undo();
+			op.action = e => brd.undo();
 			menu.addOption(op);
 		}
 
 		if (this.actionStackIndex < this.actionStack.length - 1) {
 			op = new NMenuOption("Redo");
-			op.action = e=>brd.redo();
+			op.action = e => brd.redo();
 			menu.addOption(op);
 		}
 
@@ -184,11 +190,11 @@ class NBoard {
 
 		for (const type of this.nodeTypeList) {
 			const op = new NMenuOption(type.getName());
-			op.action = function(e){
+			op.action = function(e) {
 				const node = brd.createNode(type);
 				node.setPosition(brd.evntToPt(e));
 			}
-			if(type.getTags){
+			if (type.getTags) {
 				op.setTags(...type.getTags());
 			}
 			menu.addOption(op);
@@ -778,22 +784,41 @@ class NBoard {
 			ctx.moveTo(l1.x, l1.y);
 			ctx.bezierCurveTo(p1.x, p1.y, p2.x, l2.y, l2.x, l2.y);
 			ctx.stroke();
-			// let lastp = l1;
-			// const inc = (this.env.lineClickDistance * 2)/(Math.abs(l1.x - l2.x)+Math.abs(l1.y - l2.y));
-			// for(let i=inc; i<1; i+=inc){
-			// 	const curvePt = pointOnBezier(l1,p1,p2,l2, i);
-			// 	ctx.lineWidth = 4;
-			// 	ctx.moveTo(lastp.x, lastp.y);
-			// 	ctx.beginPath();
-			// 	const slope = Math.abs(slopeOnBezier(l1,p1,p2,l2,i).y);
-			// 	ctx.arc(curvePt.x,curvePt.y,slope,0,2*Math.PI);
-			// 	ctx.stroke();
-			// }
 		}
 	}
 
-	createNode(type) {
-		const node = new type();
+	saveSelectedNodes() {
+		return this.saveNodeGroup(Object.values(this.selectedNodes));
+	}
+
+	saveAllNodes() {
+		return this.saveNodeGroup(Object.values(this.nodes));
+	}
+
+	saveNodeGroup(nodes) {
+		const nodeids = {};
+		const pinids = {};
+		const data = {};
+		const nodata = []; // nodedata, not no-data
+
+		data.nids = nodeids;
+		data.pids = pinids;
+		data.nodes = nodata;
+
+		for (const node of nodes) {
+			nodata.push(node.save(nodeids, pinids));
+		}
+
+		return data;
+	}
+
+	loadNode(nodata, loadid) {
+		const node = createNode(this.nodeTypeDict[nodata.type], nodata);
+		node.load(nodata, loadid);
+	}
+
+	createNode(type, data = undefined) {
+		const node = new type(data);
 		this.addNode(node);
 		return node;
 	}

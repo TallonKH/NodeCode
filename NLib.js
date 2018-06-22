@@ -173,3 +173,12 @@ shallowStringify = function(obj, maxDepth, depth) {
 			}
 	}
 }
+
+idRepl = function(ids, actual){
+	if(actual.toString() in ids){
+		return ids[actual];
+	}
+	const replace = ~~(Math.random() * 8388607);
+	ids[actual] = replace;
+	return replace;
+}

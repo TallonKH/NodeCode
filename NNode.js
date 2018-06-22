@@ -8,7 +8,8 @@
 //	data-ovrdkeys		:		if div should override keyboard functionality
 
 class NNode {
-	constructor() {
+	constructor(data = null) {
+		this.startData = data;
 		this.resizable = false;
 
 		this.board = null;
@@ -30,8 +31,8 @@ class NNode {
 		this.offset = new NPoint(0, 0);
 		this.displayPosition = new NPoint(0, 0);
 
-		this.nodeid = ~~(Math.random() * 8388607) // generate random int as ID
-		this.inpins = {};
+		this.nodeid = data ? (data.id) : (~~(Math.random() * 8388607)) // generate random int as ID
+		this.inpins = {}; // name : pin
 		this.inpinOrder = [];
 		this.outpins = {};
 		this.outpinOrder = [];
@@ -128,6 +129,11 @@ class NNode {
 			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
+		if(this.startData){
+			pin.pinid = this.startData.ipids[this.inpinOrder.length];
+		}else{
+			pin.pinid = ~~(Math.random() * 8388607);
+		}
 		pin.node = this;
 		pin.side = false;
 		pin.setTypes(true, ...pin.types);
@@ -190,6 +196,11 @@ class NNode {
 		if (this.outpins[pin.name]) {
 			console.log("An outpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
+		}
+		if(this.startData){
+			pin.pinid = this.startData.opids[this.outpinOrder.length];
+		}else{
+			pin.pinid = ~~(Math.random() * 8388607);
 		}
 		pin.node = this;
 		pin.side = true;
@@ -368,18 +379,77 @@ class NNode {
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
 
-	save() {
-		return {
-			"id": this.nodeid,
+	save(nodeids, pinids) {
+		const node = this;
+		const data = {
+			"type": this.constructor.getName(),
+			"id": idRepl(nodeids, this.nodeid),
+			"ipids": this.inpinOrder.map(x => idRepl(pinids, node.inpins[x].pinid)),
+			"opids": this.outpinOrder.map(x => idRepl(pinids, node.outpins[x].pinid)),
 			"x": this.position.x,
 			"y": this.position.y
 		};
+
+		const inLinks = {};
+		const defVals = {};
+		for (const inni in this.inpinOrder) {
+			const pin = node.inpins[this.inpinOrder[inni]];
+			if(pin.linkNum){
+				inLinks[inni] = Object.keys(pin.links).map(id => idRepl(pinids, id));
+			}
+			if (pin.defaultVal != pin.defaultDefaultVal) {
+				defVals[inni] = pin.defaultVal;
+			}
+		}
+		if(Object.keys(inLinks).length){
+			data["links"] = inLinks
+		}
+		if (Object.keys(defVals).length) {
+			data["defV"] = defVals;
+		}
+		return data;
 	}
 
 	load(data) {
 		this.nodeid = data.id;
+		applyPinIDs(data);
+		loadDefVals();
+		// links are loaded in a separate pass!
 		this.position = new NPoint(data.x, data.y);
 		updatePosition();
+	}
+
+	loadLinks(data) {
+
+	}
+
+	// override pin default values with those from saved node data
+	// assume existing pins are in same order as data
+	loadDefVals(data) {
+		const defVals = data["defV"];
+
+		if (!defVals) {
+			return false;
+		}
+
+		for (const index in defVals) {
+			try {
+				this.inpins[this.inpinOrder[index]].setDefaultVal(defVals[index], false);
+			} catch (e) {
+				throw e;
+			}
+		}
+	}
+
+	// override pin ID's with ID's from saved node data
+	// assume existing pins are in same order as data
+	applyPinIDs(data) {
+		for (const i = 0; i < this.inpinOrder.length; i++) {
+			this.inpins[this.inpinOrder[i]].pinid = data.ipids[i];
+		}
+		for (const i = 0; i < this.outpinOrder.length; i++) {
+			this.outpins[this.outpinOrder[i]].pinid = data.opids[i];
+		}
 	}
 
 	static getName() {
@@ -397,6 +467,13 @@ class NNode {
 		op = new NMenuOption("Details");
 		op.action = function(e) {
 			brd.applyMenu(node.makeDetailsMenu(event));
+			return true;
+		}
+		menu.addOption(op);
+
+		op = new NMenuOption("Copy");
+		op.action = function(e) {
+			console.log(node.save({},{}));
 			return true;
 		}
 		menu.addOption(op);
@@ -420,7 +497,7 @@ class NNode {
 		if (hasInLinks) {
 			op = new NMenuOption("Unlink All Inputs");
 			op.action = function(e) {
-				//TODO 4DD 4N 4CT1ON H3R3
+				// TODO 4DD 4N 4CT1ON H3R3
 				node.unlinkAllInpins();
 			}
 			menu.addOption(op);
@@ -428,7 +505,7 @@ class NNode {
 		if (hasOutLinks) {
 			op = new NMenuOption("Unlink All Outputs");
 			op.action = function(e) {
-				//TODO 4DD 4N 4CT1ON H3R3
+				// TODO 4DD 4N 4CT1ON H3R3
 				node.unlinkAllOutpins();
 			}
 			menu.addOption(op);
@@ -437,7 +514,7 @@ class NNode {
 		if (hasInLinks && hasOutLinks) {
 			op = new NMenuOption("Unlink All");
 			op.action = function(e) {
-				//TODO 4DD 4N 4CT1ON H3R3
+				// TODO 4DD 4N 4CT1ON H3R3
 				node.unlinkAll();
 			}
 			menu.addOption(op);
@@ -459,7 +536,7 @@ class NNode {
 
 		if (hasOutLinks) {
 			op = new NMenuOption("Select Child Nodes");
-			op.action = function(e){
+			op.action = function(e) {
 				for (const pinid in node.outpins) {
 					const pin = node.outpins[pinid];
 					for (const link in pin.links) {
@@ -473,7 +550,7 @@ class NNode {
 
 		if (hasInLinks && hasOutLinks) {
 			op = new NMenuOption("Select Linked Nodes");
-			op.action = function(e){
+			op.action = function(e) {
 				for (const pin of node.pinlist) {
 					for (const link in pin.links) {
 						//4DD 4N 4CT1ON H3R3
@@ -485,7 +562,7 @@ class NNode {
 		}
 
 		op = new NMenuOption("Delete Node");
-		op.action = function(e){
+		op.action = function(e) {
 			//4DD 4N 4CT1ON H3R3
 			node.remove();
 		}
@@ -514,7 +591,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	const menu = new NMenu(brd, event);
 	menu.setHeader("Multiple Nodes (" + nodes.length + ")");
 
- 	let op;
+	let op;
 
 	op = new NMenuOption("Details");
 	op.action = function(e) {

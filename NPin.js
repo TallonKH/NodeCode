@@ -9,7 +9,7 @@ const defVals = {
 
 class NPin {
 	constructor(name, ...types) {
-		this.pinid = ~~(Math.random() * 8388607) // generate random int as ID
+		this.pinid; // generate random int as ID
 		this.name = name;
 		this.types = types;
 		this.side; // false = in, true = out
@@ -19,6 +19,7 @@ class NPin {
 		this.byRef = false;
 		this.pinDiv;
 		this.defaultVal = (!this.side && types.length == 1) ? types[0].construct() : null;
+		this.defaultDefaultVal = this.defaultVal;
 		this.pinfoDiv;
 		this.links = {};
 		this.linkNum = 0;
@@ -100,8 +101,11 @@ class NPin {
 		return this;
 	}
 
-	setDefaultVal(v) {
+	setDefaultVal(v, defdef) {
 		this.defaultVal = v;
+		if(defdef) { // should this be the default default value?
+			this.defaultDefaultVal = v;
+		}
 		return this;
 	}
 
@@ -174,6 +178,7 @@ class NPin {
 			console.log("Can't unlink pins " + a.name + " & " + b.name + " because they aren't linked!");
 			return false;
 		}
+		this.node.board.redraw();
 	}
 
 	unlinkAll() {
@@ -304,7 +309,7 @@ class NPin {
 		if (this.linkNum) {
 			op = new NMenuOption("Unlink All");
 			op.action = function(e){
-				//TODO 4DD 4N 4CT1ON H3R3
+				// TODO 4DD 4N 4CT1ON H3R3
 				pin.unlinkAll();
 			}
 			menu.addOption(op);
@@ -314,7 +319,7 @@ class NPin {
 
 				op = new NMenuOption("Unlink From " + linked.node.constructor.getName() + ":" + linked.name + " (" + linked.pinid + ")");
 				op.action = function(e){
-					//TODO 4DD 4N 4CT1ON H3R3
+					// TODO 4DD 4N 4CT1ON H3R3
 					pin.unlink(linked);
 				}
 				menu.addOption(op);
