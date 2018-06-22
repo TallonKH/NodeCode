@@ -148,7 +148,7 @@ class NBoard {
 
 		op = new NMenuOption("Log");
 		op.action = function(e) {
-			console.log(brd.saveAllNodes());
+			console.log(JSON.stringify(brd.saveAllNodes()));
 		}
 		menu.addOption(op);
 

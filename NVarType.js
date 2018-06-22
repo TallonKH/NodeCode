@@ -1,5 +1,7 @@
+varTypes = {};
 class NVarType {
 	constructor(name, addValues, color, ...parents) {
+		varTypes[name] = this;
 		this.name = name;
 		this.multiInput = false;
 		this.multiOutput = true;
@@ -19,7 +21,7 @@ class NVarType {
 			for (const parent of vt.allParents) {
 				parent.addValues(nvar);
 			}
-			nvar["nclass"] = this;
+			nvar["nclass"] = this.name;
 			return nvar;
 		};
 	}
@@ -76,10 +78,10 @@ getValidOutTypes = function(ins, outs) {
 }
 
 double = function(v){
-	if(v.nclass.isA(NDouble)){
+	if(varTypes[v.nclass].isA(NDouble)){
 		return v.double;
 	}
-	if(v.nclass.isA(NInteger)){
+	if(varTypes[v.nclass].isA(NInteger)){
 		return v.int;
 	}
 	console.log(v.name + " is NaN!");
@@ -127,7 +129,7 @@ NInteger.edit = function(pin){
 const NDouble = new NVarType("Double", function(nvar){nvar.double = 0.0;}, "#7bed3e", NObject);
 NDouble.edit = function(pin){
 	const inp = document.createElement("input");
-	inp.className = "pinval integer";
+	inp.className = "pinval double";
 	inp.type = "number";
 	inp.value = "\"" + pin.defaultVal.double.toString() + "\"";
 	inp.oninput = function(e){
