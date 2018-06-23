@@ -653,6 +653,16 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	}
 	menu.addOption(op);
 
+	op = new NMenuOption("Go to");
+	op.action = function(e) {
+		console.log(brd.displayOffset);
+		console.log(getGroupCenter(nodes));
+		brd.displayOffset = getGroupCenter(nodes).multiply1(-1).add2(brd.paneDiv.width / 2, brd.paneDiv.height / 2);
+		console.log(brd.displayOffset);
+		brd.redraw();
+	}
+	menu.addOption(op);
+
 	let hasLinks = false;
 	for (const node of nodes) {
 		for (const pin of node.pinlist) {
