@@ -67,6 +67,49 @@ class NBoard {
 		return p;
 	}
 
+	duplicateNodes(nodes) {
+		const newNodes = this.loadNodes(this.saveNodes(nodes));
+		const bounds = getGroupBounds(nodes);
+		let diff = bounds.max.subtractp(bounds.min);
+		// offset duplicated nodes in the most space-efficient manner
+		if (diff.y > diff.x) {
+			diff = new NPoint(diff.x + 20, 0);
+		} else {
+			diff = new NPoint(0, diff.y + 20);
+		}
+		for (const node of newNodes) {
+			node.setPosition(node.position.addp(diff));
+		}
+		return newNodes;
+	}
+
+	duplicateNode(node) {
+		const newNode = this.loadNode(node.save({}, {}));
+		newNode.setPosition(node.position.add2(0, node.nodeDiv.clientHeight + 20));
+		return newNode;
+	}
+
+	copyNodes(nodes) {
+		localStorage.setItem("clipboard", JSON.stringify(this.saveNodes(nodes)));
+	}
+
+	cutNodes(nodes){
+		this.copyNodes(nodes);
+		nodes.forEach(x => x.remove());
+	}
+
+	pasteNodes(position) {
+		const parsed = JSON.parse(localStorage.getItem("clipboard"));
+		const nodes = this.loadNodes(parsed);
+		scrambleIDs(parsed);
+		localStorage.setItem("clipboard", JSON.stringify(parsed));
+		const offset = position.subtractp(getGroupCenter(nodes));
+		for (const node of nodes) {
+			node.setPosition(node.position.addp(offset));
+		}
+		return nodes;
+	}
+
 	evntToPtBrd(event) {
 		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60);
 		return p;
@@ -146,8 +189,20 @@ class NBoard {
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Log");
+		op = new NMenuOption("Paste");
 		op.action = function(e) {
+			// TODO 4DD 4N 4CT1ON H3R3
+			const nodes = brd.pasteNodes(brd.clickEnd);
+			console.log(nodes);
+			for (const node of nodes) {
+				brd.selectNode(node);
+			}
+		}
+		menu.addOption(op);
+
+		op = new NMenuOption("Export");
+		op.action = function(e) {
+			// TODO M4K3 4 T3XT4R34
 			console.log(JSON.stringify(brd.saveAllNodes()));
 		}
 		menu.addOption(op);
@@ -491,6 +546,27 @@ class NBoard {
 					this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent));
 				}
 				break;
+			case 67: // C
+				if (this.env.ctrlDown) {
+					if (this.selectedNodeCount) {
+						this.copyNodes(Object.values(this.selectedNodes));
+					}
+				}
+				break;
+			case 86: // V
+				if (this.env.ctrlDown) {
+					if (this.lastMousePosition) {
+						this.pasteNodes(this.lastMousePosition);
+					}
+				}
+				break;
+			case 88: // X
+			if (this.env.ctrlDown) {
+				if (this.selectedNodeCount) {
+					this.cutNodes(Object.values(this.selectedNodes));
+				}
+			}
+			break;
 			case 90: // Z
 				if (this.env.ctrlDown) {
 					if (this.env.shiftDown) {
@@ -795,7 +871,7 @@ class NBoard {
 		return this.saveNodeGroup(Object.values(this.nodes));
 	}
 
-	saveNodeGroup(nodes) {
+	saveNodes(nodes) {
 		const nodeids = {};
 		const pinids = {};
 		const data = {};
@@ -815,22 +891,24 @@ class NBoard {
 	loadNodes(data) {
 		const nodatas = data.nodes;
 		const addedNodes = [];
-		console.log(this.pins);
 		for (const nodata of nodatas) {
 			addedNodes.push(this.loadNode(nodata));
 		}
-		console.log(this.pins);
 		for (let i = 0, l = addedNodes.length; i < l; i++) {
 			const node = addedNodes[i];
 			const pins = nodatas[i].links;
 			for (const pindex in pins) {
 				const pin = pins[pindex];
 				for (const linkID of pin) {
-					console.log(linkID);
-					node.inpins[node.inpinOrder[pindex]].linkTo(this.pins[linkID]);
+					if (linkID in this.pins) {
+						node.inpins[node.inpinOrder[pindex]].linkTo(this.pins[linkID]);
+					} else {
+						// ignore missing links - must be from non-copied pins
+					}
 				}
 			}
 		}
+		return addedNodes;
 	}
 
 	loadNode(nodata) {

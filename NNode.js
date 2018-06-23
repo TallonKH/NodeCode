@@ -129,9 +129,9 @@ class NNode {
 			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
-		if(this.startData){
+		if (this.startData) {
 			pin.pinid = this.startData.ipids[this.inpinOrder.length];
-		}else{
+		} else {
 			pin.pinid = ~~(Math.random() * 8388607);
 		}
 		pin.node = this;
@@ -198,9 +198,9 @@ class NNode {
 			console.log("An outpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
-		if(this.startData){
+		if (this.startData) {
 			pin.pinid = this.startData.opids[this.outpinOrder.length];
-		}else{
+		} else {
 			pin.pinid = ~~(Math.random() * 8388607);
 		}
 		pin.node = this;
@@ -381,7 +381,7 @@ class NNode {
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
 
-	save(nodeids, pinids) {
+	save(nodeids = {}, pinids = {}) {
 		const node = this;
 		const data = {
 			"type": this.constructor.getName(),
@@ -396,16 +396,14 @@ class NNode {
 		const defVals = {};
 		for (const inni in this.inpinOrder) {
 			const pin = node.inpins[this.inpinOrder[inni]];
-			if(pin.linkNum){
+			if (pin.linkNum) {
 				inLinks[inni] = Object.keys(pin.links).map(id => idRepl(pinids, id));
 			}
-			console.log(pin.defaultVal);
-			console.log(pin.defaultDefaultVal);
 			if (pin.defaultVal != pin.defaultDefaultVal) {
 				defVals[inni] = pin.defaultVal;
 			}
 		}
-		if(Object.keys(inLinks).length){
+		if (Object.keys(inLinks).length) {
 			data["links"] = inLinks
 		}
 		if (Object.keys(defVals).length) {
@@ -455,6 +453,10 @@ class NNode {
 		return "Unknode";
 	}
 
+	getSize() {
+		return new Point(this.nodeDiv.clientWidth, this.nodeDiv.clientHeight);
+	}
+
 	makeContextMenu(event) {
 		const node = this;
 		const brd = this.board;
@@ -472,8 +474,22 @@ class NNode {
 
 		op = new NMenuOption("Copy");
 		op.action = function(e) {
-			console.log(node.save({},{}));
-			return true;
+			brd.copyNodes([node]);
+		}
+		menu.addOption(op);
+
+		op = new NMenuOption("Cut");
+		op.action = function(e) {
+			brd.cutNodes([node]);
+		}
+		menu.addOption(op);
+
+		op = new NMenuOption("Duplicate");
+		op.action = function(e) {
+			// TODO 4DD 4N 4CT1ON H3R3
+			brd.deselectAllNodes();
+			const newNode = brd.duplicateNode(node);
+			brd.selectNode(newNode);
 		}
 		menu.addOption(op);
 
@@ -608,6 +624,35 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	}
 	menu.addOption(op);
 
+	op = new NMenuOption("Copy");
+	op.action = function(e) {
+		brd.copyNodes(nodes);
+	}
+	menu.addOption(op);
+
+	op = new NMenuOption("Cut");
+	op.action = function(e) {
+		brd.cutNodes(nodes);
+	}
+	menu.addOption(op);
+
+	op = new NMenuOption("Duplicate");
+	op.action = function(e) {
+		brd.deselectAllNodes();
+		const newNodes = brd.duplicateNodes(nodes);
+		for (const node of newNodes) {
+			brd.selectNode(node);
+		}
+	}
+	menu.addOption(op);
+
+	op = new NMenuOption("Export as String");
+	op.action = function(e) {
+		// TODO M4K3 4 T3XT4R34
+		console.log(JSON.stringify(brd.saveNodes(nodes)));
+	}
+	menu.addOption(op);
+
 	let hasLinks = false;
 	for (const node of nodes) {
 		for (const pin of node.pinlist) {
@@ -650,17 +695,28 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	return menu;
 }
 
+getGroupBounds = function(nodes) {
+	return {
+		"min": NPoint.min(...nodes.map(x => x.position)).round(2),
+		"max": NPoint.max(...nodes.map(x => x.position.add2(x.nodeDiv.clientWidth, x.nodeDiv.clientHeight))).round(2)
+	}
+}
+
+getGroupCenter = function(nodes) {
+	const bounds = getGroupBounds(nodes);
+	return bounds.min.addp(bounds.max).divide1(2);
+}
+
 makeMultiNodeDetailsMenu = function(brd, event, nodes) {
 	const node = this;
 	const menu = new NMenu(brd, event);
 	menu.setHeader("Group Details");
 
-	const minp = NPoint.min(...nodes.map(x => x.position)).round(2);
-	const maxp = NPoint.max(...nodes.map(x => x.position.add2(x.nodeDiv.clientWidth, x.nodeDiv.clientHeight))).round(2);
+	const bounds = getGroupBounds(nodes);
 
 	menu.addOption(new NMenuOption("<div class=mih>Nodes:</div> " + nodes.length));
-	menu.addOption(new NMenuOption("<div class=mih>Bounds:</div> " + minp.toString() + ", " + maxp.toString()));
-	menu.addOption(new NMenuOption("<div class=mih>Center:</div> " + minp.addp(maxp).divide1(2)));
+	menu.addOption(new NMenuOption("<div class=mih>Bounds:</div> " + bounds.min.toString() + ", " + bounds.max.toString()));
+	menu.addOption(new NMenuOption("<div class=mih>Center:</div> " + bounds.min.addp(bounds.max).divide1(2)));
 
 	return menu;
 }

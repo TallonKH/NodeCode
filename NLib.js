@@ -174,11 +174,32 @@ shallowStringify = function(obj, maxDepth, depth) {
 	}
 }
 
-idRepl = function(ids, actual){
-	if(actual.toString() in ids){
+idRepl = function(ids, actual) {
+	if (actual.toString() in ids) {
 		return ids[actual];
 	}
 	const replace = ~~(Math.random() * 8388607);
 	ids[actual] = replace;
 	return replace;
+}
+
+scrambleIDs = function(data) {
+	const nodeids = {};
+	const pinids = {};
+	const nodes = data.nodes;
+	for (const node of nodes) {
+		node.id = idRepl(nodeids, node.id);
+		for (let i = 0, l = node.ipids.length; i < l; i++) {
+			node.ipids[i] = idRepl(pinids, node.ipids[i]);
+		}
+		for (let i = 0, l = node.opids.length; i < l; i++) {
+			node.opids[i] = idRepl(pinids, node.opids[i]);
+		}
+		for (const pindex in node.links) {
+			const links = node.links[pindex];
+			for (let i = 0, l = links.length; i < l; i++) {
+				links[i] = idRepl(pinids, links[i]);
+			}
+		}
+	}
 }
