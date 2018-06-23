@@ -93,7 +93,7 @@ class NBoard {
 		localStorage.setItem("clipboard", JSON.stringify(this.saveNodes(nodes)));
 	}
 
-	cutNodes(nodes){
+	cutNodes(nodes) {
 		this.copyNodes(nodes);
 		nodes.forEach(x => x.remove());
 	}
@@ -189,18 +189,29 @@ class NBoard {
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Paste");
-		op.action = function(e) {
-			// TODO 4DD 4N 4CT1ON H3R3
-			const nodes = brd.pasteNodes(brd.clickEnd);
-			console.log(nodes);
-			for (const node of nodes) {
-				brd.selectNode(node);
+		if (brd.selectedNodeCount) {
+			op = new NMenuOption("[Selected Nodes]...");
+			op.action = function(e) {
+				brd.applyMenu(makeMultiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
+				return true;
 			}
+			menu.addOption(op);
 		}
-		menu.addOption(op);
 
-		op = new NMenuOption("Export");
+		if (localStorage.getItem("clipboard")) {
+			op = new NMenuOption("Paste");
+			op.action = function(e) {
+				// TODO 4DD 4N 4CT1ON H3R3
+				const nodes = brd.pasteNodes(brd.clickEnd);
+				console.log(nodes);
+				for (const node of nodes) {
+					brd.selectNode(node);
+				}
+			}
+			menu.addOption(op);
+		}
+
+		op = new NMenuOption("Export All");
 		op.action = function(e) {
 			// TODO M4K3 4 T3XT4R34
 			console.log(JSON.stringify(brd.saveAllNodes()));
@@ -561,12 +572,12 @@ class NBoard {
 				}
 				break;
 			case 88: // X
-			if (this.env.ctrlDown) {
-				if (this.selectedNodeCount) {
-					this.cutNodes(Object.values(this.selectedNodes));
+				if (this.env.ctrlDown) {
+					if (this.selectedNodeCount) {
+						this.cutNodes(Object.values(this.selectedNodes));
+					}
 				}
-			}
-			break;
+				break;
 			case 90: // Z
 				if (this.env.ctrlDown) {
 					if (this.env.shiftDown) {
