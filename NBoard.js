@@ -864,12 +864,19 @@ class NBoard {
 			ctx.strokeStyle = grad;
 			ctx.lineWidth = 8 * this.zoom;
 
+			const yDist = Math.abs(l1.y - l2.y);
+			const xDist = Math.abs(l1.x - l2.x);
+
+			const xPush = Math.min(300*this.zoom, Math.max(0, (l2.x - l1.x) - yDist) / 2);
+			const yPush = l1.y > l2.y ? xPush : -xPush;
+
+			const splineDist = yDist / 2 + xDist / 4;
+			const p1 = new NPoint(l1.x - splineDist - xPush, l1.y - yPush);
+			const p2 = new NPoint(l2.x + splineDist + xPush, l2.y + yPush);
+
 			ctx.beginPath();
-			const splineDist = Math.abs(l1.y - l2.y) / 2 + Math.abs((l1.x - l2.x)) / 4;
-			const p1 = new NPoint(l1.x - splineDist, l1.y);
-			const p2 = new NPoint(l2.x + splineDist, l2.y);
 			ctx.moveTo(l1.x, l1.y);
-			ctx.bezierCurveTo(p1.x, p1.y, p2.x, l2.y, l2.x, l2.y);
+			ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, l2.x, l2.y);
 			ctx.stroke();
 		}
 	}

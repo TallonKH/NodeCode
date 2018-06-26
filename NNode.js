@@ -655,10 +655,8 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 	op = new NMenuOption("Go to");
 	op.action = function(e) {
-		console.log(brd.displayOffset);
-		console.log(getGroupCenter(nodes));
+		//TODO M4K3 TH1S GOTO TH3 C3NT3R
 		brd.displayOffset = getGroupCenter(nodes).multiply1(-1).add2(brd.paneDiv.width / 2, brd.paneDiv.height / 2);
-		console.log(brd.displayOffset);
 		brd.redraw();
 	}
 	menu.addOption(op);
