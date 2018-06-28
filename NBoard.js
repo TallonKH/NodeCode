@@ -84,7 +84,7 @@ class NBoard {
 	}
 
 	duplicateNode(node) {
-		const newNode = this.loadNode(node.save({}, {}));
+		const newNode = this.loadNodes(scrambleIDs(this.saveNodes([node])))[0];
 		newNode.setPosition(node.position.add2(0, node.nodeDiv.clientHeight + 20));
 		return newNode;
 	}

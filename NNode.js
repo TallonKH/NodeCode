@@ -501,9 +501,9 @@ class NNode {
 
 		op = new NMenuOption("Duplicate");
 		op.action = function(e) {
-			// TODO 4DD 4N 4CT1ON H3R3
-			brd.deselectAllNodes();
 			const newNode = brd.duplicateNode(node);
+			brd.addAction(new ActDuplicateNode(brd, newNode));
+			brd.deselectAllNodes();
 			brd.selectNode(newNode);
 		}
 		menu.addOption(op);
@@ -656,8 +656,9 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 	op = new NMenuOption("Duplicate");
 	op.action = function(e) {
-		brd.deselectAllNodes();
 		const newNodes = brd.duplicateNodes(nodes);
+		brd.addAction(new ActDuplicateNodes(brd, newNodes));
+		brd.deselectAllNodes();
 		for (const node of newNodes) {
 			brd.selectNode(node);
 		}

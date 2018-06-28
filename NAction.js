@@ -231,6 +231,48 @@ class ActPasteClipboard extends NAction {
 	}
 }
 
+class ActDuplicateNode extends NAction {
+	constructor(board, newNode) {
+		super(board);
+		this.newNode = newNode;
+		this.selected = Object.values(board.selectedNodes);
+	}
+
+	redo() {
+		this.board.deselectAllNodes();
+		this.board.addNode(this.newNode);
+		this.newNode.select();
+	}
+
+	undo() {
+		this.board.removeNode(this.newNode);
+		this.selected.forEach(x=>x.select());
+	}
+}
+
+class ActDuplicateNodes extends NAction {
+	constructor(board, newNodes) {
+		super(board);
+		this.newNodes = newNodes;
+		this.linkData = board.saveNodes(newNodes).nodes;
+		this.selected = Object.values(board.selectedNodes);
+	}
+
+	redo() {
+		this.board.deselectAllNodes();
+		for(const node of this.newNodes){
+			this.board.addNode(node);
+			node.select();
+		}
+		this.board.loadLinks(this.newNodes, this.linkData);
+	}
+
+	undo() {
+		this.newNodes.forEach(x=>x.remove());
+		this.selected.forEach(x=>x.select());
+	}
+}
+
 class ActCreateLink extends NAction {
 	constructor(board) {
 		super(board);
