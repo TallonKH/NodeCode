@@ -195,13 +195,20 @@ scrambleIDs = function(data) {
 		for (let i = 0, l = node.opids.length; i < l; i++) {
 			node.opids[i] = idRepl(pinids, node.opids[i]);
 		}
-		for (const pindex in node.links) {
-			const links = node.links[pindex];
+		for (const pindex in node.inLinks) {
+			const links = node.inLinks[pindex];
+			for (let i = 0, l = links.length; i < l; i++) {
+				links[i] = idRepl(pinids, links[i]);
+			}
+		}
+		for (const pindex in node.outLinks) {
+			const links = node.outLinks[pindex];
 			for (let i = 0, l = links.length; i < l; i++) {
 				links[i] = idRepl(pinids, links[i]);
 			}
 		}
 	}
+	return data;
 }
 
 // Thanks to stackoverflow user 4815056 for this function

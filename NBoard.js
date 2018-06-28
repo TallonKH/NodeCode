@@ -68,7 +68,7 @@ class NBoard {
 	}
 
 	duplicateNodes(nodes) {
-		const newNodes = this.loadNodes(this.saveNodes(nodes));
+		const newNodes = this.loadNodes(scrambleIDs(this.saveNodes(nodes)));
 		const bounds = getGroupBounds(nodes);
 		let diff = bounds.max.subtractp(bounds.min);
 		// offset duplicated nodes in the most space-efficient manner
@@ -99,10 +99,10 @@ class NBoard {
 	}
 
 	pasteNodes(position) {
-		const parsed = JSON.parse(localStorage.getItem("clipboard"));
+		const parsed = scrambleIDs(JSON.parse(localStorage.getItem("clipboard")));
+		// const parsed = JSON.parse(localStorage.getItem("clipboard"));
+		console.log(parsed);
 		const nodes = this.loadNodes(parsed);
-		scrambleIDs(parsed);
-		localStorage.setItem("clipboard", JSON.stringify(parsed));
 		const offset = position.subtractp(getGroupCenter(nodes));
 		for (const node of nodes) {
 			node.setPosition(node.position.addp(offset));
@@ -226,13 +226,14 @@ class NBoard {
 		menu.addOption(op);
 
 		if (this.actionStackIndex > -1) {
-			op = new NMenuOption("Undo");
+			op = new NMenuOption("Undo (" + (this.actionStackIndex + 1) + ")");
 			op.action = e => brd.undo();
 			menu.addOption(op);
 		}
 
-		if (this.actionStackIndex < this.actionStack.length - 1) {
-			op = new NMenuOption("Redo");
+		const diff = this.actionStack.length - 1 - this.actionStackIndex
+		if (diff > 0) {
+			op = new NMenuOption("Redo (" + diff + ")");
 			op.action = e => brd.redo();
 			menu.addOption(op);
 		}
@@ -259,6 +260,7 @@ class NBoard {
 			op.action = function(e) {
 				const node = brd.createNode(type);
 				node.setPosition(brd.evntToPt(e));
+				brd.addAction(new ActAddNode(brd, node));
 			}
 			if (type.getTags) {
 				op.setTags(...type.getTags());
@@ -543,7 +545,7 @@ class NBoard {
 			case 8: // BACKSPACE
 			case 46: // DELETE
 				const selected = Object.values(this.selectedNodes);
-				// TODO 4DD 4N 4CT1ON H3R3
+				this.addAction(new ActRemoveSelectedNodes(this));
 				for (const node of selected) {
 					this.removeNode(node);
 				}
@@ -760,13 +762,8 @@ class NBoard {
 							break;
 						}
 					}
-					// TODO F1GUR3 TH1S OUT
-					if (false && sameType) {
-						// menu for multiple nodes of same type
-					} else {
-						// menu for multiple nodes of varying type
-						brd.applyMenu(makeMultiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
-					}
+					// menu for multiple nodes of varying type
+					brd.applyMenu(makeMultiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
 				} else {
 					// menu for single node
 					brd.applyMenu(node.makeContextMenu(event));
@@ -867,7 +864,7 @@ class NBoard {
 			const yDist = Math.abs(l1.y - l2.y);
 			const xDist = Math.abs(l1.x - l2.x);
 
-			const xPush = Math.min(300*this.zoom, Math.max(0, (l2.x - l1.x) - yDist) / 2);
+			const xPush = Math.min(300 * this.zoom, Math.max(0, (l2.x - l1.x) - yDist) / 2);
 			const yPush = l1.y > l2.y ? xPush : -xPush;
 
 			const splineDist = yDist / 2 + xDist / 4;
@@ -912,21 +909,42 @@ class NBoard {
 		for (const nodata of nodatas) {
 			addedNodes.push(this.loadNode(nodata));
 		}
-		for (let i = 0, l = addedNodes.length; i < l; i++) {
-			const node = addedNodes[i];
-			const pins = nodatas[i].links;
-			for (const pindex in pins) {
-				const pin = pins[pindex];
-				for (const linkID of pin) {
-					if (linkID in this.pins) {
-						node.inpins[node.inpinOrder[pindex]].linkTo(this.pins[linkID]);
-					} else {
-						// ignore missing links - must be from non-copied pins
+		this.loadLinks(addedNodes, nodatas);
+		return addedNodes;
+	}
+
+	loadLinks(nodes, nodatas) {
+		for (let i = 0, l = nodes.length; i < l; i++) {
+			const node = nodes[i];
+			const nodata = nodatas[i];
+			const pins1 = nodata.inLinks;
+			if (pins1) {
+				for (const pindex in pins1) {
+					const pin = pins1[pindex];
+					for (const linkID of pin) {
+						if (linkID in this.pins) {
+							node.inpins[node.inpinOrder[pindex]].linkTo(this.pins[linkID]);
+						} else {
+							// ignore missing links - must be from nonexistant pins
+						}
+					}
+				}
+			}
+			const pins2 = nodata.outLinks;
+			if (pins2) {
+				for (const pindex in pins2) {
+					const pin = pins2[pindex];
+					for (const linkID of pin) {
+						if (linkID in this.pins) {
+							node.outpins[node.outpinOrder[pindex]].linkTo(this.pins[linkID]);
+						} else {
+							// ignore missing links - must be from nonexistant pins
+						}
 					}
 				}
 			}
 		}
-		return addedNodes;
+		this.redraw();
 	}
 
 	loadNode(nodata) {
@@ -937,21 +955,38 @@ class NBoard {
 
 	createNode(type, data = undefined) {
 		const node = new type(data);
+		node.createNodeDiv();
 		this.addNode(node);
 		return node;
 	}
 
 	addNode(node) {
 		node.board = this;
-		this.containerDiv.append(node.createNodeDiv());
+		this.containerDiv.append(node.containerDiv);
 		this.nodes[node.nodeid] = node;
+		for (const pinid in node.inpins) {
+			const pin = node.inpins[pinid];
+			this.pins[pin.pinid] = pin;
+		}
+		for (const pinid in node.outpins) {
+			const pin = node.outpins[pinid];
+			this.pins[pin.pinid] = pin;
+		}
 	}
 
 	removeNode(node) {
 		node.unlinkAllPins();
+		this.deselectNode(node);
+		for (const pinid in node.inpins) {
+			const pin = node.inpins[pinid];
+			delete this.pins[pin.pinid];
+		}
+		for (const pinid in node.outpins) {
+			const pin = node.outpins[pinid];
+			delete this.pins[pin.pinid];
+		}
 		node.containerDiv.remove();
 		delete this.nodes[node.nodeid];
-		delete this.selectedNodes[node.nodeid];
 		this.redraw();
 	}
 }

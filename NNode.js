@@ -139,8 +139,10 @@ class NNode {
 		pin.setTypes(true, ...pin.types);
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.push(pin.name);
-		this.board.pins[pin.pinid] = pin;
 		this.pinlist.push(pin);
+		if(this.board){
+			this.board.pins[pin.pinid] = pin;
+		}
 
 		this.updateDims();
 
@@ -208,8 +210,10 @@ class NNode {
 		pin.setTypes(true, ...pin.types);
 		this.outpins[pin.name] = pin;
 		this.outpinOrder.push(pin.name);
-		this.board.pins[pin.pinid] = pin;
 		this.pinlist.push(pin);
+		if(this.board){
+			this.board.pins[pin.pinid] = pin;
+		}
 
 		this.updateDims();
 
@@ -385,26 +389,36 @@ class NNode {
 		const node = this;
 		const data = {
 			"type": this.constructor.getName(),
-			"id": idRepl(nodeids, this.nodeid),
-			"ipids": this.inpinOrder.map(x => idRepl(pinids, node.inpins[x].pinid)),
-			"opids": this.outpinOrder.map(x => idRepl(pinids, node.outpins[x].pinid)),
+			"id": this.nodeid,
+			"ipids": this.inpinOrder.map(x => node.inpins[x].pinid),
+			"opids": this.outpinOrder.map(x => node.outpins[x].pinid),
 			"x": this.position.x,
 			"y": this.position.y
 		};
 
 		const inLinks = {};
+		const outLinks = {};
 		const defVals = {};
 		for (const inni in this.inpinOrder) {
 			const pin = node.inpins[this.inpinOrder[inni]];
 			if (pin.linkNum) {
-				inLinks[inni] = Object.keys(pin.links).map(id => idRepl(pinids, id));
+				inLinks[inni] = Object.keys(pin.links);
 			}
 			if (pin.defaultVal != pin.defaultDefaultVal) {
 				defVals[inni] = pin.defaultVal;
 			}
 		}
+		for(const outni in this.outpinOrder){
+			const pin = node.outpins[this.outpinOrder[outni]];
+			if (pin.linkNum) {
+				outLinks[outni] = Object.keys(pin.links);
+			}
+		}
 		if (Object.keys(inLinks).length) {
-			data["links"] = inLinks
+			data["inLinks"] = inLinks;
+		}
+		if (Object.keys(outLinks).length) {
+			data["outLinks"] = outLinks;
 		}
 		if (Object.keys(defVals).length) {
 			data["defV"] = defVals;
@@ -578,7 +592,7 @@ class NNode {
 
 		op = new NMenuOption("Delete Node");
 		op.action = function(e) {
-			//4DD 4N 4CT1ON H3R3
+			brd.addAction(new ActRemoveNode(brd, node));
 			node.remove();
 		}
 		menu.addOption(op);

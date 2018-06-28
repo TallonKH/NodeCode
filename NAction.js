@@ -145,32 +145,80 @@ class ActMoveNodes extends NAction {
 	}
 }
 
-class ActAddNode extends NAction{
+class ActAddNode extends NAction {
 	constructor(board, node) {
 		super(board);
 		this.node = node;
 	}
 
 	redo() {
-		board.addNode(node);
+		this.board.addNode(this.node);
 	}
 
 	undo() {
-		board.destroyNode(node);
+		this.board.removeNode(this.node);
 	}
 }
 
-class ActDestroyNode extends NAction{
+class ActRemoveNode extends NAction {
 	constructor(board, node) {
 		super(board);
-		this.info = node.save();
+		this.node = node;
+		this.isSelected = node.selected;
+		this.data = board.saveNodes([node]);
 	}
 
 	redo() {
-		board.destroyNode(node);
+		this.board.removeNode(this.node);
 	}
 
 	undo() {
-		board.addNode(node);
+		this.board.addNode(this.node);
+		this.board.loadLinks([this.node], this.data.nodes);
+		if(this.isSelected){
+			this.node.select();
+		}
 	}
+}
+
+class ActRemoveSelectedNodes extends NAction {
+	constructor(board) {
+		super(board);
+		this.nodes = Object.values(board.selectedNodes);
+		this.data = board.saveNodes(this.nodes);
+	}
+
+	redo() {
+		for (const node of this.nodes) {
+			this.board.removeNode(node);
+		}
+	}
+
+	undo() {
+		for (const node of this.nodes) {
+			this.board.addNode(node);
+			node.select();
+		}
+		this.board.loadLinks(this.nodes, this.data.nodes);
+	}
+}
+
+class ActCreateLink extends NAction {
+	constructor(board, node) {
+		super(board);
+	}
+
+	redo() {}
+
+	undo() {}
+}
+
+class ActDestroyLink extends NAction {
+	constructor(board, node) {
+		super(board);
+	}
+
+	redo() {}
+
+	undo() {}
 }
