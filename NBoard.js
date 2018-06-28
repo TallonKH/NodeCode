@@ -385,8 +385,9 @@ class NBoard {
 						}
 						// successful link
 						if (this.clickEndTarget.classList.contains("pin")) {
-							// TODO 4DD 4N 4CT1ON H3R3
-							const lank = this.draggedPin.linkTo(this.getDivPin(this.clickEndTarget));
+							const other = this.getDivPin(this.clickEndTarget);
+							this.addAction(new ActCreateLink(this, this.draggedPin, other));
+							const lank = this.draggedPin.linkTo(other);
 						}
 						delete this.links[this.draggedPin.pinid];
 						this.draggedPin = null;
@@ -936,7 +937,6 @@ class NBoard {
 				a.linkTo(b);
 			}
 		}
-		this.redraw();
 	}
 
 	loadNode(nodata) {
@@ -979,6 +979,5 @@ class NBoard {
 		}
 		node.containerDiv.remove();
 		delete this.nodes[node.nodeid];
-		this.redraw();
 	}
 }

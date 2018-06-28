@@ -535,7 +535,7 @@ class NNode {
 		if (hasInLinks) {
 			op = new NMenuOption("Unlink All Inputs");
 			op.action = function(e) {
-				// TODO 4DD 4N 4CT1ON H3R3
+					brd.addAction(new ActUnlinkPins(brd, Object.values(node.inpins)));
 				node.unlinkAllInpins();
 			}
 			menu.addOption(op);
@@ -543,7 +543,7 @@ class NNode {
 		if (hasOutLinks) {
 			op = new NMenuOption("Unlink All Outputs");
 			op.action = function(e) {
-				// TODO 4DD 4N 4CT1ON H3R3
+				brd.addAction(new ActUnlinkPins(brd, Object.values(node.outpins)));
 				node.unlinkAllOutpins();
 			}
 			menu.addOption(op);
@@ -552,8 +552,8 @@ class NNode {
 		if (hasInLinks && hasOutLinks) {
 			op = new NMenuOption("Unlink All");
 			op.action = function(e) {
-				// TODO 4DD 4N 4CT1ON H3R3
-				node.unlinkAll();
+				brd.addAction(new ActUnlinkPins(brd, Object.values(node.inpins).concat(Object.values(node.outpins))));
+				node.unlinkAllPins();
 			}
 			menu.addOption(op);
 		}
@@ -643,7 +643,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 	op = new NMenuOption("Delete All");
 	op.action = function(e) {
-		// TODO 4DD 4N 4CT1ON H3R3
+		brd.addAction(new ActRemoveSelectedNodes(brd));
 		for (const node of nodes) {
 			node.remove();
 		}

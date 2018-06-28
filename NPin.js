@@ -164,6 +164,7 @@ class NPin {
 		b.linkNum++;
 
 		this.node.board.links[a.pinid + b.pinid] = [a, b];
+		this.node.board.redraw();
 	}
 
 	unlink(otherPin) {
@@ -177,7 +178,7 @@ class NPin {
 			b.linkNum--;
 			a.node.pinUnlinked(a, b);
 			b.node.pinUnlinked(b, a);
-			delete this.node.board.links[a.pinid * b.pinid];
+			delete this.node.board.links[a.pinid + b.pinid];
 		} else {
 			console.log("Can't unlink pins " + a.name + " & " + b.name + " because they aren't linked!");
 			return false;
@@ -313,17 +314,16 @@ class NPin {
 		if (this.linkNum) {
 			op = new NMenuOption("Unlink All");
 			op.action = function(e){
-				// TODO 4DD 4N 4CT1ON H3R3
+				brd.addAction(new ActUnlinkPin(brd, pin));
 				pin.unlinkAll();
 			}
 			menu.addOption(op);
 
 			for (const pinid in this.links) {
 				const linked = this.links[pinid];
-
 				op = new NMenuOption("Unlink From " + linked.node.constructor.getName() + ":" + linked.name + " (" + linked.pinid + ")");
 				op.action = function(e){
-					// TODO 4DD 4N 4CT1ON H3R3
+					brd.addAction(new ActRemoveLink(brd, pin, linked));
 					pin.unlink(linked);
 				}
 				menu.addOption(op);

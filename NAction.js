@@ -271,21 +271,84 @@ class ActDuplicateNodes extends NAction {
 }
 
 class ActCreateLink extends NAction {
-	constructor(board) {
+	constructor(board, pin1, pin2) {
 		super(board);
+		this.prevP1Link = pin1.multiConnective && pin1.linkNum ? null : Object.values(pin1.links)[0];
+		this.prevP2Link = pin2.multiConnective && pin2.linkNum ? null : Object.values(pin2.links)[0];
+		this.pinid1 = pin1.pinid;
+		this.pinid2 = pin2.pinid;
 	}
 
-	redo() {}
+	redo() {
+		this.board.pins[this.pinid1].linkTo(this.board.pins[this.pinid2]);
+	}
 
-	undo() {}
+	undo() {
+		const p1 = this.board.pins[this.pinid1];
+		const p2 = this.board.pins[this.pinid2];
+		p1.unlink(p2);
+		if(this.prevP1Link){
+			p1.linkTo(this.prevP1Link);
+		}
+		if(this.prevP2Link){
+			p2.linkTo(this.prevP2Link);
+		}
+	}
 }
 
-class ActDestroyLink extends NAction {
-	constructor(board) {
+class ActRemoveLink extends NAction {
+	constructor(board, pin1, pin2) {
 		super(board);
+		this.pinid1 = pin1.pinid;
+		this.pinid2 = pin2.pinid;
 	}
 
-	redo() {}
+	redo() {
+		this.board.pins[this.pinid1].unlink(this.board.pins[this.pinid2]);
+	}
 
-	undo() {}
+	undo() {
+		this.board.pins[this.pinid1].linkTo(this.board.pins[this.pinid2]);
+	}
+}
+
+class ActUnlinkPin extends NAction {
+	constructor(board, pin) {
+		super(board);
+		this.pinid = pin.pinid;
+		this.links = Object.keys(pin.links);
+	}
+
+	redo() {
+		this.board.pins[this.pinid].unlinkAll();
+	}
+
+	undo() {
+		const pin = this.board.pins[this.pinid];
+		this.links.forEach(id => pin.linkTo(this.board.pins[id]));
+	}
+}
+
+class ActUnlinkPins extends NAction {
+	constructor(board, pins) {
+		super(board);
+		this.links = {};
+		for(const pin of pins){
+			this.links[pin.pinid] = Object.keys(pin.links);
+		}
+		console.log(this.links);
+	}
+
+	redo() {
+		for(const pinid in this.links){
+			this.board.pins[pinid].unlinkAll();
+		}
+	}
+
+	undo() {
+		for(const pinid in this.links){
+			const pin = this.board.pins[pinid];
+			this.links[pinid].forEach(pinid2 => pin.linkTo(this.board.pins[pinid2]));
+		}
+	}
 }
