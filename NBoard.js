@@ -98,14 +98,14 @@ class NBoard {
 		nodes.forEach(x => x.remove());
 	}
 
-	pasteNodes(position) {
-		const parsed = scrambleIDs(JSON.parse(localStorage.getItem("clipboard")));
-		// const parsed = JSON.parse(localStorage.getItem("clipboard"));
-		console.log(parsed);
+	pasteNodes(position, source=JSON.parse(localStorage.getItem("clipboard"))) {
+		const parsed = scrambleIDs(source);
+		this.deselectAllNodes();
 		const nodes = this.loadNodes(parsed);
 		const offset = position.subtractp(getGroupCenter(nodes));
 		for (const node of nodes) {
 			node.setPosition(node.position.addp(offset));
+			node.select();
 		}
 		return nodes;
 	}
@@ -201,12 +201,9 @@ class NBoard {
 		if (localStorage.getItem("clipboard")) {
 			op = new NMenuOption("Paste");
 			op.action = function(e) {
-				// TODO 4DD 4N 4CT1ON H3R3
+				const prevSelected = Object.values(brd.selectedNodes);
 				const nodes = brd.pasteNodes(brd.clickEnd);
-				console.log(nodes);
-				for (const node of nodes) {
-					brd.selectNode(node);
-				}
+				brd.addAction(new ActPasteClipboard(brd, prevSelected, brd.clickEnd, nodes));
 			}
 			menu.addOption(op);
 		}
@@ -569,13 +566,16 @@ class NBoard {
 			case 86: // V
 				if (this.env.ctrlDown) {
 					if (this.lastMousePosition) {
-						this.pasteNodes(this.lastMousePosition);
+						const prevSelected = Object.values(this.selectedNodes);
+						const nodes = this.pasteNodes(this.lastMousePosition);
+						this.addAction(new ActPasteClipboard(this, prevSelected, this.lastMousePosition, nodes));
 					}
 				}
 				break;
 			case 88: // X
 				if (this.env.ctrlDown) {
 					if (this.selectedNodeCount) {
+						this.addAction(new ActRemoveSelectedNodes(this));
 						this.cutNodes(Object.values(this.selectedNodes));
 					}
 				}

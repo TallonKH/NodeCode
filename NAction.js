@@ -203,8 +203,29 @@ class ActRemoveSelectedNodes extends NAction {
 	}
 }
 
+class ActPasteClipboard extends NAction {
+	constructor(board, prevSelected, pos, nodes) {
+		super(board);
+		// clipboard cannot be undone, so save what the clipboard was at the time instead
+		this.clipboard = JSON.parse(localStorage.getItem("clipboard"));
+		this.prevSelected = prevSelected;
+		this.pos = pos;
+		this.nodes = nodes;
+	}
+
+	redo() {
+		this.nodes = this.board.pasteNodes(this.pos, this.clipboard);
+		this.nodes.forEach(x=>x.select());
+	}
+
+	undo() {
+		this.nodes.forEach(x=>x.remove());
+		this.prevSelected.forEach(x=>x.select());
+	}
+}
+
 class ActCreateLink extends NAction {
-	constructor(board, node) {
+	constructor(board) {
 		super(board);
 	}
 
@@ -214,7 +235,7 @@ class ActCreateLink extends NAction {
 }
 
 class ActDestroyLink extends NAction {
-	constructor(board, node) {
+	constructor(board) {
 		super(board);
 	}
 
