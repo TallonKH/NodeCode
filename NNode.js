@@ -386,6 +386,7 @@ class NNode {
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
 
+	// do not call manually in most cases
 	save(nodeids = {}, pinids = {}) {
 		const node = this;
 		const data = {
@@ -396,35 +397,42 @@ class NNode {
 			"x": this.position.x,
 			"y": this.position.y
 		};
+		const wrap = {
+			"nodes": [data]
+		}
 
-		const inLinks = {};
-		const outLinks = {};
+		const links = {};
 		const defVals = {};
+		let hasLinks = false;
+		let hasDefVs = false;
 		for (const inni in this.inpinOrder) {
-			const pin = node.inpins[this.inpinOrder[inni]];
-			if (pin.linkNum) {
-				inLinks[inni] = Object.keys(pin.links);
+			const pin = this.inpins[this.inpinOrder[inni]];
+			for(let link in pin.links){
+				link = parseInt(link);
+				hasLinks = true;
+				links[pin.pinid + link] = [pin.pinid, link];
 			}
 			if (pin.defaultVal != pin.defaultDefaultVal) {
+				hasDefVs = true;
 				defVals[inni] = pin.defaultVal;
 			}
 		}
-		for(const outni in this.outpinOrder){
-			const pin = node.outpins[this.outpinOrder[outni]];
-			if (pin.linkNum) {
-				outLinks[outni] = Object.keys(pin.links);
+		for (const outn of this.outpinOrder) {
+			const pin = this.outpins[outn];
+			for(let link in pin.links){
+				link = parseInt(link);
+				console.log(typeof link);
+				hasLinks = true;
+				links[link + pin.pinid] = [link, pin.pinid];
 			}
 		}
-		if (Object.keys(inLinks).length) {
-			data["inLinks"] = inLinks;
-		}
-		if (Object.keys(outLinks).length) {
-			data["outLinks"] = outLinks;
+		if (hasLinks) {
+			wrap["links"] = links;
 		}
 		if (Object.keys(defVals).length) {
 			data["defV"] = defVals;
 		}
-		return data;
+		return wrap;
 	}
 
 	load(data) {

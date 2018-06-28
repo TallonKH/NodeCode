@@ -163,7 +163,7 @@ class NPin {
 		a.linkNum++;
 		b.linkNum++;
 
-		this.node.board.links[a.pinid * b.pinid] = [a, b];
+		this.node.board.links[a.pinid + b.pinid] = [a, b];
 	}
 
 	unlink(otherPin) {

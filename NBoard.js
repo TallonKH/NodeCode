@@ -203,7 +203,7 @@ class NBoard {
 			op.action = function(e) {
 				const prevSelected = Object.values(brd.selectedNodes);
 				const nodes = brd.pasteNodes(brd.clickEnd);
-				brd.addAction(new ActPasteClipboard(brd, prevSelected, brd.clickEnd, nodes));
+				brd.addAction(new ActPasteClipboard(brd, prevSelected, nodes));
 			}
 			menu.addOption(op);
 		}
@@ -572,7 +572,7 @@ class NBoard {
 					if (this.lastMousePosition) {
 						const prevSelected = Object.values(this.selectedNodes);
 						const nodes = this.pasteNodes(this.lastMousePosition);
-						this.addAction(new ActPasteClipboard(this, prevSelected, this.lastMousePosition, nodes));
+						this.addAction(new ActPasteClipboard(this, prevSelected, nodes));
 					}
 				}
 				break;
@@ -883,17 +883,18 @@ class NBoard {
 	}
 
 	saveSelectedNodes() {
-		return this.saveNodeGroup(Object.values(this.selectedNodes));
+		return this.saveNodes(Object.values(this.selectedNodes));
 	}
 
 	saveAllNodes() {
-		return this.saveNodeGroup(Object.values(this.nodes));
+		return this.saveNodes(Object.values(this.nodes));
 	}
 
 	saveNodes(nodes) {
 		const nodeids = {};
 		const pinids = {};
 		const data = {};
+		const linkData = {};
 		const nodata = []; // nodedata, not no-data
 
 		// data.nids = nodeids;
@@ -901,8 +902,18 @@ class NBoard {
 		data.nodes = nodata;
 
 		for (const node of nodes) {
-			nodata.push(node.save(nodeids, pinids));
+			const no = node.save(nodeids, pinids);
+
+			nodata.push(no.nodes[0]);
+
+			if(no.links){
+				for(const linkid in no.links){
+					linkData[linkid] = no.links[linkid];
+				}
+			}
 		}
+
+		data.links = Object.values(linkData);
 
 		return data;
 	}
@@ -913,39 +924,16 @@ class NBoard {
 		for (const nodata of nodatas) {
 			addedNodes.push(this.loadNode(nodata));
 		}
-		this.loadLinks(addedNodes, nodatas);
+		this.loadLinks(data.links);
 		return addedNodes;
 	}
 
-	loadLinks(nodes, nodatas) {
-		for (let i = 0, l = nodes.length; i < l; i++) {
-			const node = nodes[i];
-			const nodata = nodatas[i];
-			const pins1 = nodata.inLinks;
-			if (pins1) {
-				for (const pindex in pins1) {
-					const pin = pins1[pindex];
-					for (const linkID of pin) {
-						if (linkID in this.pins) {
-							node.inpins[node.inpinOrder[pindex]].linkTo(this.pins[linkID]);
-						} else {
-							// ignore missing links - must be from nonexistant pins
-						}
-					}
-				}
-			}
-			const pins2 = nodata.outLinks;
-			if (pins2) {
-				for (const pindex in pins2) {
-					const pin = pins2[pindex];
-					for (const linkID of pin) {
-						if (linkID in this.pins) {
-							node.outpins[node.outpinOrder[pindex]].linkTo(this.pins[linkID]);
-						} else {
-							// ignore missing links - must be from nonexistant pins
-						}
-					}
-				}
+	loadLinks(linkData) {
+		for(const link of linkData){
+			const a = this.pins[link[0]];
+			const b = this.pins[link[1]];
+			if(a && b){
+				a.linkTo(b);
 			}
 		}
 		this.redraw();

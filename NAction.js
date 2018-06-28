@@ -174,7 +174,7 @@ class ActRemoveNode extends NAction {
 
 	undo() {
 		this.board.addNode(this.node);
-		this.board.loadLinks([this.node], this.data.nodes);
+		this.board.loadLinks(this.data.nodes);
 		if(this.isSelected){
 			this.node.select();
 		}
@@ -185,7 +185,7 @@ class ActRemoveSelectedNodes extends NAction {
 	constructor(board) {
 		super(board);
 		this.nodes = Object.values(board.selectedNodes);
-		this.data = board.saveNodes(this.nodes);
+		this.links = board.saveNodes(this.nodes).links;
 	}
 
 	redo() {
@@ -199,30 +199,27 @@ class ActRemoveSelectedNodes extends NAction {
 			this.board.addNode(node);
 			node.select();
 		}
-		this.board.loadLinks(this.nodes, this.data.nodes);
+		this.board.loadLinks(this.links);
 	}
 }
 
 class ActPasteClipboard extends NAction {
-	constructor(board, prevSelected, pos, nodes) {
+	constructor(board, prevSelected, nodes) {
 		super(board);
 		// save link data for the original pasted nodes
-		this.clipboard = board.saveNodes(nodes).nodes;
+		this.links = board.saveNodes(nodes).links;
 		this.prevSelected = prevSelected;
-		this.pos = pos;
 		this.nodes = nodes;
 	}
 
 	redo() {
+		this.board.deselectAllNodes();
 		// instead of pasting (creating new nodes), re-add the initially pasted nodes
-		const offset = this.pos.subtractp(getGroupCenter(this.nodes));
 		for (const node of this.nodes) {
 			this.board.addNode(node);
-			node.setPosition(node.position.addp(offset));
 			node.select();
 		}
-		console.log(this.clipboard);
-		this.board.loadLinks(this.nodes, this.clipboard);
+		this.board.loadLinks(this.links);
 	}
 
 	undo() {
@@ -264,7 +261,7 @@ class ActDuplicateNodes extends NAction {
 			this.board.addNode(node);
 			node.select();
 		}
-		this.board.loadLinks(this.newNodes, this.linkData);
+		this.board.loadLinks(this.linkData);
 	}
 
 	undo() {
