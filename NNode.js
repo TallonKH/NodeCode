@@ -106,6 +106,7 @@ class NNode {
 		this.headerDiv.className = "nodepart";
 		this.headerDiv.setAttribute("data-nodeid", this.nodeid);
 		this.headerDiv.innerHTML = text;
+		// this.headerDiv.innerHTML = this.nodeid;
 		this.nodeDiv.append(this.headerDiv);
 		this.updateDims();
 	}

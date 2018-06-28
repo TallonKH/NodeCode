@@ -206,16 +206,23 @@ class ActRemoveSelectedNodes extends NAction {
 class ActPasteClipboard extends NAction {
 	constructor(board, prevSelected, pos, nodes) {
 		super(board);
-		// clipboard cannot be undone, so save what the clipboard was at the time instead
-		this.clipboard = JSON.parse(localStorage.getItem("clipboard"));
+		// save link data for the original pasted nodes
+		this.clipboard = board.saveNodes(nodes).nodes;
 		this.prevSelected = prevSelected;
 		this.pos = pos;
 		this.nodes = nodes;
 	}
 
 	redo() {
-		this.nodes = this.board.pasteNodes(this.pos, this.clipboard);
-		this.nodes.forEach(x=>x.select());
+		// instead of pasting (creating new nodes), re-add the initially pasted nodes
+		const offset = this.pos.subtractp(getGroupCenter(this.nodes));
+		for (const node of this.nodes) {
+			this.board.addNode(node);
+			node.setPosition(node.position.addp(offset));
+			node.select();
+		}
+		console.log(this.clipboard);
+		this.board.loadLinks(this.nodes, this.clipboard);
 	}
 
 	undo() {

@@ -98,8 +98,8 @@ class NBoard {
 		nodes.forEach(x => x.remove());
 	}
 
-	pasteNodes(position, source=JSON.parse(localStorage.getItem("clipboard"))) {
-		const parsed = scrambleIDs(source);
+	pasteNodes(position) {
+		const parsed = scrambleIDs(JSON.parse(localStorage.getItem("clipboard")));
 		this.deselectAllNodes();
 		const nodes = this.loadNodes(parsed);
 		const offset = position.subtractp(getGroupCenter(nodes));
@@ -539,6 +539,10 @@ class NBoard {
 				break;
 		}
 		switch (event.which) {
+			case 81:
+				console.log(this);
+				console.log(this.selectedNodes);
+				break;
 			case 8: // BACKSPACE
 			case 46: // DELETE
 				const selected = Object.values(this.selectedNodes);
