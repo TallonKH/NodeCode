@@ -332,7 +332,7 @@ canvas {
 	margin: 0 auto;
 	text-overflow: ellipsis;
 	display: table;
-	text-align: center;
+	text-align: left;
 	font-family: "Roboto";
 	font-weight: 400;
 	font-size: 20px;
