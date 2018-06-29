@@ -186,6 +186,7 @@ class SubstringNode extends NNode {
 		return "Substring";
 	}
 }
+
 class BranchNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -358,8 +359,6 @@ class CommentNode extends NNode {
 		this.makeResizable();
 		this.textArea = document.createElement("textarea");
 		this.textArea.setAttribute("data-nodeid", this.nodeid);
-		this.textArea.setAttribute("data-ovrdclick", "");
-		this.textArea.setAttribute("data-ovrdkeys", "");
 		this.textArea.style.resize = "none";
 		const tasty = this.textArea.style;
 		const cd = this.centerDiv;

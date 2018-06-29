@@ -255,7 +255,7 @@ class NNode {
 		const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 24;
 		// center
 		if (this.centerDiv) {
-			var hc = this.centerDiv.scrollHeight;
+			var hc = this.centerDiv.clientHeight;
 			var hc2 = 0;
 			for (const child of this.centerDiv.children) {
 				hc2 += Math.max(child.scrollHeight, parseInt(window.getComputedStyle(child).fontSize));
@@ -432,6 +432,7 @@ class NNode {
 			data["defV"] = defVals;
 		}
 		this.saveExtra(data);
+		console.log(wrap);
 		return wrap;
 	}
 

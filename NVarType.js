@@ -110,7 +110,7 @@ NInteger.edit = function(pin){
 	inp.type = "number";
 	inp.value = pin.defaultVal.int;
 	inp.step = "1";
-	inp.onblur = function(e){
+	inp.onfocusout = function(e){
 		pin.defaultVal.int = inp.value;
 	}
 	inp.onkeydown = function(e) {
@@ -138,7 +138,7 @@ NDouble.edit = function(pin){
 	inp.className = "pinval double";
 	inp.type = "number";
 	inp.value = pin.defaultVal.double;
-	inp.onblur = function(e){
+	inp.onfocusout = function(e){
 		pin.defaultVal.double = inp.value;
 	}
 	inp.onkeydown = function(e) {
@@ -182,22 +182,23 @@ NString.edit = function(pin){
 	inp.className = "pinval string";
 	inp.type = "text";
 	inp.value = pin.defaultVal.string;
-	inp.onblur = function(e){
+	inp.onfocusout = function(e){
 		pin.defaultVal.string = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
+			console.log("eee");
 				pin.defaultVal.string = inp.value;
 				inp.blur();
 				break;
 			case 27: // ESC
+			console.log("eeess");
 				inp.value = pin.defaultVal.string;
 				inp.blur();
 				break;
 		}
 	}
-	return inp;
 	return inp;
 };
 NString.changeVal = function(inp, nval){

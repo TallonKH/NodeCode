@@ -323,23 +323,24 @@ canvas {
 	flex: 1 1;
 	overflow: hidden;
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
-	display: table;
-	height: 100%;
 }
 
 .nodeval {
-	display: table-cell;
-	vertical-align: middle;
+  transform: translateY(50%);
+	margin: 0 auto;
+	text-overflow: ellipsis;
+	display: table;
 	text-align: center;
 	font-family: "Roboto";
 	font-weight: 800;
 	font-size: 20px;
-	height: 100%;
-	width: 100%;
 	border: none;
 	background: none;
-	/*margin: 5px;*/
 	color: #6c6c6c;
+}
+
+.nodeval.string {
+	box-shadow: 0px 0px 4px 1px #e963c0;
 }
 
 /* Pins */
