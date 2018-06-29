@@ -15,7 +15,6 @@ class StringNode extends NNode {
 		this.addCenter();
 		this.inputDiv = NString.edit(this.val);
 		this.inputDiv.className = "nodeval string";
-		this.inputDiv.value = this.val.string;
 		this.centerDiv.append(this.inputDiv);
 
 		this.addOutPin(new NPin("Value", NString).setIsByRef(false, true));
@@ -49,12 +48,16 @@ class IntegerNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.val = NInteger.construct();
+		this.inputDiv;
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 		this.addHeader("Variable (Int)");
-		this.addCenter("0");
+		this.addCenter();
+		this.inputDiv = NInteger.edit(this.val);
+		this.inputDiv.className = "nodeval int";
+		this.centerDiv.append(this.inputDiv);
 		this.addOutPin(new NPin("Value", NInteger).setIsByRef(false, true));
 		return this.containerDiv;
 	}
@@ -70,6 +73,7 @@ class IntegerNode extends NNode {
 	load(data, loadids) {
 		super.load(data, loadids);
 		this.val = data.val;
+		this.inputDiv.value = this.val.int;
 	}
 
 	static getName() {
@@ -81,12 +85,16 @@ class DoubleNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.val = NDouble.construct();
+		this.inputVal;
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 		this.addHeader("Variable (Double)");
-		this.addCenter("0.0");
+		this.addCenter();
+		this.inputDiv = NDouble.edit(this.val);
+		this.inputDiv.className = "nodeval double";
+		this.centerDiv.append(this.inputDiv);
 		this.addOutPin(new NPin("Value", NDouble).setIsByRef(false, true));
 		return this.containerDiv;
 	}
@@ -102,6 +110,7 @@ class DoubleNode extends NNode {
 	load(data, loadids) {
 		super.load(data, loadids);
 		this.val = data.val;
+		this.inputDiv.value = this.val.double;
 	}
 
 	static getName() {

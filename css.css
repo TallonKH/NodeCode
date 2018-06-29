@@ -343,6 +343,16 @@ canvas {
 	box-shadow: 0px 0px 4px 1px #e963c0;
 }
 
+.nodeval.int {
+	box-shadow: 0px 0px 4px 1px #64d4ed;
+	width: 75px;
+}
+
+.nodeval.double {
+	box-shadow: 0px 0px 4px 1px #7bed3e;
+	width: 100px;
+}
+
 /* Pins */
 
 .pins {
