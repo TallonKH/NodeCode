@@ -257,16 +257,16 @@ class NNode {
 		if (this.centerDiv) {
 			var hc = this.centerDiv.clientHeight;
 			var hc2 = 0;
-			for (const child of this.centerDiv.children) {
-				hc2 += Math.max(child.scrollHeight, parseInt(window.getComputedStyle(child).fontSize));
+			if(this.centerDiv.children.length){
+				hc2 = 60;
 			}
 		}
-		// header
 		let h = Math.max(hp, hc, hc2);
+
+		// header
 		if (this.headerDiv) {
 			h += 22;
 		}
-
 		this.nodeDiv.style.height = h + "px";
 
 		//WIDTH
@@ -432,7 +432,6 @@ class NNode {
 			data["defV"] = defVals;
 		}
 		this.saveExtra(data);
-		console.log(wrap);
 		return wrap;
 	}
 

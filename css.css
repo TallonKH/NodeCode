@@ -323,17 +323,33 @@ canvas {
 	flex: 1 1;
 	overflow: hidden;
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
+	display: table;
+	height: 100%;
 }
 
 .nodeval {
-  transform: translateY(50%);
+	transform: translateY(50%);
 	margin: 0 auto;
 	text-overflow: ellipsis;
 	display: table;
 	text-align: center;
 	font-family: "Roboto";
-	font-weight: 800;
+	font-weight: 400;
 	font-size: 20px;
+	border: none;
+	background: none;
+	color: #6c6c6c;
+}
+
+.center>.text {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center;
+	font-family: "Roboto";
+	font-weight: 400;
+	font-size: 50px;
+	height: 100%;
+	color: #bdbdbd;
 	border: none;
 	background: none;
 	color: #6c6c6c;
