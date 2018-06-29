@@ -421,7 +421,6 @@ class NNode {
 			const pin = this.outpins[outn];
 			for(let link in pin.links){
 				link = parseInt(link);
-				console.log(typeof link);
 				hasLinks = true;
 				links[link + pin.pinid] = [link, pin.pinid];
 			}

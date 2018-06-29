@@ -174,6 +174,9 @@ NBoolean.edit = function(pin){
 	}
 	return inp;
 };
+NBoolean.changeVal = function(inp, nval){
+	inp.checked = nval.boolean;
+}
 
 const NString = new NVarType("String", function(nvar){nvar.string = "";}, "#e963c0", NObject);
 NString.edit = function(pin){

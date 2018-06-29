@@ -23,7 +23,7 @@ class NBoard {
 		this.activeMenu = null;
 
 		this.nodeTypeList = [
-			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode
+			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode
 		];
 		this.nodeTypeDict = {};
 		for (const type of this.nodeTypeList) {
