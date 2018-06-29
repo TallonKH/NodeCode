@@ -141,7 +141,7 @@ class NNode {
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.push(pin.name);
 		this.pinlist.push(pin);
-		if(this.board){
+		if (this.board) {
 			this.board.pins[pin.pinid] = pin;
 		}
 
@@ -212,7 +212,7 @@ class NNode {
 		this.outpins[pin.name] = pin;
 		this.outpinOrder.push(pin.name);
 		this.pinlist.push(pin);
-		if(this.board){
+		if (this.board) {
 			this.board.pins[pin.pinid] = pin;
 		}
 
@@ -258,7 +258,7 @@ class NNode {
 			var hc = this.centerDiv.scrollHeight;
 			var hc2 = 0;
 			for (const child of this.centerDiv.children) {
-				hc2 += child.scrollHeight;
+				hc2 += Math.max(child.scrollHeight, parseInt(window.getComputedStyle(child).fontSize));
 			}
 		}
 		// header
@@ -386,8 +386,8 @@ class NNode {
 		return (min.x >= a.x && max.x <= b.x && min.y >= a.y && max.y <= b.y);
 	}
 
-	// do not call manually in most cases
-	save(nodeids = {}, pinids = {}) {
+	// do not call manually or override
+	save() {
 		const node = this;
 		const data = {
 			"type": this.constructor.getName(),
@@ -407,7 +407,7 @@ class NNode {
 		let hasDefVs = false;
 		for (const inni in this.inpinOrder) {
 			const pin = this.inpins[this.inpinOrder[inni]];
-			for(let link in pin.links){
+			for (let link in pin.links) {
 				link = parseInt(link);
 				hasLinks = true;
 				links[pin.pinid + link] = [pin.pinid, link];
@@ -419,7 +419,7 @@ class NNode {
 		}
 		for (const outn of this.outpinOrder) {
 			const pin = this.outpins[outn];
-			for(let link in pin.links){
+			for (let link in pin.links) {
 				link = parseInt(link);
 				hasLinks = true;
 				links[link + pin.pinid] = [link, pin.pinid];
@@ -431,8 +431,11 @@ class NNode {
 		if (Object.keys(defVals).length) {
 			data["defV"] = defVals;
 		}
+		this.saveExtra(data);
 		return wrap;
 	}
+
+	saveExtra(data) {};
 
 	load(data) {
 		this.nodeid = data.id;
@@ -534,7 +537,7 @@ class NNode {
 		if (hasInLinks) {
 			op = new NMenuOption("Unlink All Inputs");
 			op.action = function(e) {
-					brd.addAction(new ActUnlinkPins(brd, Object.values(node.inpins)));
+				brd.addAction(new ActUnlinkPins(brd, Object.values(node.inpins)));
 				node.unlinkAllInpins();
 			}
 			menu.addOption(op);
@@ -703,7 +706,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 		op = new NMenuOption("Unlink All");
 		op.action = function(e) {
 			const pins = [];
-			for(const node of nodes){
+			for (const node of nodes) {
 				pins.push(...node.pinlist);
 			}
 			brd.addAction(new ActUnlinkPins(brd, pins));

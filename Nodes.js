@@ -4,13 +4,37 @@ class StringNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.val = NString.construct();
+		this.inputDiv;
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 		// this.addHeader();
 		this.addHeader("Variable (String)");
-		this.addCenter("“”");
+
+		this.addCenter();
+		this.inputDiv = document.createElement("input");
+		this.inputDiv.className = "nodeval string";
+		this.inputDiv.value = this.val.string;
+		const node = this;
+		const inp = this.inputDiv;
+		inp.onkeydown = function(e) {
+			switch (e.which) {
+				case 13: // ENTER
+					node.val.string = inp.value;
+					inp.blur();
+					break;
+				case 27: // ESC
+					inp.value = node.val.string;
+					inp.blur();
+					break;
+			}
+		}
+		inp.onblur = function(e){
+			node.val.string = inp.value;
+		}
+		this.centerDiv.append(this.inputDiv);
+
 		this.addOutPin(new NPin("Value", NString).setIsByRef(false, true));
 		return this.containerDiv;
 	}
@@ -19,15 +43,14 @@ class StringNode extends NNode {
 		return this.val;
 	}
 
-	save(nodeids, pinids) {
-		const data = super.save(nodeids, pinids);
+	saveExtra(data) {
 		data.val = this.val;
-		return data;
 	}
 
 	load(data, loadids) {
 		super.load(data, loadids);
 		this.val = data.val;
+		this.inputDiv.value = this.val.string;
 	}
 
 	static getName() {
@@ -57,10 +80,8 @@ class IntegerNode extends NNode {
 		return this.val;
 	}
 
-	save(nodeids, pinids) {
-		const data = super.save(nodeids, pinids);
+	saveExtra(data) {
 		data.val = this.val;
-		return data;
 	}
 
 	load(data, loadids) {
@@ -91,10 +112,8 @@ class DoubleNode extends NNode {
 		return this.val;
 	}
 
-	save(nodeids, pinids) {
-		const data = super.save(nodeids, pinids);
+	saveExtra(data) {
 		data.val = this.val;
-		return data;
 	}
 
 	load(data, loadids) {

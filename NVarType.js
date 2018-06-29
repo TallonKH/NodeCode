@@ -110,18 +110,22 @@ NInteger.edit = function(pin){
 	inp.type = "number";
 	inp.value = pin.defaultVal.int;
 	inp.step = "1";
-	inp.oninput = function(e){
+	inp.onblur = function(e){
 		pin.defaultVal.int = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-			case 27: // ESC
 				pin.defaultVal.int = inp.value;
+				inp.blur();
+				break;
+			case 27: // ESC
+				inp.value = pin.defaultVal.int;
 				inp.blur();
 				break;
 		}
 	}
+	return inp;
 	return inp;
 };
 NInteger.changeVal = function(inp, nval){
@@ -134,14 +138,17 @@ NDouble.edit = function(pin){
 	inp.className = "pinval double";
 	inp.type = "number";
 	inp.value = pin.defaultVal.double;
-	inp.oninput = function(e){
+	inp.onblur = function(e){
 		pin.defaultVal.double = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-			case 27: // ESC
 				pin.defaultVal.double = inp.value;
+				inp.blur();
+				break;
+			case 27: // ESC
+				inp.value = pin.defaultVal.double;
 				inp.blur();
 				break;
 		}
@@ -163,15 +170,6 @@ NBoolean.edit = function(pin){
 	inp.oninput = function(e){
 		pin.defaultVal.boolean = inp.checked;
 	}
-	inp.onkeydown = function(e) {
-		switch (e.which) {
-			case 13: // ENTER
-			case 27: // ESC
-				pin.defaultVal.boolean = inp.checked;
-				inp.blur();
-				break;
-		}
-	}
 	return inp;
 };
 NBoolean.changeVal = function(inp, nval){
@@ -184,18 +182,22 @@ NString.edit = function(pin){
 	inp.className = "pinval string";
 	inp.type = "text";
 	inp.value = pin.defaultVal.string;
-	inp.oninput = function(e){
+	inp.onblur = function(e){
 		pin.defaultVal.string = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-			case 27: // ESC
 				pin.defaultVal.string = inp.value;
+				inp.blur();
+				break;
+			case 27: // ESC
+				inp.value = pin.defaultVal.string;
 				inp.blur();
 				break;
 		}
 	}
+	return inp;
 	return inp;
 };
 NString.changeVal = function(inp, nval){

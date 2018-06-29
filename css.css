@@ -246,7 +246,7 @@ body {
 	border-bottom: 1px solid #e0e0e0;
 }
 
-.menuitem:hover, .menuitem[selected]{
+.menuitem:hover, .menuitem[selected] {
 	background-color: #dddddd;
 }
 
@@ -311,7 +311,7 @@ canvas {
 	overflow: scroll;
 	width: calc(100%-10px);
 	height: 35px;
-	border: none;
+	/*border: none;*/
 	margin: 5px;
 	background-color: none;
 }
@@ -327,16 +327,19 @@ canvas {
 	height: 100%;
 }
 
-.center>.text {
+.nodeval {
 	display: table-cell;
 	vertical-align: middle;
 	text-align: center;
 	font-family: "Roboto";
 	font-weight: 800;
-	font-size: 40px;
-	/*margin: 5px;*/
+	font-size: 20px;
 	height: 100%;
-	color: #bdbdbd;
+	width: 100%;
+	border: none;
+	background: none;
+	/*margin: 5px;*/
+	color: #6c6c6c;
 }
 
 /* Pins */
@@ -374,7 +377,6 @@ canvas {
 	margin: 0px 6px 0px 2px;
 	justify-content: space-around;
 }
-
 
 .pinfo {
 	flex-basis: 1;
