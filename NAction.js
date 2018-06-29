@@ -312,6 +312,21 @@ class ActRemoveLink extends NAction {
 	}
 }
 
+class ActRemoveLinks extends NAction {
+	constructor(board, links) {
+		super(board);
+		this.links = links;
+	}
+
+	redo() {
+		this.links.forEach(l => this.board.pins[l[0]].unlink(this.board.pins[l[1]]));
+	}
+
+	undo() {
+		this.links.forEach(l => this.board.pins[l[0]].linkTo(this.board.pins[l[1]]));
+	}
+}
+
 class ActUnlinkPin extends NAction {
 	constructor(board, pin) {
 		super(board);

@@ -716,17 +716,19 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 		op = new NMenuOption("Detach Group");
 		op.action = function(e) {
-			// TODO 4DD 4N 4CT1ON H3R3
+			const pendingUnlinks = [];
 			for (const node of nodes) {
 				for (const pin of node.pinlist) {
 					for (const linkid in pin.links) {
-						const other = pin.links[linkid];
+						const other = brd.pins[linkid];
 						if (!other.node.selected) {
-							pin.unlink(other);
+							pendingUnlinks.push([pin, other]);
 						}
 					}
 				}
 			}
+			brd.addAction(new ActRemoveLinks(brd, pendingUnlinks.map(l => [l[0].pinid, l[1].pinid])));
+			pendingUnlinks.forEach(l => l[0].unlink(l[1]));
 		}
 		menu.addOption(op);
 	}
