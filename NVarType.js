@@ -104,28 +104,27 @@ NExecution.setMultiInput(true);
 NExecution.setMultiOutput(false);
 
 const NInteger = new NVarType("Integer", function(nvar){nvar.int = 0;}, "#64d4ed", NObject);
-NInteger.edit = function(pin){
+NInteger.edit = function(nvar){
 	const inp = document.createElement("input");
 	inp.className = "pinval integer";
 	inp.type = "number";
-	inp.value = pin.defaultVal.int;
+	inp.value = nvar.int;
 	inp.step = "1";
 	inp.onfocusout = function(e){
-		pin.defaultVal.int = inp.value;
+		nvar.int = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				pin.defaultVal.int = inp.value;
+				nvar.int = inp.value;
 				inp.blur();
 				break;
 			case 27: // ESC
-				inp.value = pin.defaultVal.int;
+				inp.value = nvar.int;
 				inp.blur();
 				break;
 		}
 	}
-	return inp;
 	return inp;
 };
 NInteger.changeVal = function(inp, nval){
@@ -133,22 +132,22 @@ NInteger.changeVal = function(inp, nval){
 }
 
 const NDouble = new NVarType("Double", function(nvar){nvar.double = 0.0;}, "#7bed3e", NObject);
-NDouble.edit = function(pin){
+NDouble.edit = function(nvar){
 	const inp = document.createElement("input");
 	inp.className = "pinval double";
 	inp.type = "number";
-	inp.value = pin.defaultVal.double;
+	inp.value = nvar.double;
 	inp.onfocusout = function(e){
-		pin.defaultVal.double = inp.value;
+		nvar.double = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				pin.defaultVal.double = inp.value;
+				nvar.double = inp.value;
 				inp.blur();
 				break;
 			case 27: // ESC
-				inp.value = pin.defaultVal.double;
+				inp.value = nvar.double;
 				inp.blur();
 				break;
 		}
@@ -160,15 +159,15 @@ NDouble.changeVal = function(inp, nval){
 }
 
 const NBoolean = new NVarType("Boolean", function(nvar){nvar.boolean = false;}, "#ed2121", NObject);
-NBoolean.edit = function(pin){
+NBoolean.edit = function(nvar){
 	const inp = document.createElement("input");
 	inp.className = "pinval boolean";
 	inp.type = "checkbox";
-	if(pin.defaultVal.boolean){
+	if(nvar.boolean){
 		inp.checked = true;
 	}
 	inp.oninput = function(e){
-		pin.defaultVal.boolean = inp.checked;
+		nvar.boolean = inp.checked;
 	}
 	return inp;
 };
@@ -177,24 +176,22 @@ NBoolean.changeVal = function(inp, nval){
 }
 
 const NString = new NVarType("String", function(nvar){nvar.string = "";}, "#e963c0", NObject);
-NString.edit = function(pin){
+NString.edit = function(nvar){
 	const inp = document.createElement("input");
 	inp.className = "pinval string";
 	inp.type = "text";
-	inp.value = pin.defaultVal.string;
+	inp.value = nvar.string;
 	inp.onfocusout = function(e){
-		pin.defaultVal.string = inp.value;
+		nvar.string = inp.value;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-			console.log("eee");
-				pin.defaultVal.string = inp.value;
+				nvar.string = inp.value;
 				inp.blur();
 				break;
 			case 27: // ESC
-			console.log("eeess");
-				inp.value = pin.defaultVal.string;
+				inp.value = nvar.string;
 				inp.blur();
 				break;
 		}

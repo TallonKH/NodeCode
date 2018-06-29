@@ -184,7 +184,7 @@ class NNode {
 
 		if (pin.type && pin.type.edit) {
 			const node = this;
-			const pedit = pin.type.edit(pin);
+			const pedit = pin.type.edit(pin.defaultVal);
 			pedit.onfocus = function(e) {
 				node.inPinfosDiv.setAttribute("opened", true);
 			}

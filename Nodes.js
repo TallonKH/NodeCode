@@ -13,26 +13,9 @@ class StringNode extends NNode {
 		this.addHeader("Variable (String)");
 
 		this.addCenter();
-		this.inputDiv = document.createElement("input");
+		this.inputDiv = NString.edit(this.val);
 		this.inputDiv.className = "nodeval string";
 		this.inputDiv.value = this.val.string;
-		const node = this;
-		const inp = this.inputDiv;
-		inp.onkeydown = function(e) {
-			switch (e.which) {
-				case 13: // ENTER
-					node.val.string = inp.value;
-					inp.blur();
-					break;
-				case 27: // ESC
-					inp.value = node.val.string;
-					inp.blur();
-					break;
-			}
-		}
-		inp.onblur = function(e){
-			node.val.string = inp.value;
-		}
 		this.centerDiv.append(this.inputDiv);
 
 		this.addOutPin(new NPin("Value", NString).setIsByRef(false, true));
