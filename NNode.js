@@ -257,7 +257,7 @@ class NNode {
 		if (this.centerDiv) {
 			var hc = this.centerDiv.clientHeight;
 			var hc2 = 0;
-			if(this.centerDiv.children.length){
+			if (this.centerDiv.children.length) {
 				hc2 = 60;
 			}
 		}

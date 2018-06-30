@@ -196,9 +196,9 @@ class BranchNode extends NNode {
 	}
 
 	inputExecuted(pin) {
-		if(this.inputN("__").boolean){
+		if (this.inputN("__").boolean) {
 			this.execN("True");
-		}else{
+		} else {
 			this.execN("False");
 		}
 	}

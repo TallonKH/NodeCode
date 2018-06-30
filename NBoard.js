@@ -552,8 +552,8 @@ class NBoard {
 					}
 				}
 			}
-		}else if(this.rightMDown){
-			if(this.clickDistance > this.env.dragDistance){
+		} else if (this.rightMDown) {
+			if (this.clickDistance > this.env.dragDistance) {
 				this.displayOffset = this.displayOffset.addp(this.trueFrameMouseDelta);
 				this.redraw();
 			}
@@ -860,7 +860,9 @@ class NBoard {
 
 		this.boardDiv = document.createElement("div");
 		this.boardDiv.className = "board";
-		this.boardDiv.oncontextmenu = function(e){return false};
+		this.boardDiv.oncontextmenu = function(e) {
+			return false
+		};
 		this.paneDiv.append(this.boardDiv);
 
 		this.containerDiv = document.createElement("div");

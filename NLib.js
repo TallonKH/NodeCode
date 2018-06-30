@@ -115,7 +115,7 @@ class NPoint {
 		const maxB = NPoint.max(b1, b2);
 
 		if (dxa == 0) {
-			if(minB.x > a1.x || maxB.x < a1.x){
+			if (minB.x > a1.x || maxB.x < a1.x) {
 				return false;
 			}
 			const mb = (b2.y - b1.y) / dxb;
@@ -123,7 +123,7 @@ class NPoint {
 			const interY = (mb * a1.x) + bb
 			return interY >= minA.y && interY <= maxA.y && interY >= minB.y && interY <= maxB.y;
 		} else if (dxb == 0) {
-			if(minA.x > b1.x || maxA.x < b1.x){
+			if (minA.x > b1.x || maxA.x < b1.x) {
 				return false;
 			}
 			const ma = (a2.y - a1.y) / dxa;

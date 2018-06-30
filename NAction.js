@@ -175,7 +175,7 @@ class ActRemoveNode extends NAction {
 	undo() {
 		this.board.addNode(this.node);
 		this.board.loadLinks(this.data.nodes);
-		if(this.isSelected){
+		if (this.isSelected) {
 			this.node.select();
 		}
 	}
@@ -223,8 +223,8 @@ class ActPasteClipboard extends NAction {
 	}
 
 	undo() {
-		this.nodes.forEach(x=>x.remove());
-		this.prevSelected.forEach(x=>x.select());
+		this.nodes.forEach(x => x.remove());
+		this.prevSelected.forEach(x => x.select());
 	}
 }
 
@@ -243,7 +243,7 @@ class ActDuplicateNode extends NAction {
 
 	undo() {
 		this.board.removeNode(this.newNode);
-		this.selected.forEach(x=>x.select());
+		this.selected.forEach(x => x.select());
 	}
 }
 
@@ -257,7 +257,7 @@ class ActDuplicateNodes extends NAction {
 
 	redo() {
 		this.board.deselectAllNodes();
-		for(const node of this.newNodes){
+		for (const node of this.newNodes) {
 			this.board.addNode(node);
 			node.select();
 		}
@@ -265,8 +265,8 @@ class ActDuplicateNodes extends NAction {
 	}
 
 	undo() {
-		this.newNodes.forEach(x=>x.remove());
-		this.selected.forEach(x=>x.select());
+		this.newNodes.forEach(x => x.remove());
+		this.selected.forEach(x => x.select());
 	}
 }
 
@@ -287,10 +287,10 @@ class ActCreateLink extends NAction {
 		const p1 = this.board.pins[this.pinid1];
 		const p2 = this.board.pins[this.pinid2];
 		p1.unlink(p2);
-		if(this.prevP1Link){
+		if (this.prevP1Link) {
 			p1.linkTo(this.prevP1Link);
 		}
-		if(this.prevP2Link){
+		if (this.prevP2Link) {
 			p2.linkTo(this.prevP2Link);
 		}
 	}
@@ -348,19 +348,19 @@ class ActUnlinkPins extends NAction {
 	constructor(board, pins) {
 		super(board);
 		this.links = {};
-		for(const pin of pins){
+		for (const pin of pins) {
 			this.links[pin.pinid] = Object.keys(pin.links);
 		}
 	}
 
 	redo() {
-		for(const pinid in this.links){
+		for (const pinid in this.links) {
 			this.board.pins[pinid].unlinkAll();
 		}
 	}
 
 	undo() {
-		for(const pinid in this.links){
+		for (const pinid in this.links) {
 			const pin = this.board.pins[pinid];
 			this.links[pinid].forEach(pinid2 => pin.linkTo(this.board.pins[pinid2]));
 		}

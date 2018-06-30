@@ -18,7 +18,7 @@ class NVarType {
 		this.allParents = new Set(this.allParents);
 
 		const vt = this;
-		this.construct = function(nvar={}) {
+		this.construct = function(nvar = {}) {
 			vt.addValues(nvar);
 			for (const parent of vt.allParents) {
 				parent.addValues(nvar);
@@ -28,11 +28,11 @@ class NVarType {
 		};
 	}
 
-	setMultiInput(b){
+	setMultiInput(b) {
 		this.multiInput = b;
 	}
 
-	setMultiOutput(b){
+	setMultiOutput(b) {
 		this.multiOutput = b;
 	}
 
@@ -44,9 +44,9 @@ class NVarType {
 		return this == parent || this.isChildOf(parent);
 	}
 
-	areAny(children){
-		for(const c of children){
-			if(c.isA(this)){
+	areAny(children) {
+		for (const c of children) {
+			if (c.isA(this)) {
 				return true;
 			}
 		}
@@ -55,9 +55,9 @@ class NVarType {
 }
 getValidInTypes = function(ins, outs) {
 	const valid = new Set();
-	for(const o of outs){
-		for(const i of ins){
-			if(o.isA(i)){
+	for (const o of outs) {
+		for (const i of ins) {
+			if (o.isA(i)) {
 				valid.add(i);
 				break;
 			}
@@ -68,9 +68,9 @@ getValidInTypes = function(ins, outs) {
 
 getValidOutTypes = function(ins, outs) {
 	const valid = new Set();
-	for(const i of ins){
-		for(const o of outs){
-			if(o.isA(i)){
+	for (const i of ins) {
+		for (const o of outs) {
+			if (o.isA(i)) {
 				valid.add(o);
 				break;
 			}
@@ -79,40 +79,42 @@ getValidOutTypes = function(ins, outs) {
 	return Array.from(c);
 }
 
-double = function(v){
-	if(varTypes[v.nclass].isA(NDouble)){
+double = function(v) {
+	if (varTypes[v.nclass].isA(NDouble)) {
 		return v.double;
 	}
-	if(varTypes[v.nclass].isA(NInteger)){
+	if (varTypes[v.nclass].isA(NInteger)) {
 		return v.int;
 	}
 	console.log(v.name + " is NaN!");
 	return null;
 }
 
-boolean = function(v){
-	for(const key in v){
-		if(v[key]){
+boolean = function(v) {
+	for (const key in v) {
+		if (v[key]) {
 			return true;
 		}
 	}
 	return false;
 }
 
-const NObject = new NVarType("Object", function(nvar){}, "#8c8c8c");
-const NUseless = new NVarType("Object", function(nvar){}, "#bababa");
-const NExecution = new NVarType("Execution", function(nvar){}, "#404040");
+const NObject = new NVarType("Object", function(nvar) {}, "#8c8c8c");
+const NUseless = new NVarType("Object", function(nvar) {}, "#bababa");
+const NExecution = new NVarType("Execution", function(nvar) {}, "#404040");
 NExecution.setMultiInput(true);
 NExecution.setMultiOutput(false);
 
-const NInteger = new NVarType("Integer", function(nvar){nvar.int = 0;}, "#64d4ed", NObject);
-NInteger.edit = function(nvar){
+const NInteger = new NVarType("Integer", function(nvar) {
+	nvar.int = 0;
+}, "#64d4ed", NObject);
+NInteger.edit = function(nvar) {
 	const inp = document.createElement("input");
 	inp.className = "pinval integer";
 	inp.type = "number";
 	inp.value = nvar.int;
 	inp.step = "1";
-	inp.onfocusout = function(e){
+	inp.onfocusout = function(e) {
 		nvar.int = inp.value;
 	}
 	inp.onkeydown = function(e) {
@@ -129,17 +131,19 @@ NInteger.edit = function(nvar){
 	}
 	return inp;
 };
-NInteger.changeVal = function(inp, nval){
+NInteger.changeVal = function(inp, nval) {
 	inp.value = nval.int;
 }
 
-const NDouble = new NVarType("Double", function(nvar){nvar.double = 0.0;}, "#7bed3e", NObject);
-NDouble.edit = function(nvar){
+const NDouble = new NVarType("Double", function(nvar) {
+	nvar.double = 0.0;
+}, "#7bed3e", NObject);
+NDouble.edit = function(nvar) {
 	const inp = document.createElement("input");
 	inp.className = "pinval double";
 	inp.type = "number";
 	inp.value = nvar.double;
-	inp.onfocusout = function(e){
+	inp.onfocusout = function(e) {
 		nvar.double = inp.value;
 	}
 	inp.onkeydown = function(e) {
@@ -156,12 +160,14 @@ NDouble.edit = function(nvar){
 	}
 	return inp;
 };
-NDouble.changeVal = function(inp, nval){
+NDouble.changeVal = function(inp, nval) {
 	inp.value = nval.double;
 }
 
-const NBoolean = new NVarType("Boolean", function(nvar){nvar.boolean = false;}, "#ed2121", NObject);
-NBoolean.edit = function(nvar){
+const NBoolean = new NVarType("Boolean", function(nvar) {
+	nvar.boolean = false;
+}, "#ed2121", NObject);
+NBoolean.edit = function(nvar) {
 	const cnt = document.createElement("div");
 	cnt.className = "checkbox boolean container";
 	const id = (~~(Math.random() * 8388607)).toString();
@@ -170,7 +176,7 @@ NBoolean.edit = function(nvar){
 	inp.className = "checkbox boolean";
 	inp.id = id;
 	inp.type = "checkbox";
-	if(nvar.boolean){
+	if (nvar.boolean) {
 		inp.checked = true;
 	}
 	cnt.append(inp);
@@ -180,24 +186,26 @@ NBoolean.edit = function(nvar){
 	lbl.htmlFor = id;
 	cnt.append(lbl);
 
-	inp.oninput = function(e){
+	inp.oninput = function(e) {
 		nvar.boolean = inp.checked;
 	}
 
 
 	return cnt;
 };
-NBoolean.changeVal = function(inp, nval){
+NBoolean.changeVal = function(inp, nval) {
 	inp.checked = nval.boolean;
 }
 
-const NString = new NVarType("String", function(nvar){nvar.string = "";}, "#e963c0", NObject);
-NString.edit = function(nvar){
+const NString = new NVarType("String", function(nvar) {
+	nvar.string = "";
+}, "#e963c0", NObject);
+NString.edit = function(nvar) {
 	const inp = document.createElement("input");
 	inp.className = "pinval string";
 	inp.type = "text";
 	inp.value = nvar.string;
-	inp.onfocusout = function(e){
+	inp.onfocusout = function(e) {
 		nvar.string = inp.value;
 	}
 	inp.onkeydown = function(e) {
@@ -214,6 +222,6 @@ NString.edit = function(nvar){
 	}
 	return inp;
 };
-NString.changeVal = function(inp, nval){
+NString.changeVal = function(inp, nval) {
 	inp.value = nval.string;
 }
