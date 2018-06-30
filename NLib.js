@@ -77,6 +77,18 @@ class NPoint {
 		return new NPoint(Math.round(this.x * factor) / factor, Math.round(this.y * factor) / factor);
 	}
 
+	static same(...pts) {
+		const x = pts[0].x;
+		const y = pts[0].y;
+		for (let i = 1, l = pts.length; i < l; i++) {
+			const pt = pts[i];
+			if (x != pt.x || y != pt.y) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	static min(...pts) {
 		return new NPoint(Math.min(...pts.map(pt => pt.x)), Math.min(...pts.map(pt => pt.y)));
 	}
@@ -84,9 +96,67 @@ class NPoint {
 	static max(...pts) {
 		return new NPoint(Math.max(...pts.map(pt => pt.x)), Math.max(...pts.map(pt => pt.y)));
 	}
+
+	static crossProduct(a, b) {
+		return a.x * b.y - a.y * b.x;
+	}
+
+	static segIntersect(a1, a2, b1, b2) {
+		const dxa = (a2.x - a1.x);
+		const dxb = (b2.x - b1.x);
+
+		if (dxa == 0 && dxb == 0) {
+			return false;
+		}
+
+		const minA = NPoint.min(a1, a2);
+		const maxA = NPoint.max(a1, a2);
+		const minB = NPoint.min(b1, b2);
+		const maxB = NPoint.max(b1, b2);
+
+		if (dxa == 0) {
+			if(minB.x > a1.x || maxB.x < a1.x){
+				return false;
+			}
+			const mb = (b2.y - b1.y) / dxb;
+			const bb = b1.y - (mb * b1.x);
+			const interY = (mb * a1.x) + bb
+			return interY >= minA.y && interY <= maxA.y && interY >= minB.y && interY <= maxB.y;
+		} else if (dxb == 0) {
+			if(minA.x > b1.x || maxA.x < b1.x){
+				return false;
+			}
+			const ma = (a2.y - a1.y) / dxa;
+			const ba = a1.y - (ma * a1.x);
+			const interY = (ma * b1.x) + ba
+			return interY >= minA.y && interY <= maxA.y && interY >= minB.y && interY <= maxB.y;
+		} else {
+			const ma = (a2.y - a1.y) / dxa;
+			const ba = a1.y - (ma * a1.x);
+
+			const mb = (b2.y - b1.y) / dxb;
+			const bb = b1.y - (mb * b1.x);
+
+			if (ma == mb) {
+				return false;
+			}
+
+			const interX = (bb - ba) / (ma - mb);
+			const interY = (ma * interX) + ba;
+			return interX >= minA.x && interX <= maxA.x && interY >= minA.y && interY <= maxA.y && interX >= minB.x && interX <= maxB.x && interY >= minB.y && interY <= maxB.y;
+		}
+	}
 }
 
-
+allEqual = function(...ls) {
+	const a = ls[0];
+	for (const b of ls) {
+		if (a != b) {
+			return false;
+		}
+	}
+	return true;
+}
 
 divPos = function(div) {
 	const rect = div.getBoundingClientRect();
@@ -110,9 +180,9 @@ avgHex = function(...colors) {
 	avgr = Math.max(Math.trunc(avgr / colors.length - 20), 0).toString(16);
 	avgg = Math.max(Math.trunc(avgg / colors.length - 20), 0).toString(16);
 	avgb = Math.max(Math.trunc(avgb / colors.length - 20), 0).toString(16);
-	avgr = ("00" + avgr).substr(-2,2);
-	avgg = ("00" + avgg).substr(-2,2);
-	avgb = ("00" + avgb).substr(-2,2);
+	avgr = ("00" + avgr).substr(-2, 2);
+	avgg = ("00" + avgg).substr(-2, 2);
+	avgb = ("00" + avgb).substr(-2, 2);
 	return "#" + avgr + avgg + avgb;
 }
 
@@ -123,9 +193,9 @@ darkenHex = function(color, amt) {
 	r = Math.max(Math.trunc(r) - amt, 0).toString(16);
 	g = Math.max(Math.trunc(g) - amt, 0).toString(16);
 	b = Math.max(Math.trunc(b) - amt, 0).toString(16);
-	r = ("00" + r).substr(-2,2);
-	g = ("00" + g).substr(-2,2);
-	b = ("00" + b).substr(-2,2);
+	r = ("00" + r).substr(-2, 2);
+	g = ("00" + g).substr(-2, 2);
+	b = ("00" + b).substr(-2, 2);
 	return "#" + r + g + b;
 }
 
@@ -142,21 +212,6 @@ pointOnBezier = function(p1, p2, p3, p4, t) {
 	const curveX = p1.x * coeff1 + p2.x * coeff2 + p3.x * coeff3 + p4.x * coeff4;
 	const curveY = p1.y * coeff1 + p2.y * coeff2 + p3.y * coeff3 + p4.y * coeff4;
 	return new NPoint(curveX, curveY);
-}
-
-slopeOnBezier = function(p1, p2, p3, p4, t) {
-	const omt = 1 - t;
-	const omt2 = omt * omt;
-	const t2 = t * t;
-
-	const coeff1 = -3 * omt2;
-	const coeff2 = -6 * omt * t;
-	const coeff3 = -3 * omt2;
-	const coeff4 = -3 * t2;
-
-	const derivX = coeff1 * p1.x + coeff2 * p2.x + coeff3 * p3.x + coeff4 * p4.x;
-	const derivY = coeff1 * p1.y + coeff2 * p2.y + coeff3 * p3.y + coeff4 * p4.y;
-	return new NPoint(derivX, derivY);
 }
 
 shallowStringify = function(obj, maxDepth, depth) {
@@ -203,7 +258,7 @@ scrambleIDs = function(data) {
 		}
 	}
 	const links = data.links;
-	for(const link of links){
+	for (const link of links) {
 		link[0] = idRepl(pinids, link[0]);
 		link[1] = idRepl(pinids, link[1]);
 	}
@@ -212,24 +267,24 @@ scrambleIDs = function(data) {
 
 // Thanks to stackoverflow user 4815056 for this function
 function getOS() {
-  var userAgent = window.navigator.userAgent,
-      platform = window.navigator.platform,
-      macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
-      windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
-      iosPlatforms = ['iPhone', 'iPad', 'iPod'],
-      os = null;
+	var userAgent = window.navigator.userAgent,
+		platform = window.navigator.platform,
+		macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+		windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+		iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+		os = null;
 
-  if (macosPlatforms.indexOf(platform) !== -1) {
-    os = 'Mac';
-  } else if (iosPlatforms.indexOf(platform) !== -1) {
-    os = 'iOS';
-  } else if (windowsPlatforms.indexOf(platform) !== -1) {
-    os = 'Windows';
-  } else if (/Android/.test(userAgent)) {
-    os = 'Android';
-  } else if (!os && /Linux/.test(platform)) {
-    os = 'Linux';
-  }
+	if (macosPlatforms.indexOf(platform) !== -1) {
+		os = 'Mac';
+	} else if (iosPlatforms.indexOf(platform) !== -1) {
+		os = 'iOS';
+	} else if (windowsPlatforms.indexOf(platform) !== -1) {
+		os = 'Windows';
+	} else if (/Android/.test(userAgent)) {
+		os = 'Android';
+	} else if (!os && /Linux/.test(platform)) {
+		os = 'Linux';
+	}
 
-  return os;
+	return os;
 }

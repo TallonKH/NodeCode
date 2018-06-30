@@ -351,7 +351,6 @@ class ActUnlinkPins extends NAction {
 		for(const pin of pins){
 			this.links[pin.pinid] = Object.keys(pin.links);
 		}
-		console.log(this.links);
 	}
 
 	redo() {

@@ -189,14 +189,14 @@ class BranchNode extends NNode {
 		this.addHeader();
 		this.addCenter();
 		this.addInPin(new NPin("_", NExecution));
-		this.addInPin(new NPin("Condition", NBoolean));
+		this.addInPin(new NPin("__", NBoolean));
 		this.addOutPin(new NPin("True", NExecution));
 		this.addOutPin(new NPin("False", NExecution));
 		return this.containerDiv;
 	}
 
 	inputExecuted(pin) {
-		if(this.inputN("Condition").boolean){
+		if(this.inputN("__").boolean){
 			this.execN("True");
 		}else{
 			this.execN("False");

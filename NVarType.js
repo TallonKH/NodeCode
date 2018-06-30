@@ -1,3 +1,5 @@
+// TODO 4DD UNDO FUNCT1ON4L1TY TO 3D1T1NG V4LU3S
+
 varTypes = {};
 class NVarType {
 	constructor(name, addValues, color, ...parents) {

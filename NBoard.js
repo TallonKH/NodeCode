@@ -18,7 +18,6 @@ class NBoard {
 		this.selectedNodeCount = 0;
 		this.pins = {}; // pinid : pin
 		this.links = {}; // linkid : [pin1, pin2]
-		this.linkLines = {}; // linkid : [p1, p2, p3, p4, ...]
 
 		this.activeMenu = null;
 
@@ -360,6 +359,12 @@ class NBoard {
 							}
 						}
 						this.destroySelectionBox();
+					} else if (this.cutting) {
+						const linksCut = this.doCut(this.clickStart, this.clickEnd);
+						if(linksCut.length){
+							this.addAction(new ActRemoveLinks(this, linksCut));
+						}
+						this.cutting = false;
 					} else if (this.draggedNode) { // finish moving node(s)
 						this.draggedNode = this.getDivNode(this.clickStartTarget);
 						if (this.draggedNode.selected) {
@@ -466,6 +471,8 @@ class NBoard {
 				this.selectionBox.style.top = sboxMin.y + "px";
 				this.selectionBox.style.width = sboxSize.x + "px";
 				this.selectionBox.style.height = sboxSize.y + "px";
+			} else if (this.cutting) {
+
 			} else if (this.draggedNode) { // currently dragging node(s)
 				if (this.draggedNode.selected) { // dragging selected nodes
 					for (const sNodeID in this.selectedNodes) {
@@ -513,6 +520,10 @@ class NBoard {
 			}
 		}
 
+		if(this.cutting){
+			this.redraw();
+		}
+
 		this.lastMousePosition = this.currentMouse;
 		return true;
 	}
@@ -540,9 +551,18 @@ class NBoard {
 				break;
 		}
 		switch (event.which) {
-			case 81:
-				console.log(this);
-				console.log(this.selectedNodes);
+			case 27: // ESC
+				if(this.cutting){
+					this.cutting = false;
+					this.redraw();
+				}
+				this.closeMenu();
+				break;
+			case 32: // SPACE
+				this.closeMenu();
+				if (this.lastMouseMoveEvent) {
+					this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent));
+				}
 				break;
 			case 8: // BACKSPACE
 			case 46: // DELETE
@@ -552,21 +572,16 @@ class NBoard {
 					this.removeNode(node);
 				}
 				break;
-			case 27: // ESC
-				this.closeMenu();
-				break;
-			case 32: // SPACE
-				this.closeMenu();
-				if (this.lastMouseMoveEvent) {
-					this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent));
-				}
-				break;
 			case 67: // C
 				if (this.env.ctrlDown) {
 					if (this.selectedNodeCount) {
 						this.copyNodes(Object.values(this.selectedNodes));
 					}
 				}
+				break;
+			case 75: // K
+				this.cutting = !this.cutting;
+				this.redraw();
 				break;
 			case 86: // V
 				if (this.env.ctrlDown) {
@@ -609,7 +624,7 @@ class NBoard {
 					this.redraw();
 				}
 				break;
-			case 189: // /
+			case 189: // -
 				if (main.ctrlDown) {
 					const prevZoom = this.zoom;
 					if (this.zoom > 0.28) {
@@ -645,6 +660,62 @@ class NBoard {
 				}
 				break;
 		}
+	}
+
+	doCut(start, end) {
+		if (this.cutting) {
+			const linksCut = [];
+			start = start.multiply1(this.zoom).addp(this.displayOffset);
+			end = end.multiply1(this.zoom).addp(this.displayOffset);
+			for (const linkid in this.links) {
+				const link = this.links[linkid];
+				const pinA = link[0];
+				const pinB = link[1];
+
+				const pts = this.calcLinkPoints(pinA, pinB);
+				const ctx = this.canvasDiv.getContext("2d");
+				for (let i = 0, l = pts.length-1; i < l; i++) {
+					if (NPoint.segIntersect(pts[i], pts[i + 1], start, end)) {
+						linksCut.push([pinA.pinid, pinB.pinid]);
+						pinA.unlink(pinB);
+						break;
+					}
+				}
+			}
+			return linksCut;
+		}else{
+			return [];
+		}
+	}
+
+	calcLinkPoints(pinA, pinB) {
+		const l1 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
+		const l2 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);;
+
+		const yDist = Math.abs(l1.y - l2.y);
+		const xDist = Math.abs(l1.x - l2.x);
+
+		const xPush = Math.min(300 * this.zoom, Math.max(0, (l2.x - l1.x) - yDist) / 2);
+		const yPush = l1.y > l2.y ? xPush : -xPush;
+
+		const splineDist = yDist / 2 + xDist / 4;
+		const p1 = new NPoint(l1.x - splineDist - xPush, l1.y - yPush);
+		const p2 = new NPoint(l2.x + splineDist + xPush, l2.y + yPush);
+
+		const bzpts = [];
+		bzpts.push(l1);
+		for (let i = 0; i <= 0.5; i += 0.1) {
+			const t = i * i + 0.05;
+			bzpts.push(pointOnBezier(l1, p1, p2, l2, t));
+		}
+		for (let i = 0.5; i <= 1; i += 0.1) {
+			const oi = 1 - i;
+			const t = 0.95 - oi * oi;
+			bzpts.push(pointOnBezier(l1, p1, p2, l2, t));
+		}
+		bzpts.push(l2);
+
+		return bzpts;
 	}
 
 	scrolled(event) {
@@ -799,11 +870,12 @@ class NBoard {
 
 	draw() {
 		const ctx = this.canvasDiv.getContext("2d");
-		// clear canvas
 		ctx.save();
 		ctx.setTransform(1, 0, 0, 1, 0, 0);
 		ctx.clearRect(0, 0, this.canvasDiv.width, this.canvasDiv.height);
 		ctx.restore();
+
+		ctx.lineCap = "round";
 
 		// update transform
 		this.containerDiv.style.transform = "translate3d(" + this.displayOffset.x + "px, " + this.displayOffset.y + "px, 0px) scale(" + this.zoom + ")";
@@ -881,6 +953,36 @@ class NBoard {
 			ctx.bezierCurveTo(p1.x, p1.y, p2.x, p2.y, l2.x, l2.y);
 			ctx.stroke();
 		}
+
+		if (this.cutting) {
+			const p1 = this.lastMousePosition.multiply1(this.zoom).addp(this.displayOffset);
+			ctx.lineWidth = this.zoom * 8;
+			ctx.strokeStyle = "#FF0000";
+			ctx.beginPath();
+			ctx.arc(p1.x, p1.y, 16 * this.zoom, 0, TAU);
+			ctx.stroke();
+
+			if (this.leftMDown) {
+				const p2 = this.clickStart.multiply1(this.zoom).addp(this.displayOffset);
+				ctx.beginPath();
+				ctx.arc(p2.x, p2.y, 16 * this.zoom, 0, TAU);
+				ctx.stroke();
+
+				ctx.lineWidth = this.zoom * 24;
+				ctx.strokeStyle = "#FFFFFF";
+				ctx.beginPath();
+				ctx.moveTo(p1.x, p1.y);
+				ctx.lineTo(p2.x, p2.y);
+				ctx.stroke();
+
+				ctx.lineWidth = this.zoom * 8;
+				ctx.strokeStyle = "#FF0000";
+				ctx.beginPath();
+				ctx.moveTo(p1.x, p1.y);
+				ctx.lineTo(p2.x, p2.y);
+				ctx.stroke();
+			}
+		}
 	}
 
 	saveSelectedNodes() {
@@ -907,8 +1009,8 @@ class NBoard {
 
 			nodata.push(no.nodes[0]);
 
-			if(no.links){
-				for(const linkid in no.links){
+			if (no.links) {
+				for (const linkid in no.links) {
 					linkData[linkid] = no.links[linkid];
 				}
 			}
@@ -930,10 +1032,10 @@ class NBoard {
 	}
 
 	loadLinks(linkData) {
-		for(const link of linkData){
+		for (const link of linkData) {
 			const a = this.pins[link[0]];
 			const b = this.pins[link[1]];
-			if(a && b){
+			if (a && b) {
 				a.linkTo(b);
 			}
 		}
