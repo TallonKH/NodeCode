@@ -160,16 +160,30 @@ NDouble.changeVal = function(inp, nval){
 
 const NBoolean = new NVarType("Boolean", function(nvar){nvar.boolean = false;}, "#ed2121", NObject);
 NBoolean.edit = function(nvar){
+	const cnt = document.createElement("div");
+	cnt.className = "checkbox boolean container";
+	const id = (~~(Math.random() * 8388607)).toString();
+
 	const inp = document.createElement("input");
-	inp.className = "pinval boolean";
+	inp.className = "checkbox boolean";
+	inp.id = id;
 	inp.type = "checkbox";
 	if(nvar.boolean){
 		inp.checked = true;
 	}
+	cnt.append(inp);
+
+	const lbl = document.createElement("label");
+	lbl.className = "checkbox boolean";
+	lbl.htmlFor = id;
+	cnt.append(lbl);
+
 	inp.oninput = function(e){
 		nvar.boolean = inp.checked;
 	}
-	return inp;
+
+
+	return cnt;
 };
 NBoolean.changeVal = function(inp, nval){
 	inp.checked = nval.boolean;

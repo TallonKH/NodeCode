@@ -341,6 +341,37 @@ canvas {
 	color: #6c6c6c;
 }
 
+input[type=checkbox] {
+	visibility: hidden;
+}
+
+label.boolean {
+	padding: 0 4px;
+	background: none;
+	transition: all 0.2s ease;
+	border: 2px solid #460000;
+	border-radius: 10px;
+}
+
+label.boolean:after {
+	content: "False"
+}
+
+input[type=checkbox]:checked+label.boolean {
+	border: 2px solid #ed2121;
+	color: #ed2121;
+	border-radius: 0px;
+}
+
+input[type=checkbox]:checked+label.boolean:after {
+	content: "True"
+}
+
+.container.boolean {
+	height: 20px;
+	width: 100%;
+}
+
 .center>.text {
 	display: table-cell;
 	vertical-align: middle;
@@ -408,7 +439,7 @@ canvas {
 .pinfo {
 	flex-basis: 1;
 	height: 20px;
-	overflow: hidden;
+	overflow: visible;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-around;

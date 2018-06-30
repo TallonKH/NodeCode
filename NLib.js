@@ -110,6 +110,9 @@ avgHex = function(...colors) {
 	avgr = Math.max(Math.trunc(avgr / colors.length - 20), 0).toString(16);
 	avgg = Math.max(Math.trunc(avgg / colors.length - 20), 0).toString(16);
 	avgb = Math.max(Math.trunc(avgb / colors.length - 20), 0).toString(16);
+	avgr = ("00" + avgr).substr(-2,2);
+	avgg = ("00" + avgg).substr(-2,2);
+	avgb = ("00" + avgb).substr(-2,2);
 	return "#" + avgr + avgg + avgb;
 }
 
@@ -120,6 +123,9 @@ darkenHex = function(color, amt) {
 	r = Math.max(Math.trunc(r) - amt, 0).toString(16);
 	g = Math.max(Math.trunc(g) - amt, 0).toString(16);
 	b = Math.max(Math.trunc(b) - amt, 0).toString(16);
+	r = ("00" + r).substr(-2,2);
+	g = ("00" + g).substr(-2,2);
+	b = ("00" + b).substr(-2,2);
 	return "#" + r + g + b;
 }
 
