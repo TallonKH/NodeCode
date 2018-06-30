@@ -361,7 +361,7 @@ class NBoard {
 						this.destroySelectionBox();
 					} else if (this.cutting) {
 						const linksCut = this.doCut(this.clickStart, this.clickEnd);
-						if(linksCut.length){
+						if (linksCut.length) {
 							this.addAction(new ActRemoveLinks(this, linksCut));
 						}
 						this.cutting = false;
@@ -446,6 +446,36 @@ class NBoard {
 			case 3: // RIGHT MOUSE
 				{
 					this.rightMDown = false;
+					if (this.clickDistance > this.env.dragDistance) {
+
+					} else {
+						this.closeMenu();
+						if (event.target == this.boardDiv) {
+							// board context menu
+							this.applyMenu(this.makeContextMenu(event));
+						} else if (event.target.classList.contains("nodepart")) {
+							// node context menus
+							const node = this.getDivNode(event.target);
+							if (node.selected && this.selectedNodeCount > 1) {
+								let sameType = true;
+								// check if all node types are the same
+								for (const id in this.selectedNodes) {
+									if (this.nodes[id].constructor.getName() != node.constructor.getName()) {
+										sameType = false;
+										break;
+									}
+								}
+								// menu for multiple nodes of varying type
+								this.applyMenu(makeMultiNodeMenu(this, event, Object.values(this.selectedNodes)));
+							} else {
+								// menu for single node
+								this.applyMenu(node.makeContextMenu(event));
+							}
+						} else if (event.target.classList.contains("pin")) {
+							// menu for pins
+							this.applyMenu(this.getDivPin(event.target).makeContextMenu(event));
+						}
+					}
 				}
 		}
 		this.redraw();
@@ -520,7 +550,7 @@ class NBoard {
 			}
 		}
 
-		if(this.cutting){
+		if (this.cutting) {
 			this.redraw();
 		}
 
@@ -552,7 +582,7 @@ class NBoard {
 		}
 		switch (event.which) {
 			case 27: // ESC
-				if(this.cutting){
+				if (this.cutting) {
 					this.cutting = false;
 					this.redraw();
 				}
@@ -674,7 +704,7 @@ class NBoard {
 
 				const pts = this.calcLinkPoints(pinA, pinB);
 				const ctx = this.canvasDiv.getContext("2d");
-				for (let i = 0, l = pts.length-1; i < l; i++) {
+				for (let i = 0, l = pts.length - 1; i < l; i++) {
 					if (NPoint.segIntersect(pts[i], pts[i + 1], start, end)) {
 						linksCut.push([pinA.pinid, pinB.pinid]);
 						pinA.unlink(pinB);
@@ -683,7 +713,7 @@ class NBoard {
 				}
 			}
 			return linksCut;
-		}else{
+		} else {
 			return [];
 		}
 	}
@@ -821,35 +851,7 @@ class NBoard {
 
 		this.boardDiv = document.createElement("div");
 		this.boardDiv.className = "board";
-		this.boardDiv.oncontextmenu = function(event) {
-			brd.closeMenu();
-			if (event.target == brd.boardDiv) {
-				// board context menu
-				brd.applyMenu(brd.makeContextMenu(event));
-			} else if (event.target.classList.contains("nodepart")) {
-				// node context menus
-				const node = brd.getDivNode(event.target);
-				if (node.selected && brd.selectedNodeCount > 1) {
-					let sameType = true;
-					// check if all node types are the same
-					for (const id in brd.selectedNodes) {
-						if (brd.nodes[id].constructor.getName() != node.constructor.getName()) {
-							sameType = false;
-							break;
-						}
-					}
-					// menu for multiple nodes of varying type
-					brd.applyMenu(makeMultiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
-				} else {
-					// menu for single node
-					brd.applyMenu(node.makeContextMenu(event));
-				}
-			} else if (event.target.classList.contains("pin")) {
-				// menu for pins
-				brd.applyMenu(brd.getDivPin(event.target).makeContextMenu(event));
-			}
-			return false;
-		};
+		this.boardDiv.oncontextmenu = function(e){return false};
 		this.paneDiv.append(this.boardDiv);
 
 		this.containerDiv = document.createElement("div");
