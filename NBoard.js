@@ -56,7 +56,9 @@ class NBoard {
 		this.clickDistance = 0;
 		this.lastMousePosition = new NPoint(0, 0);
 		this.currentMouse = new NPoint(0, 0);
+		this.trueLastMouse = new NPoint(0, 0);
 		this.trueCurrentMouse = new NPoint(0, 0);
+		this.trueFrameMouseDelta = new NPoint(0, 0);
 		this.frameMouseDelta = new NPoint(0, 0);
 		this.lastMouseMoveEvent = null;
 	}
@@ -483,9 +485,11 @@ class NBoard {
 	}
 
 	mouseMoved(event) {
+		this.trueLastMouse = this.trueCurrentMouse;
+		this.trueCurrentMouse = new NPoint(event.clientX, event.clientY);
+		this.trueFrameMouseDelta = this.trueCurrentMouse.subtractp(this.trueLastMouse);
 		this.lastMouseMoveEvent = event;
 		this.currentMouse = this.evntToPt(event);
-		this.trueCurrentMouse = new NPoint(event.clientX, event.clientY);
 		this.frameMouseDelta = this.currentMouse.subtractp(this.lastMousePosition);
 		this.clickDistance += this.frameMouseDelta.lengthSquared();
 
@@ -547,6 +551,11 @@ class NBoard {
 						}
 					}
 				}
+			}
+		}else if(this.rightMDown){
+			if(this.clickDistance > this.env.dragDistance){
+				this.displayOffset = this.displayOffset.addp(this.trueFrameMouseDelta);
+				this.redraw();
 			}
 		}
 
