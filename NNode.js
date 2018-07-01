@@ -182,7 +182,7 @@ class NNode {
 			pinfo.setAttribute("data-nodeid", this.nodeid);
 			this.ipcNameDiv.append(pinfo);
 
-			const pinfoDiv = document.createElement("div");
+			var pinfoDiv = document.createElement("div");
 			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
 			pinfoDiv.setAttribute("data-pinid", this.pinid);
 			this.ipcEditDiv.append(pinfoDiv);
