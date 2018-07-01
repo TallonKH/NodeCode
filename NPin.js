@@ -165,6 +165,7 @@ class NPin {
 
 		this.node.board.links[a.pinid + b.pinid] = [a, b];
 		this.node.board.redraw();
+		return true;
 	}
 
 	unlink(otherPin) {

@@ -70,7 +70,12 @@ $(function() {
 				break;
 		}
 
-		if ((!divCaptures) && (!main.metaDown)) {
+		if(main.metaDown){
+
+			return false;
+		}
+
+		if ((!divCaptures)) {
 			// ALT changes event.key on osx, so event.which must be used
 			switch (event.which) {
 				case 49: // switch inner tabs
@@ -130,7 +135,7 @@ $(function() {
 				}
 				break;
 		}
-		if (!main.metaDown && main.activeBoard != null) {
+		if (main.activeBoard != null) {
 			main.activeBoard.keyReleased(event);
 		}
 		return main.metaDown || event.target.hasAttribute('data-ovrdkeys') || event.target.nodeName == "INPUT" || event.target.nodeName == "TEXTAREA";

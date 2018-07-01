@@ -1,5 +1,3 @@
-// TODO 1MPL3M3NT S4V3/LO4D M3THODS FOR 4LL NOD3 TYP3S
-
 class StringNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -42,6 +40,10 @@ class StringNode extends NNode {
 	static getTags() {
 		return ["\"\"", "\'\'"];
 	}
+
+	static getOutTypes(){
+		return [NString];
+	}
 }
 
 class IntegerNode extends NNode {
@@ -78,6 +80,10 @@ class IntegerNode extends NNode {
 
 	static getName() {
 		return "Integer";
+	}
+
+	static getOutTypes(){
+		return [NInteger];
 	}
 }
 
@@ -117,6 +123,10 @@ class DoubleNode extends NNode {
 		return "Double";
 	}
 
+	static getOutTypes(){
+		return [NDouble];
+	}
+
 	static getTags() {
 		return ["float"];
 	}
@@ -147,6 +157,14 @@ class DisplayNode extends NNode {
 		return "Display";
 	}
 
+	static getInTypes(){
+		return [NExecution, NObject];
+	}
+
+	static getOutTypes(){
+		return [NExecution];
+	}
+
 	static getTags() {
 		return ["print", "log", "output", "sysout", "stdout"];
 	}
@@ -172,6 +190,14 @@ class SubstringNode extends NNode {
 		return {
 			"string": this.inputN("String").string.substring(this.inputN("Start Index").int, this.inputN("End Index").int)
 		};
+	}
+
+	static getInTypes(){
+		return [NString, NInteger];
+	}
+
+	static getOutTypes(){
+		return [NString];
 	}
 
 	static getName() {
@@ -205,6 +231,14 @@ class BranchNode extends NNode {
 
 	static getName() {
 		return "Branch";
+	}
+
+	static getInTypes(){
+		return [NExecution, NBoolean];
+	}
+
+	static getOutTypes(){
+		return [NExecution];
 	}
 
 	static getTags() {
@@ -309,6 +343,14 @@ class AdditionNode extends NNode {
 		return "Addition";
 	}
 
+	static getInTypes(){
+		return [NInteger, NDouble];
+	}
+
+	static getOutTypes(){
+		return [NInteger, NDouble];
+	}
+
 	static getTags() {
 		return ["plus", "+", "sum"];
 	}
@@ -332,6 +374,14 @@ class IncrementNode extends NNode {
 
 	static getName() {
 		return "Increment";
+	}
+
+	static getInTypes(){
+		return [NExecution, NInteger, NDouble];
+	}
+
+	static getOutTypes(){
+		return [NExecution];
 	}
 
 	static getTags() {

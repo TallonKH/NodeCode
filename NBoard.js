@@ -169,6 +169,7 @@ class NBoard {
 
 	closeMenu() {
 		if (this.activeMenu) {
+			this.activeMenu.onClosed();
 			try {
 				this.activeMenu.containerDiv.remove();
 			} catch (e) {}
@@ -248,22 +249,111 @@ class NBoard {
 		}
 	}
 
-	makeNodeCreationMenu(event) {
+	makeNodeCreationMenu(event, pinFilter = null) {
 		const brd = this;
 		const menu = new NMenu(this, event);
 		menu.setHeader("Create Node");
 
+		let validCount = 0;
+
 		for (const type of this.nodeTypeList) {
+			if (pinFilter) {
+				let filteredOut = false;
+				let can = false;
+				if (pinFilter.side) {
+					if(!type.getInTypes){
+						continue;
+					}
+					if (pinFilter.multiTyped) {
+						for (const inT of type.getInTypes()) {
+							for (const outT of pinFilter.types) {
+								if (outT.isA(inT)) {
+									can = true;
+									break;
+								}
+							}
+							if (can) {
+								break;
+							}
+						}
+					} else {
+						for (const inT of type.getInTypes()) {
+							if (pinFilter.type.isA(inT)) {
+								can = true;
+								break;
+							}
+						}
+					}
+				} else {
+					if(!type.getOutTypes){
+						continue;
+					}
+					if (pinFilter.multiTyped) {
+						for (const outT of type.getOutTypes()) {
+							for (const inT of pinFilter.types) {
+								if (outT.isA(inT)) {
+									can = true;
+									break;
+								}
+							}
+							if (can) {
+								break;
+							}
+						}
+					} else {
+						for (const outT of type.getOutTypes()) {
+							if (outT.isA(pinFilter.type)) {
+								can = true;
+								break;
+							}
+						}
+					}
+				}
+
+				if (!can) {
+					continue;
+				}
+			}
 			const op = new NMenuOption(type.getName());
-			op.action = function(e) {
-				const node = brd.createNode(type);
-				node.setPosition(brd.evntToPt(e));
-				brd.addAction(new ActAddNode(brd, node));
+			if(pinFilter){
+				op.action = function(e) {
+					const node = brd.createNode(type);
+					if(pinFilter.side){
+						for(const pinn of node.inpinOrder){
+							if(node.inpins[pinn].linkTo(pinFilter)){
+								break;
+							}
+						}
+					}else{
+						for(const pinn of node.outpinOrder){
+							if(node.outpins[pinn].linkTo(pinFilter)){
+								break;
+							}
+						}
+					}
+					delete brd.links[pinFilter.pinid];
+					node.setPosition(brd.evntToPt(e));
+					brd.addAction(new ActAddNode(brd, node));
+				}
+			}else{
+				op.action = function(e) {
+					const node = brd.createNode(type);
+					node.setPosition(brd.evntToPt(e));
+					brd.addAction(new ActAddNode(brd, node));
+				}
 			}
 			if (type.getTags) {
 				op.setTags(...type.getTags());
 			}
 			menu.addOption(op);
+			validCount++;
+		}
+
+		if(pinFilter){
+			menu.onClosed = function(){
+				delete brd.links[pinFilter.pinid];
+				brd.redraw();
+			}
 		}
 
 		return menu;
@@ -294,7 +384,7 @@ class NBoard {
 				}
 		}
 		if (this.activeMenu != null && !this.activeMenu.containerDiv.contains(this.clickStartTarget)) {
-			this.closeMenu()
+			this.closeMenu();
 		}
 
 		this.redraw();
@@ -390,13 +480,25 @@ class NBoard {
 								}
 							}
 						}
+
+						let releaseLink = true;
+
 						// successful link
 						if (this.clickEndTarget.classList.contains("pin")) {
 							const other = this.getDivPin(this.clickEndTarget);
 							this.addAction(new ActCreateLink(this, this.draggedPin, other));
 							const lank = this.draggedPin.linkTo(other);
+						} else if(this.clickEndTarget.classList.contains("nodepart")){ // tried to link to node
+
+						} else { // tried to link to something else (board, probably);
+							if(this.lastMouseMoveEvent){
+								releaseLink = false;
+								this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent, this.draggedPin));
+							}
 						}
-						delete this.links[this.draggedPin.pinid];
+						if(releaseLink){
+							delete this.links[this.draggedPin.pinid];
+						}
 						this.draggedPin = null;
 					} else if (this.clickDistance > this.env.dragDistance) { // something unknown was dragged
 
@@ -652,6 +754,15 @@ class NBoard {
 				if (main.ctrlDown) {
 					this.addAction(new ActSelectAll(this));
 					main.activeBoard.selectAllNodes();
+				}
+				break;
+			case 83: // S
+				if (main.ctrlDown) {
+					if (main.shiftDown) {
+						//save as
+					} else {
+						//save
+					}
 				}
 				break;
 			case 187: // +

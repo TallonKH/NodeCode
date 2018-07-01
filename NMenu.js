@@ -17,6 +17,8 @@ class NMenu {
 		this.matchedList = [];
 	}
 
+	onClosed(){}
+
 	setHeader(str){
 		this.headerString = str;
 	}
