@@ -489,7 +489,24 @@ class NBoard {
 							this.addAction(new ActCreateLink(this, this.draggedPin, other));
 							const lank = this.draggedPin.linkTo(other);
 						} else if(this.clickEndTarget.classList.contains("nodepart")){ // tried to link to node
-
+							const node = this.getDivNode(this.clickEndTarget);
+							if(this.draggedPin.side){
+								for(const pinn of node.inpinOrder){
+									const other = node.inpins[pinn];
+									if((other.multiConnective || other.linkNum == 0) && this.draggedPin.canPlugInto(other)){
+										other.linkTo(this.draggedPin);
+										break;
+									}
+								}
+							}else{
+								for(const pinn of node.outpinOrder){
+									const other = node.outpins[pinn];
+									if((other.multiConnective || other.linkNum == 0) && other.canPlugInto(this.draggedPin)){
+										other.linkTo(this.draggedPin)
+										break;
+									}
+								}
+							}
 						} else { // tried to link to something else (board, probably);
 							if(this.lastMouseMoveEvent){
 								releaseLink = false;
