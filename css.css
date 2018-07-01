@@ -212,7 +212,7 @@ body {
 
 .ctxmenu {
 	position: absolute;
-	background-color: #eeeeeeee;
+	background-color: #eeeeee;
 	border: 1px solid #cccccc;
 	border-radius: 2px;
 	box-shadow: 6px 6px 10px #44444488;
@@ -263,12 +263,33 @@ canvas {
 	height: 75px;
 	border: 4px solid #6b6b6b;
 	border-radius: 15px;
-	background-color: #d7d7d7cc;
+	background-color: #d7d7d7;
 	overflow: hidden;
 	position: absolute;
 	display: flex;
 	flex-direction: column;
 	transition: transform 2s;
+}
+
+.node.comment {
+	border-radius: 0px;
+	border: 2px solid #4a4a4a;
+	background-color: #f2f2f2;
+}
+
+.node.comment>header {
+	background-color: #f2f2f2;
+	border: none;
+}
+
+.node.comment>.body>.pins {
+	background-color: #f2f2f2;
+	border: none;
+}
+
+.node.comment>.body>.pinfos {
+	background: none;
+	border: none;
 }
 
 .body {
@@ -299,7 +320,7 @@ canvas {
 .node>header {
 	padding: 0.1em 0.3em 0.3em 0.3em;
 	height: 15px;
-	background-color: #9f9f9fcc;
+	background-color: #9f9f9f;
 	color: #000000;
 	order: 0;
 	border-bottom: 2px solid #6b6b6b;
@@ -309,11 +330,11 @@ canvas {
 .center>textarea {
 	font-size: 15px;
 	overflow: scroll;
-	width: calc(100%-10px);
+	width: calc(100% - 50px);
 	height: 35px;
 	/*border: none;*/
 	margin: 5px;
-	background-color: none;
+	background: none;
 }
 
 /* Node Inner */
@@ -322,6 +343,7 @@ canvas {
 	order: 5;
 	flex: 1 1;
 	overflow: hidden;
+	background: none;
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
 	display: table;
 	height: 100%;
@@ -329,7 +351,7 @@ canvas {
 
 .nodeval {
 	transform: translateY(50%);
-	margin: 0 auto;
+	margin: 0px 25px 0px 10px;
 	text-overflow: ellipsis;
 	display: table;
 	text-align: left;
@@ -463,13 +485,13 @@ input[type=checkbox]:checked+label.boolean:after {
 	text-align: right;
 }
 
-.pins:hover+.pinfos, .pinfos[opened], .pinfos:hover {
+.pins:not([nopinfo]):hover+.pinfos, .pinfos[opened], .pinfos:hover {
 	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	background-color: #bebebe66;
 	flex: 1 0 0;
 }
 
-.pins:hover~.center, .pinfos[opened]~.center, .pinfos:hover~.center {
+.pins:not([nopinfo]):hover~.center, .pinfos[opened]~.center, .pinfos:hover~.center {
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
 	flex: 0 1 0;
 }

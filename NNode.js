@@ -153,36 +153,42 @@ class NNode {
 			this.inPinsDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.inPinsDiv);
 
-			this.inPinfosDiv = document.createElement("div");
-			this.inPinfosDiv.className = "inpinfos pinfos nodepart"
-			this.inPinfosDiv.setAttribute("data-nodeid", this.nodeid);
-			this.bodyDiv.append(this.inPinfosDiv);
+			if (this.noPinfo) {
+				this.inPinsDiv.setAttribute("noPinfo", true);
+			}else{
+				this.inPinfosDiv = document.createElement("div");
+				this.inPinfosDiv.className = "inpinfos pinfos nodepart"
+				this.inPinfosDiv.setAttribute("data-nodeid", this.nodeid);
+				this.bodyDiv.append(this.inPinfosDiv);
 
-			this.ipcNameDiv = document.createElement("div");
-			this.ipcNameDiv.className = "inpinfocol pinfocol";
-			this.ipcNameDiv.setAttribute("data-nodeid", this.nodeid);
-			this.inPinfosDiv.append(this.ipcNameDiv);
+				this.ipcNameDiv = document.createElement("div");
+				this.ipcNameDiv.className = "inpinfocol pinfocol";
+				this.ipcNameDiv.setAttribute("data-nodeid", this.nodeid);
+				this.inPinfosDiv.append(this.ipcNameDiv);
 
-			this.ipcEditDiv = document.createElement("div");
-			this.ipcEditDiv.className = "inpinfocol pinfocol";
-			this.ipcEditDiv.setAttribute("data-nodeid", this.nodeid);
-			this.inPinfosDiv.append(this.ipcEditDiv);
+				this.ipcEditDiv = document.createElement("div");
+				this.ipcEditDiv.className = "inpinfocol pinfocol";
+				this.ipcEditDiv.setAttribute("data-nodeid", this.nodeid);
+				this.inPinfosDiv.append(this.ipcEditDiv);
+			}
 
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.inPinsDiv.append(pin.createPinDiv());
 
-		const pinfo = pin.createPinfoDiv();
-		pinfo.setAttribute("data-nodeid", this.nodeid);
-		this.ipcNameDiv.append(pinfo);
+		if(!this.noPinfo){
+			const pinfo = pin.createPinfoDiv();
+			pinfo.setAttribute("data-nodeid", this.nodeid);
+			this.ipcNameDiv.append(pinfo);
 
-		const pinfoDiv = document.createElement("div");
-		pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
-		pinfoDiv.setAttribute("data-pinid", this.pinid);
-		this.ipcEditDiv.append(pinfoDiv);
+			const pinfoDiv = document.createElement("div");
+			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
+			pinfoDiv.setAttribute("data-pinid", this.pinid);
+			this.ipcEditDiv.append(pinfoDiv);
+		}
 
-		if (pin.type && pin.type.edit) {
+		if (pin.type && pin.type.edit && !this.noPinfo) {
 			const node = this;
 			const pedit = pin.type.edit(pin.defaultVal);
 			pedit.onfocus = function(e) {
@@ -224,24 +230,29 @@ class NNode {
 			this.outPinsDiv.setAttribute("data-nodeid", this.nodeid);
 			this.bodyDiv.append(this.outPinsDiv);
 
-			this.outPinfosDiv = document.createElement("div");
-			this.outPinfosDiv.className = "outpinfos pinfos nodepart"
-			this.outPinfosDiv.setAttribute("data-nodeid", this.nodeid);
-			this.bodyDiv.append(this.outPinfosDiv);
+			if (this.noPinfo) {
+				this.outPinsDiv.setAttribute("noPinfo", true);
+			}else{
+				this.outPinfosDiv = document.createElement("div");
+				this.outPinfosDiv.className = "outpinfos pinfos nodepart"
+				this.outPinfosDiv.setAttribute("data-nodeid", this.nodeid);
+				this.bodyDiv.append(this.outPinfosDiv);
 
-			this.opcNameDiv = document.createElement("div");
-			this.opcNameDiv.className = "outpinfocol pinfocol";
-			this.opcNameDiv.setAttribute("data-nodeid", this.nodeid);
-			this.outPinfosDiv.append(this.opcNameDiv);
+				this.opcNameDiv = document.createElement("div");
+				this.opcNameDiv.className = "outpinfocol pinfocol";
+				this.opcNameDiv.setAttribute("data-nodeid", this.nodeid);
+				this.outPinfosDiv.append(this.opcNameDiv);
+			}
 
 			this.centerDiv.remove();
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.outPinsDiv.append(pin.createPinDiv());
-
-		const pinfo = pin.createPinfoDiv();
-		pinfo.setAttribute("data-nodeid", this.nodeid);
-		this.opcNameDiv.append(pinfo);
+		if(!this.noPinfo){
+			const pinfo = pin.createPinfoDiv();
+			pinfo.setAttribute("data-nodeid", this.nodeid);
+			this.opcNameDiv.append(pinfo);
+		}
 	}
 
 	move(delta) {

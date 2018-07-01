@@ -14,7 +14,7 @@ class StringNode extends NNode {
 		this.inputDiv = NString.edit(this.val);
 		this.inputDiv.className = "nodeval string";
 		this.centerDiv.append(this.inputDiv);
-
+		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NString).setIsByRef(false, true));
 		return this.containerDiv;
 	}
@@ -41,11 +41,11 @@ class StringNode extends NNode {
 		return ["\"\"", "\'\'"];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NString];
 	}
 }
@@ -64,6 +64,7 @@ class IntegerNode extends NNode {
 		this.inputDiv = NInteger.edit(this.val);
 		this.inputDiv.className = "nodeval int";
 		this.centerDiv.append(this.inputDiv);
+		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NInteger).setIsByRef(false, true));
 		return this.containerDiv;
 	}
@@ -86,11 +87,11 @@ class IntegerNode extends NNode {
 		return "Integer";
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NInteger];
 	}
 }
@@ -109,6 +110,7 @@ class DoubleNode extends NNode {
 		this.inputDiv = NDouble.edit(this.val);
 		this.inputDiv.className = "nodeval double";
 		this.centerDiv.append(this.inputDiv);
+		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NDouble).setIsByRef(false, true));
 		return this.containerDiv;
 	}
@@ -131,11 +133,11 @@ class DoubleNode extends NNode {
 		return "Double";
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NDouble];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
@@ -169,15 +171,15 @@ class DisplayNode extends NNode {
 		return "Display";
 	}
 
-	static getInTypes(){
+	static getInTypes() {
 		return [NExecution, NObject];
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NExecution];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
@@ -208,15 +210,15 @@ class SubstringNode extends NNode {
 		};
 	}
 
-	static getInTypes(){
+	static getInTypes() {
 		return [NString, NInteger];
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NString];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
@@ -253,15 +255,15 @@ class BranchNode extends NNode {
 		return "Branch";
 	}
 
-	static getInTypes(){
+	static getInTypes() {
 		return [NExecution, NBoolean];
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NExecution];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
@@ -367,15 +369,15 @@ class AdditionNode extends NNode {
 		return "Addition";
 	}
 
-	static getInTypes(){
+	static getInTypes() {
 		return [NInteger, NDouble];
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NInteger, NDouble];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
@@ -404,15 +406,15 @@ class IncrementNode extends NNode {
 		return "Increment";
 	}
 
-	static getInTypes(){
+	static getInTypes() {
 		return [NExecution, NInteger, NDouble];
 	}
 
-	static getOutTypes(){
+	static getOutTypes() {
 		return [NExecution];
 	}
 
-	static getCategory(){
+	static getCategory() {
 		return "Code";
 	}
 
@@ -430,7 +432,11 @@ class CommentNode extends NNode {
 		super.createNodeDiv();
 		this.addHeader();
 		this.addCenter();
+		this.noPinfo = true;
+		this.addInPin(new NPin("_", NComment));
+		this.addOutPin(new NPin("__", NComment));
 		this.makeResizable();
+		this.nodeDiv.className = this.nodeDiv.className + " comment";
 		this.textArea = document.createElement("textarea");
 		this.textArea.setAttribute("data-nodeid", this.nodeid);
 		this.textArea.style.resize = "none";
@@ -453,11 +459,19 @@ class CommentNode extends NNode {
 		return "Comment";
 	}
 
-	static getCategory(){
+	static getInTypes() {
+		return [NComment];
+	}
+
+	static getOutTypes() {
+		return [NComment];
+	}
+
+	static getCategory() {
 		return "Misc";
 	}
 
 	static getTags() {
-		return ["//", "#", "/*"];
+		return ["//", "#", "/**/"];
 	}
 }
