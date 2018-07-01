@@ -19,15 +19,8 @@ class NBoard {
 		this.pins = {}; // pinid : pin
 		this.links = {}; // linkid : [pin1, pin2]
 
+		this.activeCategories = new Set(["Code", "Misc"]);
 		this.activeMenu = null;
-
-		this.nodeTypeList = [
-			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode
-		];
-		this.nodeTypeDict = {};
-		for (const type of this.nodeTypeList) {
-			this.nodeTypeDict[type.getName()] = type;
-		}
 
 		this.actionStack = [];
 		this.actionStackIndex = -1;
@@ -256,101 +249,106 @@ class NBoard {
 
 		let validCount = 0;
 
-		for (const type of this.nodeTypeList) {
-			if (pinFilter) {
-				let filteredOut = false;
-				let can = false;
-				if (pinFilter.side) {
-					if(!type.getInTypes){
-						continue;
-					}
-					if (pinFilter.multiTyped) {
-						for (const inT of type.getInTypes()) {
-							for (const outT of pinFilter.types) {
-								if (outT.isA(inT)) {
+		for (const catn in this.env.nodeCategories) {
+			if(!this.activeCategories.has(catn)){
+				continue
+			}
+			for (const type of this.env.nodeCategories[catn]) {
+				if (pinFilter) {
+					let filteredOut = false;
+					let can = false;
+					if (pinFilter.side) {
+						if (!type.getInTypes) {
+							continue;
+						}
+						if (pinFilter.multiTyped) {
+							for (const inT of type.getInTypes()) {
+								for (const outT of pinFilter.types) {
+									if (outT.isA(inT)) {
+										can = true;
+										break;
+									}
+								}
+								if (can) {
+									break;
+								}
+							}
+						} else {
+							for (const inT of type.getInTypes()) {
+								if (pinFilter.type.isA(inT)) {
 									can = true;
 									break;
 								}
 							}
-							if (can) {
-								break;
-							}
 						}
 					} else {
-						for (const inT of type.getInTypes()) {
-							if (pinFilter.type.isA(inT)) {
-								can = true;
-								break;
+						if (!type.getOutTypes) {
+							continue;
+						}
+						if (pinFilter.multiTyped) {
+							for (const outT of type.getOutTypes()) {
+								for (const inT of pinFilter.types) {
+									if (outT.isA(inT)) {
+										can = true;
+										break;
+									}
+								}
+								if (can) {
+									break;
+								}
+							}
+						} else {
+							for (const outT of type.getOutTypes()) {
+								if (outT.isA(pinFilter.type)) {
+									can = true;
+									break;
+								}
 							}
 						}
+					}
+
+					if (!can) {
+						continue;
+					}
+				}
+				const op = new NMenuOption(type.getName());
+				if (pinFilter) {
+					op.action = function(e) {
+						const node = brd.createNode(type);
+						if (pinFilter.side) {
+							for (const pinn of node.inpinOrder) {
+								if (node.inpins[pinn].linkTo(pinFilter)) {
+									break;
+								}
+							}
+						} else {
+							for (const pinn of node.outpinOrder) {
+								if (node.outpins[pinn].linkTo(pinFilter)) {
+									break;
+								}
+							}
+						}
+						delete brd.links[pinFilter.pinid];
+						node.setPosition(brd.evntToPt(e));
+						brd.addAction(new ActAddNode(brd, node));
 					}
 				} else {
-					if(!type.getOutTypes){
-						continue;
-					}
-					if (pinFilter.multiTyped) {
-						for (const outT of type.getOutTypes()) {
-							for (const inT of pinFilter.types) {
-								if (outT.isA(inT)) {
-									can = true;
-									break;
-								}
-							}
-							if (can) {
-								break;
-							}
-						}
-					} else {
-						for (const outT of type.getOutTypes()) {
-							if (outT.isA(pinFilter.type)) {
-								can = true;
-								break;
-							}
-						}
+					op.action = function(e) {
+						const node = brd.createNode(type);
+						node.setPosition(brd.evntToPt(e));
+						brd.addAction(new ActAddNode(brd, node));
 					}
 				}
-
-				if (!can) {
-					continue;
+				if (type.getTags) {
+					op.setTags(...type.getTags());
 				}
+				menu.addOption(op);
+				validCount++;
 			}
-			const op = new NMenuOption(type.getName());
-			if(pinFilter){
-				op.action = function(e) {
-					const node = brd.createNode(type);
-					if(pinFilter.side){
-						for(const pinn of node.inpinOrder){
-							if(node.inpins[pinn].linkTo(pinFilter)){
-								break;
-							}
-						}
-					}else{
-						for(const pinn of node.outpinOrder){
-							if(node.outpins[pinn].linkTo(pinFilter)){
-								break;
-							}
-						}
-					}
-					delete brd.links[pinFilter.pinid];
-					node.setPosition(brd.evntToPt(e));
-					brd.addAction(new ActAddNode(brd, node));
-				}
-			}else{
-				op.action = function(e) {
-					const node = brd.createNode(type);
-					node.setPosition(brd.evntToPt(e));
-					brd.addAction(new ActAddNode(brd, node));
-				}
-			}
-			if (type.getTags) {
-				op.setTags(...type.getTags());
-			}
-			menu.addOption(op);
-			validCount++;
 		}
 
-		if(pinFilter){
-			menu.onClosed = function(){
+		if (pinFilter) {
+			menu.onClosed = function() {
 				delete brd.links[pinFilter.pinid];
 				brd.redraw();
 			}
@@ -488,32 +486,31 @@ class NBoard {
 							const other = this.getDivPin(this.clickEndTarget);
 							this.addAction(new ActCreateLink(this, this.draggedPin, other));
 							const lank = this.draggedPin.linkTo(other);
-						} else if(this.clickEndTarget.classList.contains("nodepart")){ // tried to link to node
+						} else if (this.clickEndTarget.classList.contains("nodepart")) { // tried to link to node
 							const node = this.getDivNode(this.clickEndTarget);
-							if(this.draggedPin.side){
-								for(const pinn of node.inpinOrder){
+							if (this.draggedPin.side) {
+								for (const pinn of node.inpinOrder) {
 									const other = node.inpins[pinn];
-									if((other.multiConnective || other.linkNum == 0) && this.draggedPin.canPlugInto(other)){
+									if ((other.multiConnective || other.linkNum == 0) && this.draggedPin.canPlugInto(other)) {
 										other.linkTo(this.draggedPin);
 										break;
 									}
 								}
-							}else{
-								for(const pinn of node.outpinOrder){
+							} else {
+								for (const pinn of node.outpinOrder) {
 									const other = node.outpins[pinn];
-									if((other.multiConnective || other.linkNum == 0) && other.canPlugInto(this.draggedPin)){
+									if ((other.multiConnective || other.linkNum == 0) && other.canPlugInto(this.draggedPin)) {
 										other.linkTo(this.draggedPin)
 										break;
 									}
 								}
 							}
 						} else { // tried to link to something else (board, probably);
-							if(this.lastMouseMoveEvent){
-								releaseLink = false;
-								this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent, this.draggedPin));
-							}
+							const evnt = this.lastMouseMoveEvent || event;
+							releaseLink = false;
+							this.applyMenu(this.makeNodeCreationMenu(evnt, this.draggedPin));
 						}
-						if(releaseLink){
+						if (releaseLink) {
 							delete this.links[this.draggedPin.pinid];
 						}
 						this.draggedPin = null;
@@ -1183,7 +1180,7 @@ class NBoard {
 	}
 
 	loadNode(nodata) {
-		const node = this.createNode(this.nodeTypeDict[nodata.type], nodata);
+		const node = this.createNode(this.env.nodeTypeDict[nodata.type], nodata);
 		node.load(nodata);
 		return node;
 	}

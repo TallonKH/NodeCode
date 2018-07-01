@@ -100,7 +100,8 @@ boolean = function(v) {
 }
 
 const NObject = new NVarType("Object", function(nvar) {}, "#8c8c8c");
-const NUseless = new NVarType("Object", function(nvar) {}, "#bababa");
+const NUseless = new NVarType("Useless", function(nvar) {}, "#bababa");
+NUseless.setMultiInput(true);
 const NExecution = new NVarType("Execution", function(nvar) {}, "#404040");
 NExecution.setMultiInput(true);
 NExecution.setMultiOutput(false);

@@ -41,6 +41,10 @@ class StringNode extends NNode {
 		return ["\"\"", "\'\'"];
 	}
 
+	static getCategory(){
+		return "Code";
+	}
+
 	static getOutTypes(){
 		return [NString];
 	}
@@ -80,6 +84,10 @@ class IntegerNode extends NNode {
 
 	static getName() {
 		return "Integer";
+	}
+
+	static getCategory(){
+		return "Code";
 	}
 
 	static getOutTypes(){
@@ -127,6 +135,10 @@ class DoubleNode extends NNode {
 		return [NDouble];
 	}
 
+	static getCategory(){
+		return "Code";
+	}
+
 	static getTags() {
 		return ["float"];
 	}
@@ -165,6 +177,10 @@ class DisplayNode extends NNode {
 		return [NExecution];
 	}
 
+	static getCategory(){
+		return "Code";
+	}
+
 	static getTags() {
 		return ["print", "log", "output", "sysout", "stdout"];
 	}
@@ -198,6 +214,10 @@ class SubstringNode extends NNode {
 
 	static getOutTypes(){
 		return [NString];
+	}
+
+	static getCategory(){
+		return "Code";
 	}
 
 	static getName() {
@@ -239,6 +259,10 @@ class BranchNode extends NNode {
 
 	static getOutTypes(){
 		return [NExecution];
+	}
+
+	static getCategory(){
+		return "Code";
 	}
 
 	static getTags() {
@@ -351,6 +375,10 @@ class AdditionNode extends NNode {
 		return [NInteger, NDouble];
 	}
 
+	static getCategory(){
+		return "Code";
+	}
+
 	static getTags() {
 		return ["plus", "+", "sum"];
 	}
@@ -382,6 +410,10 @@ class IncrementNode extends NNode {
 
 	static getOutTypes(){
 		return [NExecution];
+	}
+
+	static getCategory(){
+		return "Code";
 	}
 
 	static getTags() {
@@ -419,6 +451,10 @@ class CommentNode extends NNode {
 
 	static getName() {
 		return "Comment";
+	}
+
+	static getCategory(){
+		return "Misc";
 	}
 
 	static getTags() {

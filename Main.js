@@ -1,6 +1,7 @@
 const TAU = 2 * Math.PI;
 class Main {
 	constructor() {
+		this.passedMetas = new Set([87, 84, 82, 81, 78]);
 		this.mainTabListDiv;
 		this.mainTabDiv;
 		this.boards = [];
@@ -16,6 +17,22 @@ class Main {
 		this.dragDistance = 15;
 		this.panSpeed = 0.5;
 		this.maxExecIterations = 500;
+
+		this.nodeTypeList = [
+			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode
+		];
+		this.nodeCategories = {};
+		this.nodeTypeDict = {};
+		for (const type of this.nodeTypeList) {
+			this.nodeTypeDict[type.getName()] = type;
+			const cat = this.nodeCategories[type.getCategory()];
+			if(cat){
+				cat.push(type);
+			}else{
+				this.nodeCategories[type.getCategory()] = [type];
+			}
+		}
+		console.log(this.nodeCategories);
 	}
 
 	newBoard(name) {
@@ -70,9 +87,8 @@ $(function() {
 				break;
 		}
 
-		if(main.metaDown){
-
-			return false;
+		if(main.metaDown && main.passedMetas.has(event.which)){
+			return true;
 		}
 
 		if ((!divCaptures)) {
@@ -109,7 +125,7 @@ $(function() {
 			}
 		}
 
-		return main.metaDown || divCaptures;
+		return divCaptures;
 	};
 
 	window.onkeyup = function(event) {
@@ -138,7 +154,7 @@ $(function() {
 		if (main.activeBoard != null) {
 			main.activeBoard.keyReleased(event);
 		}
-		return main.metaDown || event.target.hasAttribute('data-ovrdkeys') || event.target.nodeName == "INPUT" || event.target.nodeName == "TEXTAREA";
+		return event.target.hasAttribute('data-ovrdkeys') || event.target.nodeName == "INPUT" || event.target.nodeName == "TEXTAREA";
 	};
 
 	window.onmousedown = function(event) {
