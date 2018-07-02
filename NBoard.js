@@ -785,7 +785,9 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
-
+					if(confirm("Download?")){
+						downloadFile(this.name + ".json", JSON.stringify(this.saveBoard()));
+					}
 				}
 				break;
 			case 187: // +
