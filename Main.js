@@ -12,6 +12,9 @@ class Main {
 		this.ctrlDown = false;
 		this.metaDown = false;
 
+		this.savedBoards = JSON.parse(localStorage.getItem("boards")) || {}; // board name : board id
+		console.log(this.savedBoards);
+
 		this.maxPanDist = 25;
 		this.lineClickDistance = 10;
 		this.dragDistance = 15;
@@ -33,6 +36,26 @@ class Main {
 			}
 		}
 		console.log(this.nodeCategories);
+	}
+
+	saveBoardToStorage(board){
+		const existing = this.savedBoards[board.name];
+		if(!existing || existing == board.uid || confirm("A saved board already exists under this name. Replace?")){
+			localStorage.setItem("brd_" + board.name, JSON.stringify(board.exportBoard()));
+			this.savedBoards[board.name] = board.uid;
+			localStorage.setItem("boards", JSON.stringify(this.savedBoards));
+			console.log(this.savedBoards);
+			return true;
+		}
+		return false;
+	}
+
+	loadBoardFromStorage(name){
+		if(this.savedBoards[name]){
+			return this.newBoard(localStorage.getItem("brd_" + name));
+		}
+		console.log("Board " + name + " not found in storage");
+		return false;
 	}
 
 	newBoard(data) {

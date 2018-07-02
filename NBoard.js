@@ -3,17 +3,18 @@ class NBoard {
 		if(typeof data == "string"){
 			console.log("Created board " + data);
 			this.name = data;
-			this.id = "maintab-" + env.boardCount;
+			this.uid = (~~(Math.random() * 8388607));
 			this.zoom = 1;
 			this.displayOffset = new NPoint(0, 0);
 		}else{
-			console.log(data);
 			console.log("Created board " + data.name);
 			this.name = data.name;
-			this.id = "maintab-" + data.id;
+			this.uid = data.id;
 			this.zoom = data.zoom;
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 		}
+		this.tabId = "maintab-" + env.boardCount;
+		this.saved = false;
 		this.env = env;
 		env.boardCount += 1;
 		this.zoomCounter = 0;
@@ -215,7 +216,7 @@ class NBoard {
 		op = new NMenuOption("Export Board");
 		op.action = function(e) {
 			// TODO M4K3 4 T3XT4R34
-			console.log(JSON.stringify(brd.saveBoard()));
+			console.log(JSON.stringify(brd.exportBoard()));
 		}
 		menu.addOption(op);
 
@@ -745,7 +746,9 @@ class NBoard {
 				break;
 			case 69: // E
 				if (this.env.ctrlDown || this.env.metaDown){
-
+					if(confirm("Download?")){
+						downloadFile(this.name + ".json", JSON.stringify(this.exportBoard()));
+					}
 				}
 			case 75: // K
 				this.cutting = !this.cutting;
@@ -785,9 +788,15 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
-					if(confirm("Download?")){
-						downloadFile(this.name + ".json", JSON.stringify(this.saveBoard()));
+					if(!this.saved || this.env.shiftDown){
+						const name = prompt("What would you like to name this file?", this.name);
+						if(name){
+							this.name = name;
+						}else{
+							break;
+						}
 					}
+					this.saved = this.env.saveBoardToStorage(this);
 				}
 				break;
 			case 187: // +
@@ -978,7 +987,7 @@ class NBoard {
 
 		const link = document.createElement("a");
 		link.innerHTML = this.name;
-		link.setAttribute("href", "#" + this.id);
+		link.setAttribute("href", "#" + this.tabId);
 
 		this.tabDiv.append(link);
 		return this.tabDiv;
@@ -991,7 +1000,7 @@ class NBoard {
 
 		this.paneDiv = document.createElement("div");
 		this.paneDiv.className = "tabpane";
-		this.paneDiv.id = this.id;
+		this.paneDiv.id = this.tabId;
 		let brd = this;
 
 		this.boardDiv = document.createElement("div");
@@ -1142,10 +1151,10 @@ class NBoard {
 		return this.saveNodes(Object.values(this.nodes));
 	}
 
-	saveBoard(){
+	exportBoard(){
 		const data = this.saveAllNodes();
 		data.name = this.name;
-		data.id = this.id;
+		data.id = this.uid;
 		data.dspoX = this.displayOffset.x;
 		data.dspoY = this.displayOffset.y;
 		data.zoom = this.zoom;
