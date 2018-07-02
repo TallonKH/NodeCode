@@ -737,20 +737,22 @@ class NBoard {
 				}
 				break;
 			case 67: // C
-				if (this.env.ctrlDown) {
+				if (this.env.ctrlDown || this.env.metaDown) {
 					if (this.selectedNodeCount) {
 						this.copyNodes(Object.values(this.selectedNodes));
 					}
 				}
 				break;
 			case 69: // E
+				if (this.env.ctrlDown || this.env.metaDown){
 
+				}
 			case 75: // K
 				this.cutting = !this.cutting;
 				this.redraw();
 				break;
 			case 86: // V
-				if (this.env.ctrlDown) {
+				if (this.env.ctrlDown || this.env.metaDown) {
 					if (this.lastMousePosition) {
 						const prevSelected = Object.values(this.selectedNodes);
 						const nodes = this.pasteNodes(this.lastMousePosition);
@@ -759,7 +761,7 @@ class NBoard {
 				}
 				break;
 			case 88: // X
-				if (this.env.ctrlDown) {
+				if (this.env.ctrlDown || this.env.metaDown) {
 					if (this.selectedNodeCount) {
 						this.addAction(new ActRemoveSelectedNodes(this));
 						this.cutNodes(Object.values(this.selectedNodes));
@@ -767,7 +769,7 @@ class NBoard {
 				}
 				break;
 			case 90: // Z
-				if (this.env.ctrlDown) {
+				if (this.env.ctrlDown || this.env.metaDown) {
 					if (this.env.shiftDown) {
 						this.redo();
 					} else {
@@ -776,22 +778,18 @@ class NBoard {
 				}
 				break;
 			case 65: // A
-				if (main.ctrlDown) {
+				if (main.ctrlDown || this.env.metaDown) {
 					this.addAction(new ActSelectAll(this));
 					main.activeBoard.selectAllNodes();
 				}
 				break;
 			case 83: // S
-				if (main.ctrlDown) {
-					if (main.shiftDown) {
-						//save as
-					} else {
-						//save
-					}
+				if (main.ctrlDown || this.env.metaDown) {
+
 				}
 				break;
 			case 187: // +
-				if (main.ctrlDown) {
+				if (main.ctrlDown || this.env.metaDown) {
 					const prevZoom = this.zoom;
 					if (this.zoom < 5) {
 						this.zoom *= 1.2;
@@ -800,7 +798,7 @@ class NBoard {
 				}
 				break;
 			case 189: // -
-				if (main.ctrlDown) {
+				if (main.ctrlDown || this.env.metaDown) {
 					const prevZoom = this.zoom;
 					if (this.zoom > 0.28) {
 						this.zoom *= 0.8333333;
