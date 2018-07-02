@@ -1,7 +1,7 @@
 const TAU = 2 * Math.PI;
 class Main {
 	constructor() {
-		this.passedMetas = new Set([87, 84, 82, 81, 78]);
+		this.passedMetas = new Set([87, 84, 82, 81, 78, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]);
 		this.mainTabListDiv;
 		this.mainTabDiv;
 		this.boards = [];
@@ -35,18 +35,21 @@ class Main {
 		console.log(this.nodeCategories);
 	}
 
-	newBoard(name) {
-		const brd = new NBoard(this, name);
+	newBoard(data) {
+		const brd = new NBoard(this, data);
 		this.mainTabDiv.append(brd.createPaneDiv());
 		this.mainTabListDiv.append(brd.createTabDiv());
 		$(this.mainTabDiv).tabs("refresh");
 		this.boards.push(brd);
-		this.activeBoard = brd;
 		setTimeout(function(){
 			for(const nd in brd.nodes){
 				brd.nodes[nd].updatePosition();
 			}
 		},10);
+		this.boardCount++;
+		if(typeof data == "object"){
+			brd.loadNodes(data);
+		}
 		return brd;
 	}
 }
@@ -69,7 +72,9 @@ $(function() {
 		main.activeBoard.fixSize();
 	});
 
-	let brdA = main.newBoard("TEST A");
+	let brdA = main.newBoard("board 1");
+	let brdB = main.newBoard("board 2");
+
 	window.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute("data-ovrdkeys") || event.target.nodeName == "INPUT" || event.target.nodeName == "TEXTAREA";
 		switch (event.key) {
@@ -117,7 +122,11 @@ $(function() {
 						$(main.mainTabDiv).tabs("option", "active", $(main.mainTabDiv).tabs("option", "active") + 1);
 					}
 					break;
-
+				case 73: // I
+					if(main.ctrlDown || main.metaDown){
+						$("#fopener").trigger("click");
+					}
+					break;
 			}
 
 			if (main.activeBoard != null) {
@@ -171,4 +180,33 @@ $(function() {
 	}
 
 	$(main.mainTabDiv).tabs("option", "active", 0);
+});
+
+$(function() {
+	{
+		let tabs = $(".tabs").tabs();
+		tabs.find(".ui-tabs-nav").sortable({
+			axis: "x",
+			stop: function() {
+				tabs.tabs("refresh");
+			}
+		});
+	}
+	// window.onresize = fixAllCanvasSizes;
+	const fopener = $("#fopener").get(0);
+	const reader = new FileReader();
+	fopener.onchange = function(event) {
+		const fileList = fopener.files;
+		const file = fileList["0"];
+		if(file){
+			reader.readAsText(file);
+		}
+	}
+	reader.onload = function(event){
+		const data = JSON.parse(reader.result);
+		const brd = main.newBoard(data);
+
+		console.log("Done importing file!");
+	}
+
 });

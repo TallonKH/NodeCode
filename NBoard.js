@@ -1,13 +1,22 @@
 class NBoard {
-	constructor(env, name) {
-		console.log("Created board " + name);
+	constructor(env, data) {
+		if(typeof data == "string"){
+			console.log("Created board " + data);
+			this.name = data;
+			this.id = "maintab-" + env.boardCount;
+			this.zoom = 1;
+			this.displayOffset = new NPoint(0, 0);
+		}else{
+			console.log(data);
+			console.log("Created board " + data.name);
+			this.name = data.name;
+			this.id = "maintab-" + data.id;
+			this.zoom = data.zoom;
+			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
+		}
 		this.env = env;
 		env.boardCount += 1;
-		this.name = name;
-		this.id = "maintab-" + env.boardCount;
 		this.zoomCounter = 0;
-		this.displayOffset = new NPoint(0, 0);
-		this.zoom = 1;
 		this.paneDiv = null;
 		this.boardDiv = null;
 		this.canvasDiv = null;
@@ -203,10 +212,10 @@ class NBoard {
 			menu.addOption(op);
 		}
 
-		op = new NMenuOption("Export All");
+		op = new NMenuOption("Export Board");
 		op.action = function(e) {
 			// TODO M4K3 4 T3XT4R34
-			console.log(JSON.stringify(brd.saveAllNodes()));
+			console.log(JSON.stringify(brd.saveBoard()));
 		}
 		menu.addOption(op);
 
@@ -734,6 +743,8 @@ class NBoard {
 					}
 				}
 				break;
+			case 69: // E
+
 			case 75: // K
 				this.cutting = !this.cutting;
 				this.redraw();
@@ -1129,6 +1140,17 @@ class NBoard {
 
 	saveAllNodes() {
 		return this.saveNodes(Object.values(this.nodes));
+	}
+
+	saveBoard(){
+		const data = this.saveAllNodes();
+		data.name = this.name;
+		data.id = this.id;
+		data.dspoX = this.displayOffset.x;
+		data.dspoY = this.displayOffset.y;
+		data.zoom = this.zoom;
+		data.cats = Array.from(this.activeCategories);
+		return data;
 	}
 
 	saveNodes(nodes) {
