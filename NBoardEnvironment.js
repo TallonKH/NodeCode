@@ -44,7 +44,6 @@ class Main {
 			localStorage.setItem("brd_" + board.name, JSON.stringify(board.exportBoard()));
 			this.savedBoards[board.name] = board.uid;
 			localStorage.setItem("boards", JSON.stringify(this.savedBoards));
-			console.log(this.savedBoards);
 			return true;
 		}
 		return false;
