@@ -14,6 +14,7 @@ class NBoard {
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 		}
 		this.tabId = "maintab-" + env.boardCount;
+		this.named = false;
 		this.saved = false;
 		this.env = env;
 		env.boardCount += 1;
@@ -788,15 +789,19 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
-					if(!this.saved || this.env.shiftDown){
+					if(!this.named || this.env.shiftDown){
 						const name = prompt("What would you like to name this file?", this.name);
 						if(name){
 							this.name = name;
+							this.named = true;
 						}else{
 							break;
 						}
 					}
 					this.saved = this.env.saveBoardToStorage(this);
+					if(this.saved){
+						this.tabDivLink.innerHTML = this.name;
+					}
 				}
 				break;
 			case 187: // +
@@ -907,6 +912,8 @@ class NBoard {
 	}
 
 	addAction(action) {
+		this.saved = false;
+		this.tabDivLink.innerHTML = this.name + "*";
 		this.actionStackIndex++;
 		this.actionStack = this.actionStack.slice(0, this.actionStackIndex);
 		this.actionStack.push(action);
@@ -985,11 +992,11 @@ class NBoard {
 		this.tabDiv = document.createElement("li");
 		this.tabDiv.className = "tab";
 
-		const link = document.createElement("a");
-		link.innerHTML = this.name;
-		link.setAttribute("href", "#" + this.tabId);
+		this.tabDivLink = document.createElement("a");
+		this.tabDivLink.innerHTML = this.name;
+		this.tabDivLink.setAttribute("href", "#" + this.tabId);
 
-		this.tabDiv.append(link);
+		this.tabDiv.append(this.tabDivLink);
 		return this.tabDiv;
 	}
 
