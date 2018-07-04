@@ -449,7 +449,7 @@ class NBoard {
 								}
 							}
 
-							if (selectedNodes2.length > 0) {
+							if (selectedNodes2.length) {
 								if (this.env.shiftDown) {
 									this.addAction(new ActSelect(this, selectedNodes2));
 								} else {
@@ -1005,7 +1005,7 @@ class NBoard {
 		this.tabDiv.className = "tab";
 
 		this.tabDivLink = document.createElement("a");
-		this.tabDivLink.innerHTML = this.name;
+		this.tabDivLink.innerHTML = this.name + (this.saved ? "" : "*");
 		this.tabDivLink.setAttribute("href", "#" + this.tabId);
 
 		this.tabDiv.append(this.tabDivLink);
