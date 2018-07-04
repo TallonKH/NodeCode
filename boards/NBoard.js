@@ -14,8 +14,8 @@ class NBoard {
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 		}
 		this.tabId = "maintab-" + env.boardCount;
-		this.named = false;
-		this.saved = false;
+		this.saved = ~~env.savedBoards[this.name];
+		this.named = this.saved;
 		this.env = env;
 		env.boardCount += 1;
 		this.zoomCounter = 0;
@@ -240,6 +240,17 @@ class NBoard {
 			op.action = e => brd.redo();
 			menu.addOption(op);
 		}
+
+		op = new NMenuOption("Unsave All");
+		op.action = function(){
+				if(prompt("Unsaving will remove any revisions of this file stored on your computer. The file will stay open, however, in case you want to re-save it. Please enter the name of this file to confirm.") == brd.name){
+					alert("Files removed.");
+					brd.env.unsave(brd);
+				}else{
+					alert("Cancelled. No files removed.");
+				}
+		}
+		menu.addOption(op);
 
 		return menu;
 	}
@@ -789,7 +800,7 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
-					if(!this.named || this.env.shiftDown){
+					if(!this.saved || this.env.shiftDown){
 						const name = prompt("What would you like to name this file?", this.name);
 						if(name){
 							this.name = name;
@@ -799,6 +810,7 @@ class NBoard {
 						}
 					}
 					this.saved = this.env.saveBoardToStorage(this);
+
 					if(this.saved){
 						this.tabDivLink.innerHTML = this.name;
 					}

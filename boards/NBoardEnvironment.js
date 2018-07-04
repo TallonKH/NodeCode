@@ -53,10 +53,20 @@ class Main {
 
 	loadBoardFromStorage(name){
 		if(this.savedBoards[name]){
-			return this.newBoard(JSON.parse(localStorage.getItem("brd_" + name)));
+			const data = JSON.parse(localStorage.getItem("brd_" + name));
+			if(data){
+				return this.newBoard(data);
+			}
 		}
 		console.log("Board " + name + " not found in storage");
 		return false;
+	}
+
+	unsave(brd){
+		localStorage.removeItem("brd_" + brd.name);
+		delete this.savedBoards[brd.name];
+		console.log(this.savedBoards);
+		localStorage.setItem("boards", JSON.stringify(this.savedBoards));
 	}
 
 	newBoard(data) {
