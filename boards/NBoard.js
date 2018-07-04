@@ -800,7 +800,7 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
-					if(!this.saved || this.env.shiftDown){
+					if(!this.named || this.env.shiftDown){
 						const name = prompt("What would you like to name this file?", this.name);
 						if(name){
 							this.name = name;
