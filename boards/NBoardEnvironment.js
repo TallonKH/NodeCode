@@ -12,6 +12,8 @@ class Main {
 		this.ctrlDown = false;
 		this.metaDown = false;
 
+		this.presets = {"code":["Code", "Misc", "Regex"], "regex":["Regex", "Misc"], "shader":["Shader","Misc"]};
+
 		this.savedBoards = JSON.parse(localStorage.getItem("boards")) || {}; // board name : board id
 		console.log(this.savedBoards);
 
@@ -51,7 +53,7 @@ class Main {
 
 	loadBoardFromStorage(name){
 		if(this.savedBoards[name]){
-			return this.newBoard(localStorage.getItem("brd_" + name));
+			return this.newBoard(JSON.parse(localStorage.getItem("brd_" + name)));
 		}
 		console.log("Board " + name + " not found in storage");
 		return false;
@@ -93,9 +95,6 @@ $(function() {
 	$(window).on("resize", function(e) {
 		main.activeBoard.fixSize();
 	});
-
-	let brdA = main.newBoard("board 1");
-	let brdB = main.newBoard("board 2");
 
 	window.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute("data-ovrdkeys") || event.target.nodeName == "INPUT" || event.target.nodeName == "TEXTAREA";
@@ -201,10 +200,23 @@ $(function() {
 		return main.activeBoard.mouseWheel(event);
 	}
 
-	$(main.mainTabDiv).tabs("option", "active", 0);
-});
+	const url = new URL(window.location.href);
+	const toOpen = JSON.parse(url.searchParams.get("open"));
+	if(toOpen){
+		console.log("Opening: " + toOpen);
+		for(const name of toOpen){
+			main.loadBoardFromStorage(name);
+		}
+	}
 
-$(function() {
+	const preset = url.searchParams.get("preset");
+	if(preset){
+		console.log("Loading preset: " + preset);
+		main.newBoard("Untitled").activeCategories = new Set(main.presets[preset]);
+	}
+
+	$(main.mainTabDiv).tabs("option", "active", 0);
+
 	{
 		let tabs = $(".tabs").tabs();
 		tabs.find(".ui-tabs-nav").sortable({
@@ -230,5 +242,4 @@ $(function() {
 
 		console.log("Done importing file!");
 	}
-
 });

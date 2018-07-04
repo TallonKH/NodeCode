@@ -301,3 +301,7 @@ function downloadFile(filename, text) {
 
   link.remove();
 }
+
+function currentTimeMillis(){
+	return (new Date()).getTime();
+}
