@@ -255,6 +255,22 @@ class NNode {
 		}
 	}
 
+	removeInPin(pin){
+		delete this.inpins[pin.name];
+		this.inpinOrder.splice(this.inpinOrder.indexOf(pin.name), 1);
+		this.pinlist.splice(this.pinlist.indexOf(pin.name), 1);
+		delete this.board.pins[pin.pinid];
+
+		pin.pinDiv.remove();
+		if(!this.noPinfo){
+			pin.pinfoDiv.remove();
+		}
+		if(pin.editDiv){
+			pin.editDiv.remove();
+		}
+		this.updateDims();
+	}
+
 	move(delta) {
 		this.position = this.position.addp(delta);
 		this.updatePosition();
@@ -272,6 +288,7 @@ class NNode {
 				hc2 = 60;
 			}
 		}
+		console.log(hp, hc, hc2);
 		let h = Math.max(hp, hc, hc2);
 
 		// header

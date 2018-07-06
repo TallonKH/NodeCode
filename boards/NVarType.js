@@ -116,12 +116,12 @@ NInteger.edit = function(nvar) {
 	inp.value = nvar.int;
 	inp.step = "1";
 	inp.onfocusout = function(e) {
-		nvar.int = inp.value;
+		nvar.int = parseInt(inp.value);
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.int = inp.value;
+				nvar.int = parseInt(inp.value);
 				inp.blur();
 				break;
 			case 27: // ESC
@@ -145,12 +145,12 @@ NDouble.edit = function(nvar) {
 	inp.type = "number";
 	inp.value = nvar.double;
 	inp.onfocusout = function(e) {
-		nvar.double = inp.value;
+		nvar.double = parseDouble(inp.value);
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.double = inp.value;
+				nvar.double = parseDouble(inp.value);
 				inp.blur();
 				break;
 			case 27: // ESC

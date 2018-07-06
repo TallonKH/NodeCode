@@ -29,7 +29,7 @@ class StringNode extends NNode {
 
 	load(data, loadids) {
 		super.load(data, loadids);
-		this.val = data.val;
+		Object.assign(this.val, data.val);
 		this.inputDiv.value = this.val.string;
 	}
 
@@ -79,7 +79,7 @@ class IntegerNode extends NNode {
 
 	load(data, loadids) {
 		super.load(data, loadids);
-		this.val = data.val;
+		Object.assign(this.val, data.val);
 		this.inputDiv.value = this.val.int;
 	}
 
@@ -125,7 +125,7 @@ class DoubleNode extends NNode {
 
 	load(data, loadids) {
 		super.load(data, loadids);
-		this.val = data.val;
+		Object.assign(this.val, data.val);
 		this.inputDiv.value = this.val.double;
 	}
 
@@ -281,7 +281,6 @@ class AdditionNode extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		// this.addHeader();
 		this.addCenter("+");
 		this.addInPin(new NPin("A", NInteger, NDouble));
 		this.addInPin(new NPin("B", NInteger, NDouble));
@@ -309,6 +308,28 @@ class AdditionNode extends NNode {
 				}
 			}
 		}
+	}
+
+	makeContextMenu(event) {
+		const menu = super.makeContextMenu(event);
+		const node = this;
+		if (node.inpinOrder.length < 26) {
+			const op = new NMenuOption("Add Input");
+			op.action = function(e) {
+				node.addInPin(new NPin(alphabet[node.inpinOrder.length], NInteger, NDouble));
+				return false;
+			}
+			menu.addOption(op);
+		}
+		if (node.inpinOrder.length > 2) {
+			const op = new NMenuOption("Remove Input");
+			op.action = function(e) {
+				node.removeInPin(node.inpins[node.inpinOrder[node.inpinOrder.length - 1]]);
+				return false;
+			}
+			menu.addOption(op);
+		}
+		return menu;
 	}
 
 	pinLinked(self, other) {
@@ -344,8 +365,10 @@ class AdditionNode extends NNode {
 	returnValRequested(pin) {
 		if (this.intlock || this.doublelocks.size == 0) {
 			let sum = 0;
-			for (const inp of this.inpinOrder) {
+			for (const inn of this.inpinOrder) {
+				const inp = this.inpins[inn];
 				if (inp.linkNum) {
+					console.log(this.getValue(inp).int);
 					sum += this.getValue(inp).int;
 				}
 			}
@@ -363,6 +386,17 @@ class AdditionNode extends NNode {
 				"double": sum
 			};
 		}
+	}
+
+	saveExtra(data) {
+		data.extraIns = this.inpinOrder.length - 2;
+	}
+
+	load(data, loadids) {
+		for (let i = 2, l = data.extraIns + 2; i < l; i++) {
+			this.addInPin(new NPin(alphabet[i], NInteger, NDouble));
+		}
+		super.load(data, loadids);
 	}
 
 	static getName() {
