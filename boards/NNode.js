@@ -130,7 +130,7 @@ class NNode {
 			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
 			return false;
 		}
-		if (this.startData) {
+		if (this.startData && this.inpinOrder.length < this.startData.ipids.length) {
 			pin.pinid = this.startData.ipids[this.inpinOrder.length];
 		} else {
 			pin.pinid = ~~(Math.random() * 8388607);
@@ -256,6 +256,7 @@ class NNode {
 	}
 
 	removeInPin(pin){
+		pin.unlinkAll();
 		delete this.inpins[pin.name];
 		this.inpinOrder.splice(this.inpinOrder.indexOf(pin.name), 1);
 		this.pinlist.splice(this.pinlist.indexOf(pin.name), 1);
@@ -288,7 +289,6 @@ class NNode {
 				hc2 = 60;
 			}
 		}
-		console.log(hp, hc, hc2);
 		let h = Math.max(hp, hc, hc2);
 
 		// header
@@ -440,7 +440,7 @@ class NNode {
 				hasLinks = true;
 				links[pin.pinid + link] = [pin.pinid, link];
 			}
-			if (pin.defaultVal != pin.defaultDefaultVal) {
+			if (!pin.multiTyped && pin.defaultVal != pin.defaultDefaultVal) {
 				hasDefVs = true;
 				defVals[inni] = pin.defaultVal;
 			}
