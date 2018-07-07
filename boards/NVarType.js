@@ -145,12 +145,12 @@ NDouble.edit = function(nvar) {
 	inp.type = "number";
 	inp.value = nvar.double;
 	inp.onfocusout = function(e) {
-		nvar.double = parseDouble(inp.value);
+		nvar.double = parseFloat(inp.value);
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.double = parseDouble(inp.value);
+				nvar.double = parseFloat(inp.value);
 				inp.blur();
 				break;
 			case 27: // ESC

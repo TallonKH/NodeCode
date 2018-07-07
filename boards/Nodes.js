@@ -377,7 +377,8 @@ class AdditionNode extends NNode {
 			};
 		} else {
 			let sum = 0;
-			for (const inp of this.inpinOrder) {
+			for (const inn of this.inpinOrder) {
+				const inp = this.inpins[inn];
 				if (inp.linkNum) {
 					sum += double(this.getValue(inp));
 				}
