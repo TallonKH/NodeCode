@@ -272,6 +272,36 @@ class NNode {
 		this.updateDims();
 	}
 
+	reAddInPin(pin, index){
+		this.inpins[pin.name] = pin;
+		this.inpinOrder.splice(index, 0, pin);
+		this.pinlish.push(pin);
+		this.board.pins[pin.pinid] = pin;
+
+		this.inPinsDiv.insertBefore(pin.pinDiv, this.inPinsDiv.children[index]);
+		this.ipcInfoDiv.insertBefore(pin.pinfoDiv, this.inPinfosDiv.children[index]);
+		this.ipcEditDiv.insertBefore(pin.editDiv, this.inPinfosDiv.children[index]);
+
+		this.updateDims();
+	}
+
+	removeOutPin(pin){
+		pin.unlinkAll();
+		delete this.outpins[pin.name];
+		this.outpinOrder.splice(this.outpinOrder.indexOf(pin.name), 1);
+		this.pinlist.splice(this.pinlist.indexOf(pin.name), 1);
+		delete this.board.pins[pin.pinid];
+
+		pin.pinDiv.remove();
+		if(!this.noPinfo){
+			pin.pinfoDiv.remove();
+		}
+		if(pin.editDiv){
+			pin.editDiv.remove();
+		}
+		this.updateDims();
+	}
+
 	move(delta) {
 		this.position = this.position.addp(delta);
 		this.updatePosition();

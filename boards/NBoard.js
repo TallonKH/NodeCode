@@ -334,25 +334,28 @@ class NBoard {
 					}
 				}
 				const op = new NMenuOption(type.getName());
+				let otherPin = null;
 				if (pinFilter) {
 					op.action = function(e) {
 						const node = brd.createNode(type);
 						if (pinFilter.side) {
 							for (const pinn of node.inpinOrder) {
-								if (node.inpins[pinn].linkTo(pinFilter)) {
+								otherPin = node.inpins[pinn]
+								if (otherPin.linkTo(pinFilter)) {
 									break;
 								}
 							}
 						} else {
 							for (const pinn of node.outpinOrder) {
-								if (node.outpins[pinn].linkTo(pinFilter)) {
+								otherPin = node.outpins[pinn]
+								if (otherPin.linkTo(pinFilter)) {
 									break;
 								}
 							}
 						}
 						delete brd.links[pinFilter.pinid];
 						node.setPosition(brd.evntToPt(e));
-						brd.addAction(new ActAddNode(brd, node));
+						brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
 					}
 				} else {
 					op.action = function(e) {
