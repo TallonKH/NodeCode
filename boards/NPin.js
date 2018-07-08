@@ -22,7 +22,7 @@ class NPin {
 		this.defaultDefaultVal = Object.assign({}, this.defaultVal);
 		this.pinfoDiv;
 		this.editDiv;
-		this.links = {};
+		this.links = {}; // pinid : pin
 		this.linkNum = 0;
 	}
 

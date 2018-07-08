@@ -273,14 +273,19 @@ class NNode {
 	}
 
 	reAddInPin(pin, index){
+		console.log(index);
 		this.inpins[pin.name] = pin;
-		this.inpinOrder.splice(index, 0, pin);
-		this.pinlish.push(pin);
+		this.inpinOrder.splice(index, 0, pin.name);
+		this.pinlist.push(pin);
 		this.board.pins[pin.pinid] = pin;
 
 		this.inPinsDiv.insertBefore(pin.pinDiv, this.inPinsDiv.children[index]);
-		this.ipcInfoDiv.insertBefore(pin.pinfoDiv, this.inPinfosDiv.children[index]);
-		this.ipcEditDiv.insertBefore(pin.editDiv, this.inPinfosDiv.children[index]);
+		if(this.ipcInfoDiv && pin.pinfoDiv){
+			this.ipcInfoDiv.insertBefore(pin.pinfoDiv, this.inPinfosDiv.children[index]);
+		}
+		if(this.ipcEditDiv && pin.editDiv){
+			this.ipcEditDiv.insertBefore(pin.editDiv, this.ipcEditDiv.children[index]);
+		}
 
 		this.updateDims();
 	}
@@ -300,6 +305,34 @@ class NNode {
 			pin.editDiv.remove();
 		}
 		this.updateDims();
+	}
+
+	removePin(pin){
+		if(pin.side){
+			return this.removeOutPin(pin);
+		}else{
+			return this.removeInPin(pin);
+		}
+	}
+
+	reAddOutPin(pin, index){
+		this.outpins[pin.name] = pin;
+		this.outpinOrder.splice(index, 0, pin);
+		this.pinlist.push(pin);
+		this.board.pins[pin.pinid] = pin;
+
+		this.outPinsDiv.insertBefore(pin.pinDiv, this.inPinsDiv.children[index]);
+		this.outPinfosDiv.insertBefore(pin.pinfoDiv, this.inPinfosDiv.children[index]);
+
+		this.updateDims();
+	}
+
+	reAddPin(pin, index){
+		if(pin.side){
+			return this.reAddOutPin(pin, index);
+		}else{
+			return this.reAddInPin(pin, index);
+		}
 	}
 
 	move(delta) {

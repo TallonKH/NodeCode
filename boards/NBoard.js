@@ -1,12 +1,12 @@
 class NBoard {
 	constructor(env, data) {
-		if(typeof data == "string"){
+		if (typeof data == "string") {
 			console.log("Created board " + data);
 			this.name = data;
 			this.uid = (~~(Math.random() * 8388607));
 			this.zoom = 1;
 			this.displayOffset = new NPoint(0, 0);
-		}else{
+		} else {
 			console.log("Created board " + data.name);
 			this.name = data.name;
 			this.uid = data.id;
@@ -242,13 +242,13 @@ class NBoard {
 		}
 
 		op = new NMenuOption("Unsave All");
-		op.action = function(){
-				if(prompt("Unsaving will remove any revisions of this file stored on your computer. The file will stay open, however, in case you want to re-save it. Please enter the name of this file to confirm.") == brd.name){
-					alert("Files removed.");
-					brd.env.unsave(brd);
-				}else{
-					alert("Cancelled. No files removed.");
-				}
+		op.action = function() {
+			if (prompt("Unsaving will remove any revisions of this file stored on your computer. The file will stay open, however, in case you want to re-save it. Please enter the name of this file to confirm.") == brd.name) {
+				alert("Files removed.");
+				brd.env.unsave(brd);
+			} else {
+				alert("Cancelled. No files removed.");
+			}
 		}
 		menu.addOption(op);
 
@@ -272,7 +272,7 @@ class NBoard {
 		let validCount = 0;
 
 		for (const catn in this.env.nodeCategories) {
-			if(!this.activeCategories.has(catn)){
+			if (!this.activeCategories.has(catn)) {
 				continue
 			}
 			for (const type of this.env.nodeCategories[catn]) {
@@ -340,22 +340,30 @@ class NBoard {
 						const node = brd.createNode(type);
 						if (pinFilter.side) {
 							for (const pinn of node.inpinOrder) {
-								otherPin = node.inpins[pinn]
+								otherPin = node.inpins[pinn];
 								if (otherPin.linkTo(pinFilter)) {
 									break;
+								} else {
+									otherPin = null;
 								}
 							}
 						} else {
 							for (const pinn of node.outpinOrder) {
-								otherPin = node.outpins[pinn]
+								otherPin = node.outpins[pinn];
 								if (otherPin.linkTo(pinFilter)) {
 									break;
+								} else {
+									otherPin = null;
 								}
 							}
 						}
 						delete brd.links[pinFilter.pinid];
 						node.setPosition(brd.evntToPt(e));
-						brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
+						if (otherPin){
+							brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
+						}else{
+							brd.addAction(new ActAddNode(brd, node));
+						}
 					}
 				} else {
 					op.action = function(e) {
@@ -760,8 +768,8 @@ class NBoard {
 				}
 				break;
 			case 69: // E
-				if (this.env.ctrlDown || this.env.metaDown){
-					if(confirm("Download?")){
+				if (this.env.ctrlDown || this.env.metaDown) {
+					if (confirm("Download?")) {
 						downloadFile(this.name + ".json", JSON.stringify(this.exportBoard()));
 					}
 				}
@@ -803,18 +811,18 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
-					if(!this.named || this.env.shiftDown){
+					if (!this.named || this.env.shiftDown) {
 						const name = prompt("What would you like to name this file?", this.name);
-						if(name){
+						if (name) {
 							this.name = name;
 							this.named = true;
-						}else{
+						} else {
 							break;
 						}
 					}
 					this.saved = this.env.saveBoardToStorage(this);
 
-					if(this.saved){
+					if (this.saved) {
 						this.tabDivLink.innerHTML = this.name;
 					}
 				}
@@ -1173,7 +1181,7 @@ class NBoard {
 		return this.saveNodes(Object.values(this.nodes));
 	}
 
-	exportBoard(){
+	exportBoard() {
 		const data = this.saveAllNodes();
 		data.name = this.name;
 		data.id = this.uid;

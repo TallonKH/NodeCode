@@ -313,10 +313,13 @@ class AdditionNode extends NNode {
 	makeContextMenu(event) {
 		const menu = super.makeContextMenu(event);
 		const node = this;
+		const brd = this.board;
 		if (node.inpinOrder.length < 26) {
 			const op = new NMenuOption("Add Input");
 			op.action = function(e) {
-				node.addInPin(new NPin(alphabet[node.inpinOrder.length], NInteger, NDouble));
+				const pin = new NPin(alphabet[node.inpinOrder.length], NInteger, NDouble);
+				node.addInPin(pin);
+				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length-1));
 				return false;
 			}
 			menu.addOption(op);
@@ -324,11 +327,14 @@ class AdditionNode extends NNode {
 		if (node.inpinOrder.length > 2) {
 			const op = new NMenuOption("Remove Input");
 			op.action = function(e) {
-				node.removeInPin(node.inpins[node.inpinOrder[node.inpinOrder.length - 1]]);
+				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
+				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length-1));
+				node.removeInPin(pin);
 				return false;
 			}
 			menu.addOption(op);
 		}
+
 		return menu;
 	}
 

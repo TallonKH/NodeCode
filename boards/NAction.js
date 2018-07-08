@@ -368,24 +368,37 @@ class ActUnlinkPins extends NAction {
 }
 
 class ActAddPin extends NAction {
-	constructor(board, pin) {
+	constructor(board, pin, index) {
 		super(board);
-		this.links = {};
-		for (const pin of pins) {
-			this.links[pin.pinid] = Object.keys(pin.links);
-		}
+		this.pin = pin;
+		this.index = index;
 	}
 
 	redo() {
-		for (const pinid in this.links) {
-			this.board.pins[pinid].unlinkAll();
-		}
+		this.pin.node.reAddPin(this.pin, this.index);
 	}
 
 	undo() {
-		for (const pinid in this.links) {
-			const pin = this.board.pins[pinid];
-			this.links[pinid].forEach(pinid2 => pin.linkTo(this.board.pins[pinid2]));
+		this.pin.node.removePin(this.pin);
+	}
+}
+
+class ActRemovePin extends NAction {
+	constructor(board, pin, index) {
+		super(board);
+		this.pin = pin;
+		this.links = Object.keys(pin.links);
+		this.index = index;
+	}
+
+	redo() {
+		this.pin.node.removePin(this.pin);
+	}
+
+	undo() {
+		this.pin.node.reAddPin(this.pin, this.index);
+		for(const pinn of this.links){
+			this.pin.linkTo(this.board.pins[pinn]);
 		}
 	}
 }
