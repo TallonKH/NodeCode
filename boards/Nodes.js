@@ -430,8 +430,6 @@ class AdditionNode extends NNode {
 class LogicalAndNode extends NNode {
 	constructor(data = null) {
 		super(data);
-		this.intlock = false;
-		this.doublelocks = new Set();
 	}
 
 	createNodeDiv() {
