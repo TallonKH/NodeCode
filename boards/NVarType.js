@@ -188,15 +188,14 @@ NBoolean.edit = function(nvar) {
 	cnt.append(lbl);
 
 	inp.oninput = function(e) {
+		console.log(inp.checked);
 		nvar.boolean = inp.checked;
 	}
-
 
 	return cnt;
 };
 NBoolean.changeVal = function(inp, nval) {
-	$(inp).prop("checked", nval.boolean);
-	console.log(inp.checked);
+	$(inp).find("input").get(0).checked = nval.boolean;
 }
 
 const NString = new NVarType("String", function(nvar) {
