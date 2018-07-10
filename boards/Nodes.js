@@ -438,7 +438,7 @@ class IncrementNode extends NNode {
 		this.addCenter("+=");
 		this.addInPin(new NPin("_", NExecution));
 		this.addInPin(new NPin("Variable", NInteger, NDouble).setIsByRef(true, true));
-		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal(1, true));
+		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal({"int":1}, true));
 		this.addOutPin(new NPin("__", NExecution));
 		return this.containerDiv;
 	}

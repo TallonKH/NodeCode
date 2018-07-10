@@ -18,7 +18,7 @@ class NPin {
 		this.type;
 		this.byRef = false;
 		this.pinDiv;
-		this.defaultVal = (!this.side && types.length == 1) ? types[0].construct() : null;
+		this.defaultVal = (!this.side && types.length == 1) ? types[0].construct() : {};
 		this.defaultDefaultVal = Object.assign({}, this.defaultVal);
 		this.pinfoDiv;
 		this.editDiv;
@@ -102,10 +102,10 @@ class NPin {
 		return this;
 	}
 
-	setDefaultVal(v, defdef) {
-		this.defaultVal = v;
+	setDefaultVal(v, defdef=null) {
+		Object.assign(this.defaultVal, v);
 		if(defdef) { // should also set the default default value?
-			this.defaultDefaultVal = Object.assign({}, v);
+			Object.assign(this.defaultDefaultVal, v);
 		}
 		if(this.editDiv){
 			this.type.changeVal(this.editDiv, v);

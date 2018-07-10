@@ -1,11 +1,4 @@
-// CLASSES
-//	node			: 	node parent div
-//	nodepart	:		a div within a node
-
-// ATTRIBUTES
-//	data-nodeid			:		holds id of a div's respective node
-//	data-ovrdclick	:		if div should override click functionality (select/drag)
-//	data-ovrdkeys		:		if div should override keyboard functionality
+//TODO fix z-indices
 
 class NNode {
 	constructor(data = null) {
@@ -503,8 +496,10 @@ class NNode {
 				hasLinks = true;
 				links[pin.pinid + link] = [pin.pinid, link];
 			}
-			if (!pin.multiTyped && pin.defaultVal != pin.defaultDefaultVal) {
+			if (!pin.multiTyped && (pin.defaultVal != pin.defaultDefaultVal)) {
 				hasDefVs = true;
+				// console.log(pin.defaultVal);
+				// console.log(pin.defaultDefaultVal);
 				defVals[inni] = pin.defaultVal;
 			}
 		}
