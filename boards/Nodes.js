@@ -427,6 +427,91 @@ class AdditionNode extends NNode {
 	}
 }
 
+class LogicalAndNode extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.intlock = false;
+		this.doublelocks = new Set();
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("&&");
+		this.addInPin(new NPin("A", NBoolean));
+		this.addInPin(new NPin("B", NBoolean));
+		this.addOutPin(new NPin("_", NBoolean));
+		return this.containerDiv;
+	}
+
+	makeContextMenu(event) {
+		const menu = super.makeContextMenu(event);
+		const node = this;
+		const brd = this.board;
+		if (node.inpinOrder.length < 26) {
+			const op = new NMenuOption("Add Input");
+			op.action = function(e) {
+				const pin = new NPin(alphabet[node.inpinOrder.length], NBoolean);
+				node.addInPin(pin);
+				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length-1));
+				return false;
+			}
+			menu.addOption(op);
+		}
+		if (node.inpinOrder.length > 2) {
+			const op = new NMenuOption("Remove Input");
+			op.action = function(e) {
+				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
+				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length-1));
+				node.removeInPin(pin);
+				return false;
+			}
+			menu.addOption(op);
+		}
+
+		return menu;
+	}
+
+	returnValRequested(pin) {
+		for(const inn of this.inpinOrder){
+			if(!this.inputN(inn).boolean){
+				return {"nclass":"Boolean", "boolean":false};
+			}
+		}
+		return {"nclass":"Boolean", "boolean":true};
+	}
+
+	saveExtra(data) {
+		data.extraIns = this.inpinOrder.length - 2;
+	}
+
+	load(data, loadids) {
+		for (let i = 2, l = data.extraIns + 2; i < l; i++) {
+			this.addInPin(new NPin(alphabet[i], NBoolean));
+		}
+		super.load(data, loadids);
+	}
+
+	static getName() {
+		return "And (Logical)";
+	}
+
+	static getInTypes() {
+		return [NBoolean];
+	}
+
+	static getOutTypes() {
+		return [NBoolean];
+	}
+
+	static getCategory() {
+		return "Code";
+	}
+
+	static getTags() {
+		return ["&&"];
+	}
+}
+
 class IncrementNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -438,7 +523,7 @@ class IncrementNode extends NNode {
 		this.addCenter("+=");
 		this.addInPin(new NPin("_", NExecution));
 		this.addInPin(new NPin("Variable", NInteger, NDouble).setIsByRef(true, true));
-		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal({"int":1}, true));
+		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal({"int":1,"nclass":"Integer"}, true));
 		this.addOutPin(new NPin("__", NExecution));
 		return this.containerDiv;
 	}
