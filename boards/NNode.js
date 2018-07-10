@@ -496,10 +496,10 @@ class NNode {
 				hasLinks = true;
 				links[pin.pinid + link] = [pin.pinid, link];
 			}
-			if (!pin.multiTyped && (pin.defaultVal != pin.defaultDefaultVal)) {
+			if (!pin.multiTyped && (JSON.stringify(pin.defaultVal) !== JSON.stringify(pin.defaultDefaultVal))) {
 				hasDefVs = true;
-				// console.log(pin.defaultVal);
-				// console.log(pin.defaultDefaultVal);
+				console.log(pin.defaultVal);
+				console.log(pin.defaultDefaultVal);
 				defVals[inni] = pin.defaultVal;
 			}
 		}

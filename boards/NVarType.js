@@ -178,6 +178,7 @@ NBoolean.edit = function(nvar) {
 	inp.id = id;
 	inp.type = "checkbox";
 	if (nvar.boolean) {
+		console.log(nvar);
 		inp.checked = true;
 	}
 	cnt.append(inp);
