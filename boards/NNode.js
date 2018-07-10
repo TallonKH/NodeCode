@@ -177,7 +177,8 @@ class NNode {
 
 			var pinfoDiv = document.createElement("div");
 			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
-			pinfoDiv.setAttribute("data-pinid", this.pinid);
+			pinfoDiv.setAttribute("data-nodeid", this.nodeid);
+			pinfoDiv.setAttribute("data-pinid", pin.pinid);
 			this.ipcEditDiv.append(pinfoDiv);
 		}
 
@@ -244,6 +245,7 @@ class NNode {
 		if(!this.noPinfo){
 			const pinfo = pin.createPinfoDiv();
 			pinfo.setAttribute("data-nodeid", this.nodeid);
+			pinfo.setAttribute("data-pinid", pin.pinid);
 			this.opcNameDiv.append(pinfo);
 		}
 	}

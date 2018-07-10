@@ -178,7 +178,6 @@ NBoolean.edit = function(nvar) {
 	inp.id = id;
 	inp.type = "checkbox";
 	if (nvar.boolean) {
-		console.log(nvar);
 		inp.checked = true;
 	}
 	cnt.append(inp);
@@ -196,7 +195,8 @@ NBoolean.edit = function(nvar) {
 	return cnt;
 };
 NBoolean.changeVal = function(inp, nval) {
-	inp.checked = nval.boolean;
+	$(inp).prop("checked", nval.boolean);
+	console.log(inp.checked);
 }
 
 const NString = new NVarType("String", function(nvar) {
