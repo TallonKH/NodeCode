@@ -261,8 +261,8 @@ canvas {
 .node {
 	/*min-width: 100px;*/
 	height: 75px;
-	border: 4px solid #6b6b6b;
-	border-radius: 15px;
+	/*border: 4px solid #6b6b6b;*/
+	border-radius: 10px;
 	background-color: #d7d7d7;
 	overflow: hidden;
 	position: absolute;
@@ -302,7 +302,7 @@ canvas {
 
 .node[selected] {
 	box-shadow: 0px 0px 2px 1px #ffcf00;
-	border: 4px solid #938400;
+	border-color: #938400;
 }
 
 .node.resizable {
@@ -310,7 +310,7 @@ canvas {
 }
 
 .node>header[hidden] {
-	background-color: #c1c1c144;
+	background-color: #c1c1c1;
 	padding: 0em 0.3em;
 	height: 15px;
 	color: none;
@@ -318,12 +318,12 @@ canvas {
 }
 
 .node>header {
-	padding: 0.1em 0.3em 0.3em 0.3em;
+	padding: 0.3em 0.3em 0.5em 0.5em;
 	height: 15px;
 	background-color: #9f9f9f;
 	color: #000000;
 	order: 0;
-	border-bottom: 2px solid #6b6b6b;
+	/*border-bottom: 2px solid #6b6b6b;*/
 	white-space: nowrap;
 }
 
@@ -425,7 +425,7 @@ input[type=checkbox]:checked+label.boolean:after {
 /* Pins */
 
 .pins {
-	background-color: #98989866;
+	background-color: #bebebe;
 	flex: 0 0 25px;
 	height: 100%;
 	overflow: visible;
@@ -441,7 +441,7 @@ input[type=checkbox]:checked+label.boolean:after {
 
 .pinfos {
 	flex: 0 1 0;
-	background-color: #98989800;
+	background-color: #bebebe;
 	height: 100%;
 	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	display: flex;
@@ -550,11 +550,10 @@ input[type=checkbox]:checked+label.boolean:after {
 /* Pin */
 
 .pin {
-	border: 2px solid #00000011;
+	border: 1px solid #00000011;
 	border-radius: 50%;
 	width: 12px;
 	height: 12px;
-	/*flex-basis: 1px;*/
 }
 
 .pin[ref] {
