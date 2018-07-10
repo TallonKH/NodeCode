@@ -86,7 +86,7 @@ double = function(v) {
 	if (varTypes[v.nclass].isA(NInteger)) {
 		return v.int;
 	}
-	console.log(v.name + " is NaN!");
+	console.log(v.name + " is not a number!");
 	return null;
 }
 
@@ -116,12 +116,12 @@ NInteger.edit = function(nvar) {
 	inp.value = nvar.int;
 	inp.step = "1";
 	inp.onfocusout = function(e) {
-		nvar.int = parseInt(inp.value);
+		nvar.int = parseInt(inp.value) || 0;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.int = parseInt(inp.value);
+				nvar.int = parseInt(inp.value) || 0;
 				inp.blur();
 				break;
 			case 27: // ESC
@@ -145,12 +145,12 @@ NDouble.edit = function(nvar) {
 	inp.type = "number";
 	inp.value = nvar.double;
 	inp.onfocusout = function(e) {
-		nvar.double = parseFloat(inp.value);
+		nvar.double = parseFloat(inp.value) || 0.0;
 	}
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.double = parseFloat(inp.value);
+				nvar.double = parseFloat(inp.value) || 0.0;
 				inp.blur();
 				break;
 			case 27: // ESC
