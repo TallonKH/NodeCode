@@ -346,13 +346,13 @@ class NNode {
 		const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 24;
 		// center
 		if (this.centerDiv) {
-			var hc = this.centerDiv.clientHeight;
+			// var hc = this.centerDiv.clientHeight;
 			var hc2 = 0;
 			if (this.centerDiv.children.length) {
 				hc2 = 60;
 			}
 		}
-		let h = Math.max(hp, hc, hc2);
+		let h = Math.max(hp, hc2);
 
 		// header
 		if (this.headerDiv) {
