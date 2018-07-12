@@ -106,7 +106,7 @@ class IntegerNode extends NNode {
 		this.addHeader("Variable (Int)");
 		this.addCenter();
 		this.inputDiv = NInteger.edit(this.val);
-		this.inputDiv.className = "nodeval int";
+		this.inputDiv.className = "nodeval integer";
 		this.centerDiv.append(this.inputDiv);
 		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NInteger).setIsByRef(false, true));
