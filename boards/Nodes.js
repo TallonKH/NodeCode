@@ -426,7 +426,7 @@ class AdditionNode extends NNode {
 				}
 			}
 		} else {
-			if (this.doublelocks.delete(self)) {
+			if (this.doublelocks.delete(other)) {
 				if (this.doublelocks.size == 0) {
 					this.outpins["Sum"].setTypes(false, NInteger, NDouble);
 				}
@@ -491,7 +491,7 @@ class AdditionNode extends NNode {
 			if (other.multiTyped) {
 				if (!NInteger.areAny(other.types)) {
 					this.outpins["Sum"].setTypes(false, NDouble);
-					this.doublelocks.add(self);
+					this.doublelocks.add(other);
 					this.intlock = false;
 				}
 			} else {
@@ -499,7 +499,7 @@ class AdditionNode extends NNode {
 					if (!this.doublelocks.size) {
 						this.outpins["Sum"].setTypes(false, NDouble);
 					}
-					this.doublelocks.add(self);
+					this.doublelocks.add(other);
 					this.intlock = false;
 				}
 			}
@@ -507,6 +507,7 @@ class AdditionNode extends NNode {
 	}
 
 	returnValRequested(pin) {
+		console.log(this.doublelocks);
 		if (this.intlock || this.doublelocks.size == 0) {
 			let sum = 0;
 			for (const inn of this.inpinOrder) {
