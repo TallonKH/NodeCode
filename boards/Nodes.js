@@ -507,7 +507,6 @@ class AdditionNode extends NNode {
 	}
 
 	returnValRequested(pin) {
-		console.log(this.doublelocks);
 		if (this.intlock || this.doublelocks.size == 0) {
 			let sum = 0;
 			for (const inn of this.inpinOrder) {
