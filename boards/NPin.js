@@ -353,6 +353,7 @@ class NPin {
 
 		if (this.defaultVal) {
 			menu.addOption(new NMenuOption("<div class=mih>Default Value:</div> " + shallowStringify(this.defaultVal, 1, 0)));
+			menu.addOption(new NMenuOption("<div class=mih>Default Default Value:</div> " + shallowStringify(this.defaultDefaultVal, 1, 0)));
 		}
 
 		menu.addOption(new NMenuOption("<div class=mih>Pin ID:</div> " + this.pinid));
