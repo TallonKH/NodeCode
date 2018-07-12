@@ -8,12 +8,14 @@
 * {
 	font-family: "Roboto";
 	font-weight: 400;
-	/*outline: 1px dashed #ff000033 !important;*/
 }
 
 .container {
 	transform-origin: 0px 0px;
+	width: 0px;
+	height: 0px;
 	position: relative;
+	white-space: nowrap;
 	overflow: visible;
 	pointer-events: painted;
 }

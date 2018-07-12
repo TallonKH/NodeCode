@@ -20,6 +20,7 @@ class NPin {
 		this.pinDiv;
 		this.defaultVal = (!this.side && types.length == 1) ? types[0].construct() : {};
 		this.defaultDefaultVal = Object.assign({}, this.defaultVal);
+		this.customEditor;
 		this.pinfoDiv;
 		this.editDiv;
 		this.links = {}; // pinid : pin

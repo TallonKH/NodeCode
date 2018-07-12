@@ -37,6 +37,17 @@ $(function() {
 	}
 	tileList.append(newBoard_shader);
 
+	const newBoard_debug = document.createElement("li");
+	newBoard_debug.className = "ui-state-default tile new";
+	newBoard_debug.innerHTML = "Debug (unstable!)";
+	newBoard_debug.style.backgroundColor = "#fa3838";
+	newBoard_debug.style.color = "#fad896";
+	newBoard_debug.style.borderColor = "#880a0a";
+	newBoard_debug.onclick = function(e){
+		window.open('../boards/boardenv.html?preset=debug');
+	}
+	tileList.append(newBoard_debug);
+
 	for (const boardn in boardList) {
 		const li = document.createElement("li");
 		li.className = "ui-state-default tile";

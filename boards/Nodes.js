@@ -1,3 +1,47 @@
+class CustomPinMenuNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("Custom Pin Menu");
+		this.setCenterFontSize("20px");
+		const pin = new NPin("A", NComment);
+		this.addInPin(pin);
+		pin.makeContextMenu = this.pinMenuFunc(pin);
+		return this.containerDiv;
+	}
+
+	pinMenuFunc(pin) {
+		return function(event) {
+			const menu = NPin.prototype.makeContextMenu.bind(pin)(event);
+
+			let op;
+
+			op = new NMenuOption("Custom Menu Option");
+			op.action = function(e) {
+				console.log("This is a custom option!");
+			}
+			menu.addOption(op);
+
+			return menu;
+		}
+	}
+
+	static getName() {
+		return "- Custom Pin Menu -";
+	}
+
+	static getInTypes() {
+		return [NComment];
+	}
+
+	static getCategory() {
+		return "Example";
+	}
+}
+
 class StringNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -282,10 +326,90 @@ class AdditionNode extends NNode {
 	createNodeDiv() {
 		super.createNodeDiv();
 		this.addCenter("+");
-		this.addInPin(new NPin("A", NInteger, NDouble));
-		this.addInPin(new NPin("B", NInteger, NDouble));
+
+		const pinA = new NPin("A", NInteger, NDouble);
+		pinA.customEditor = this.makeNumEditor(pinA);
+		pinA.defaultVal = {
+			"int": 0
+		};
+		pinA.defaultDefaultVal = {
+			"int": 0
+		};
+		this.addInPin(pinA);
+
+		const pinB = new NPin("B", NInteger, NDouble);
+		pinB.customEditor = this.makeNumEditor(pinB);
+		pinB.defaultVal = {
+			"int": 0
+		};
+		pinB.defaultDefaultVal = {
+			"int": 0
+		};
+		this.addInPin(pinB);
+
 		this.addOutPin(new NPin("Sum", NInteger, NDouble));
 		return this.containerDiv;
+	}
+
+	makeNumEditor(pin) {
+		const node = this;
+		return function(nvar) {
+			// const nvar = pin.defaultVal;
+			const inp = document.createElement("input");
+			inp.className = "pinval number";
+			inp.type = "number";
+			inp.value = nvar.double || nvar.int || 0;
+			inp.onfocusout = function(e) {
+				const val = parseFloat(inp.value) || 0;
+				if (val % 1 == 0) {
+					delete nvar.double;
+					nvar.int = val;
+					node.doublelocks.delete(pin);
+				} else {
+					delete nvar.int;
+					nvar.double = val;
+					node.doublelocks.add(pin);
+				}
+
+				if (node.doublelocks.size) {
+					node.outpins["Sum"].setTypes(false, NDouble);
+				} else {
+					node.outpins["Sum"].setTypes(false, NInteger, NDouble);
+				}
+			}
+			inp.onkeydown = function(e) {
+				switch (e.which) {
+					case 13: // ENTER
+						const val = parseFloat(inp.value) || 0;
+						if (node.intlock) {
+							nvar.int = Math.trunc(val);
+							inp.value = nvar.int.toString();
+						} else {
+							if (val % 1 == 0) {
+								delete nvar.double;
+								nvar.int = val;
+								node.doublelocks.delete(pin);
+							} else {
+								delete nvar.int;
+								nvar.double = val;
+								node.doublelocks.add(pin);
+							}
+						}
+						inp.blur();
+						break;
+					case 27: // ESC
+						inp.value = nvar.double;
+						inp.blur();
+						break;
+				}
+				if (node.doublelocks.size) {
+					node.outpins["Sum"].setTypes(false, NDouble);
+				} else {
+					node.outpins["Sum"].setTypes(false, NInteger, NDouble);
+				}
+			}
+			return inp;
+		};
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
@@ -317,9 +441,21 @@ class AdditionNode extends NNode {
 		if (node.inpinOrder.length < 26) {
 			const op = new NMenuOption("Add Input");
 			op.action = function(e) {
-				const pin = new NPin(alphabet[node.inpinOrder.length], NInteger, NDouble);
+				let pin;
+				if (node.intlock) {
+					pin = new NPin(alphabet[node.inpinOrder.length], NInteger);
+				} else {
+					pin = new NPin(alphabet[node.inpinOrder.length], NInteger, NDouble);
+				}
+				pin.customEditor = node.makeNumEditor(pin);
+				pin.defaultVal = {
+					"int": 0
+				};
+				pin.defaultDefaultVal = {
+					"int": 0
+				};
 				node.addInPin(pin);
-				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length-1));
+				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length - 1));
 				return false;
 			}
 			menu.addOption(op);
@@ -328,7 +464,7 @@ class AdditionNode extends NNode {
 			const op = new NMenuOption("Remove Input");
 			op.action = function(e) {
 				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
-				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length-1));
+				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));
 				node.removeInPin(pin);
 				return false;
 			}
@@ -359,8 +495,10 @@ class AdditionNode extends NNode {
 					this.intlock = false;
 				}
 			} else {
-				if (other.type.isA(NDouble) && this.outpins["Sum"].type != NDouble) {
-					this.outpins["Sum"].setTypes(false, NDouble);
+				if (other.type.isA(NDouble)) {
+					if (!this.doublelocks.size) {
+						this.outpins["Sum"].setTypes(false, NDouble);
+					}
 					this.doublelocks.add(self);
 					this.intlock = false;
 				}
@@ -373,10 +511,7 @@ class AdditionNode extends NNode {
 			let sum = 0;
 			for (const inn of this.inpinOrder) {
 				const inp = this.inpins[inn];
-				if (inp.linkNum) {
-					console.log(this.getValue(inp).int);
-					sum += this.getValue(inp).int;
-				}
+				sum += this.getValue(inp).int;
 			}
 			return {
 				"int": sum
@@ -385,9 +520,7 @@ class AdditionNode extends NNode {
 			let sum = 0;
 			for (const inn of this.inpinOrder) {
 				const inp = this.inpins[inn];
-				if (inp.linkNum) {
-					sum += double(this.getValue(inp));
-				}
+				sum += double(this.getValue(inp));
 			}
 			return {
 				"double": sum
@@ -450,7 +583,7 @@ class LogicalAndNode extends NNode {
 			op.action = function(e) {
 				const pin = new NPin(alphabet[node.inpinOrder.length], NBoolean);
 				node.addInPin(pin);
-				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length-1));
+				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length - 1));
 				return false;
 			}
 			menu.addOption(op);
@@ -459,7 +592,7 @@ class LogicalAndNode extends NNode {
 			const op = new NMenuOption("Remove Input");
 			op.action = function(e) {
 				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
-				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length-1));
+				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));
 				node.removeInPin(pin);
 				return false;
 			}
@@ -470,12 +603,18 @@ class LogicalAndNode extends NNode {
 	}
 
 	returnValRequested(pin) {
-		for(const inn of this.inpinOrder){
-			if(!this.inputN(inn).boolean){
-				return {"nclass":"Boolean", "boolean":false};
+		for (const inn of this.inpinOrder) {
+			if (!this.inputN(inn).boolean) {
+				return {
+					"nclass": "Boolean",
+					"boolean": false
+				};
 			}
 		}
-		return {"nclass":"Boolean", "boolean":true};
+		return {
+			"nclass": "Boolean",
+			"boolean": true
+		};
 	}
 
 	saveExtra(data) {
@@ -521,7 +660,10 @@ class IncrementNode extends NNode {
 		this.addCenter("+=");
 		this.addInPin(new NPin("_", NExecution));
 		this.addInPin(new NPin("Variable", NInteger, NDouble).setIsByRef(true, true));
-		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal({"int":1,"nclass":"Integer"}, true));
+		this.addInPin(new NPin("Increment by", NInteger, NDouble).setDefaultVal({
+			"int": 1,
+			"nclass": "Integer"
+		}, true));
 		this.addOutPin(new NPin("__", NExecution));
 		return this.containerDiv;
 	}

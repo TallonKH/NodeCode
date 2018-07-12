@@ -103,6 +103,7 @@ class NBoard {
 		nodes.forEach(x => x.remove());
 	}
 
+	// TODO ONLY 4LLOW P4ST1NG NOD3S FROM M4TCH1NG NOD3 C4T3GOR13S
 	pasteNodes(position) {
 		const parsed = scrambleIDs(JSON.parse(localStorage.getItem("clipboard")));
 		this.deselectAllNodes();
@@ -359,9 +360,9 @@ class NBoard {
 						}
 						delete brd.links[pinFilter.pinid];
 						node.setPosition(brd.evntToPt(e));
-						if (otherPin){
+						if (otherPin) {
 							brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
-						}else{
+						} else {
 							brd.addAction(new ActAddNode(brd, node));
 						}
 					}

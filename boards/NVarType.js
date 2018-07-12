@@ -80,12 +80,14 @@ getValidOutTypes = function(ins, outs) {
 }
 
 double = function(v) {
-	if (varTypes[v.nclass].isA(NDouble)) {
+	if(v.double !== undefined){
 		return v.double;
 	}
-	if (varTypes[v.nclass].isA(NInteger)) {
+
+	if(v.int !== undefined){
 		return v.int;
 	}
+
 	console.log(v.name + " is not a number!");
 	return null;
 }

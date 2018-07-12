@@ -118,6 +118,10 @@ class NNode {
 		this.bodyDiv.append(this.centerDiv);
 	}
 
+	setCenterFontSize(css){
+		$(this.centerDiv).find(".text").get(0).style.fontSize = css;
+	}
+
 	addInPin(pin) {
 		if (this.inpins[pin.name]) {
 			console.log("A inpin with the name '" + pin.name + "' already exists on this node!");
@@ -182,9 +186,9 @@ class NNode {
 			this.ipcEditDiv.append(pinfoDiv);
 		}
 
-		if (pin.type && pin.type.edit && !this.noPinfo) {
+		if (((pin.type && pin.type.edit) || pin.customEditor) && !this.noPinfo) {
 			const node = this;
-			const pedit = pin.type.edit(pin.defaultVal);
+			const pedit = (pin.type) ? (pin.type.edit(pin.defaultVal)) : (pin.customEditor(pin.defaultVal));
 			pedit.onfocus = function(e) {
 				node.inPinfosDiv.setAttribute("opened", true);
 			}
@@ -268,7 +272,6 @@ class NNode {
 	}
 
 	reAddInPin(pin, index){
-		console.log(index);
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.splice(index, 0, pin.name);
 		this.pinlist.push(pin);
@@ -422,7 +425,6 @@ class NNode {
 			if (pin.linkNum > 0) {
 				return pin.getSingleLinked().getValue();
 			} else { // has no connected output...
-				// console.log("Returning default value for pin \'" + pin.name + "\'");
 				return pin.defaultVal;
 			}
 		}

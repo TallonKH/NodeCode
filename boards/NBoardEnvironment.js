@@ -12,10 +12,9 @@ class Main {
 		this.ctrlDown = false;
 		this.metaDown = false;
 
-		this.presets = {"code":["Code", "Misc", "Regex"], "regex":["Regex", "Misc"], "shader":["Shader","Misc"]};
+		this.presets = {"code":["Code", "Misc", "Regex"], "regex":["Regex", "Misc"], "shader":["Shader","Misc"], "debug":["Code", "Regex", "Shader", "Misc", "Example"]};
 
 		this.savedBoards = JSON.parse(localStorage.getItem("boards")) || {}; // board name : board id
-		console.log(this.savedBoards);
 
 		this.maxPanDist = 25;
 		this.lineClickDistance = 10;
@@ -24,7 +23,7 @@ class Main {
 		this.maxExecIterations = 500;
 
 		this.nodeTypeList = [
-			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode, LogicalAndNode
+			StringNode, IntegerNode, DoubleNode, DisplayNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode, LogicalAndNode, CustomPinMenuNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
