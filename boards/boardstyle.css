@@ -476,6 +476,7 @@ input.pinval, input.nodeval {
 }
 
 .pinfos {
+	visibility: hidden;
 	flex: 0 1 0;
 	background-color: #bebebe;
 	height: 100%;
@@ -522,6 +523,7 @@ input.pinval, input.nodeval {
 }
 
 .pins:not([nopinfo]):hover+.pinfos, .pinfos[opened], .pinfos:hover {
+	visibility: visible;
 	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	background-color: #bebebe;
 	flex: 1 0 0;
