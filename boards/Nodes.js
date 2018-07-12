@@ -534,7 +534,15 @@ class AdditionNode extends NNode {
 
 	load(data, loadids) {
 		for (let i = 2, l = data.extraIns + 2; i < l; i++) {
-			this.addInPin(new NPin(alphabet[i], NInteger, NDouble));
+			const pin = new NPin(alphabet[i], NInteger, NDouble);
+			pin.customEditor = this.makeNumEditor(pin);
+			pin.defaultVal = {
+				"int": 0
+			};
+			pin.defaultDefaultVal = {
+				"int": 0
+			};
+			this.addInPin(pin);
 		}
 		super.load(data, loadids);
 	}
