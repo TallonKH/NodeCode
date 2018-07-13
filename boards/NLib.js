@@ -73,9 +73,17 @@ class NPoint {
 		return Math.sqrt(this.lengthSquared());
 	}
 
-	round(n) {
-		const factor = Math.pow(10, n);
-		return new NPoint(Math.round(this.x * factor) / factor, Math.round(this.y * factor) / factor);
+	round(n = 0) {
+		if(n){
+			const factor = Math.pow(10, n);
+			return new NPoint(Math.round(this.x * factor) / factor, Math.round(this.y * factor) / factor);
+		}else{
+			return new NPoint(Math.round(this.x), Math.round(this.y));
+		}
+	}
+
+	copy(){
+		return new NPoint(this.x, this.y);
 	}
 
 	static same(...pts) {

@@ -54,16 +54,17 @@ class NBoard {
 		this.lastMouseButton = -1;
 		this.clickStartTarget = null;
 		this.clickEndTarget = null;
-		this.clickStart = new NPoint(0, 0);
-		this.clickEnd = new NPoint(0, 0);
-		this.clickDelta = new NPoint(0, 0);
+		this.clickStart = new NPoint();
+		this.clickEnd = new NPoint();
+		this.clickDelta = new NPoint();
 		this.clickDistance = 0;
-		this.lastMousePosition = new NPoint(0, 0);
-		this.currentMouse = new NPoint(0, 0);
-		this.trueLastMouse = new NPoint(0, 0);
-		this.trueCurrentMouse = new NPoint(0, 0);
-		this.trueFrameMouseDelta = new NPoint(0, 0);
-		this.frameMouseDelta = new NPoint(0, 0);
+		this.lastMousePosition = new NPoint();
+		this.currentMouse = new NPoint();
+		this.trueLastMouse = new NPoint();
+		this.trueCurrentMouse = new NPoint();
+		this.trueFrameMouseDelta = new NPoint();
+		this.frameMouseDelta = new NPoint();
+		this.currentMouseDelta = new NPoint();
 		this.lastMouseMoveEvent = null;
 	}
 
@@ -490,7 +491,6 @@ class NBoard {
 						}
 						this.cutting = false;
 					} else if (this.draggedNode) { // finish moving node(s)
-						this.draggedNode = this.getDivNode(this.clickStartTarget);
 						if (this.draggedNode.selected) {
 							this.addAction(new ActMoveSelectedNodes(this, this.clickDelta));
 						} else {
@@ -642,6 +642,7 @@ class NBoard {
 		this.currentMouse = this.evntToPt(event);
 		this.frameMouseDelta = this.currentMouse.subtractp(this.lastMousePosition);
 		this.clickDistance += this.frameMouseDelta.lengthSquared();
+		this.currentMouseDelta = this.currentMouse.subtractp(this.clickStart);
 
 		if (this.leftMDown) {
 			// click & drag in progress?
@@ -659,12 +660,24 @@ class NBoard {
 
 			} else if (this.draggedNode) { // currently dragging node(s)
 				if (this.draggedNode.selected) { // dragging selected nodes
-					for (const sNodeID in this.selectedNodes) {
-						const selectedNode = this.selectedNodes[sNodeID];
-						selectedNode.move(this.frameMouseDelta);
+					if (this.env.altDown) {
+						for (const sNodeID in this.selectedNodes) {
+							this.selectedNodes[sNodeID].move(this.frameMouseDelta);
+						}
+					} else {
+						const offset = this.draggedNodeInitialPos.addp(this.currentMouseDelta).divide1(this.env.snapDistance).round().multiply1(this.env.snapDistance).subtractp(this.draggedNode.position);
+						for (const sNodeID in this.selectedNodes) {
+							const snode = this.selectedNodes[sNodeID];
+							snode.move(offset);
+						}
 					}
 				} else { // dragging unselected node
-					this.draggedNode.move(this.frameMouseDelta);
+					if (this.env.altDown) {
+						this.draggedNode.move(this.frameMouseDelta);
+					} else {
+						const pos = this.draggedNodeInitialPos.addp(this.currentMouseDelta).divide1(this.env.snapDistance).round().multiply1(this.env.snapDistance);
+						this.draggedNode.setPosition(pos);
+					}
 				}
 			} else if (this.draggedPin) { // currently dragging pins
 				// only redrawing is required for dragged pin
@@ -677,6 +690,7 @@ class NBoard {
 					this.makeSelectionBox(this.clickStart);
 				} else if (upTargetClasses.contains("nodepart")) { // start dragging node
 					this.draggedNode = this.getDivNode(this.clickStartTarget);
+					this.draggedNodeInitialPos = this.draggedNode.position;
 				} else if (upTargetClasses.contains("pin")) { // start dragging pin
 					this.draggedPin = this.getDivPin(this.clickStartTarget);
 					this.links[this.draggedPin.pinid] = [this.draggedPin, null];

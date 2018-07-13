@@ -197,17 +197,15 @@ class DisplayNode extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		// this.addHeader();
-		this.addCenter("");
+		this.addCenter();
 		this.addHeader();
-		this.addInPin(new NPin("_", NExecution));
+		this.addInPin(new NPin("Refresh", NExecution));
 		this.addInPin(new NPin("Value", NObject));
 		this.addOutPin(new NPin("__", NExecution));
 		return this.containerDiv;
 	}
 
 	inputExecuted(pin) {
-		console.log(this.inputN("Value"));
 		this.execN("__");
 	}
 
@@ -228,7 +226,50 @@ class DisplayNode extends NNode {
 	}
 
 	static getTags() {
-		return ["print", "log", "output", "sysout", "stdout"];
+		return ["output"];
+	}
+}
+
+class PrintNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader();
+		this.addCenter();
+		this.addInPin(new NPin("_", NExecution));
+		this.addInPin(new NPin("Value", NObject));
+		this.addOutPin(new NPin("__", NExecution));
+		return this.containerDiv;
+	}
+
+	inputExecuted(pin) {
+		const val = this.inputN("Value");
+		console.log(val);
+		this.board.consoleLog(JSON.stringify(val));
+		this.execN("__");
+	}
+
+	static getName() {
+		return "Print";
+	}
+
+	static getInTypes() {
+		return [NExecution, NObject];
+	}
+
+	static getOutTypes() {
+		return [NExecution];
+	}
+
+	static getCategory() {
+		return "Code";
+	}
+
+	static getTags() {
+		return ["output", "print", "log", "console", "sysout", "stdout", "debug"];
 	}
 }
 
