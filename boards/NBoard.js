@@ -864,6 +864,7 @@ class NBoard {
 	}
 
 	undo() {
+		this.setUnsaved();
 		if (this.actionStackIndex == -1) {
 			return;
 		}
@@ -872,6 +873,7 @@ class NBoard {
 	}
 
 	redo() {
+		this.setUnsaved();
 		if (this.actionStackIndex == this.actionStack.length - 1) {
 			return;
 		}
@@ -949,9 +951,22 @@ class NBoard {
 		this.displayOffset = this.displayOffset.add2(event.deltaX, event.deltaY);
 	}
 
+	setUnsaved(){
+		if(this.saved){
+			this.saved = false;
+			this.tabDivLink.innerHTML = this.name + "*";
+		}
+	}
+
+	setSaved(){
+		if(!this.saved){
+			this.saved = true;
+			this.tabDivLink.innerHTML = this.name;
+		}
+	}
+
 	addAction(action) {
-		this.saved = false;
-		this.tabDivLink.innerHTML = this.name + "*";
+		this.setUnsaved();
 		this.actionStackIndex++;
 		this.actionStack = this.actionStack.slice(0, this.actionStackIndex);
 		this.actionStack.push(action);

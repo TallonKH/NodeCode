@@ -502,8 +502,6 @@ class NNode {
 			}
 			if (!pin.multiTyped && (JSON.stringify(pin.defaultVal) !== JSON.stringify(pin.defaultDefaultVal))) {
 				hasDefVs = true;
-				console.log(pin.defaultVal);
-				console.log(pin.defaultDefaultVal);
 				defVals[inni] = pin.defaultVal;
 			}
 		}
