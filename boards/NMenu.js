@@ -16,7 +16,7 @@ class NMenu {
 		this.searchTerm = "";
 		this.matchedList = [];
 	}
-
+/^[^;}{>/]*$/
 	onClosed(){}
 
 	setHeader(str){
@@ -200,7 +200,7 @@ class NMenuOption {
 		const op = this;
 		this.mainDiv = document.createElement("div");
 		this.mainDiv.className = "menuitem";
-		this.mainDiv.innerHTML = this.name
+		this.mainDiv.innerHTML = this.name;
 		this.mainDiv.onclick = function(e) {
 			if(op.action(e) != true){
 				op.menu.board.closeMenu();

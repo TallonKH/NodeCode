@@ -14,7 +14,7 @@ class Main {
 
 		this.presets = {"code":["Code", "Misc", "Regex"], "regex":["Regex", "Misc"], "shader":["Shader","Misc"], "debug":["Code", "Regex", "Shader", "Misc", "Example"]};
 
-		this.savedBoards = JSON.parse(localStorage.getItem("boards")) || {}; // board name : board id
+		this.savedBoards = JSON.parse(localStorage.getItem("boards")) || {}; // board name : board id;
 
 		this.maxPanDist = 25;
 		this.lineClickDistance = 10;
