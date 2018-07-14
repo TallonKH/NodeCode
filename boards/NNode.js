@@ -118,7 +118,7 @@ class NNode {
 		this.bodyDiv.append(this.centerDiv);
 	}
 
-	setCenterFontSize(css){
+	setCenterFontSize(css) {
 		$(this.centerDiv).find(".text").get(0).style.fontSize = css;
 	}
 
@@ -152,7 +152,7 @@ class NNode {
 
 			if (this.noPinfo) {
 				this.inPinsDiv.setAttribute("noPinfo", true);
-			}else{
+			} else {
 				this.inPinfosDiv = document.createElement("div");
 				this.inPinfosDiv.className = "inpinfos pinfos nodepart"
 				this.inPinfosDiv.setAttribute("data-nodeid", this.nodeid);
@@ -174,7 +174,7 @@ class NNode {
 		}
 		this.inPinsDiv.append(pin.createPinDiv());
 
-		if(!this.noPinfo){
+		if (!this.noPinfo) {
 			const pinfo = pin.createPinfoDiv();
 			pinfo.setAttribute("data-nodeid", this.nodeid);
 			this.ipcNameDiv.append(pinfo);
@@ -230,7 +230,7 @@ class NNode {
 
 			if (this.noPinfo) {
 				this.outPinsDiv.setAttribute("noPinfo", true);
-			}else{
+			} else {
 				this.outPinfosDiv = document.createElement("div");
 				this.outPinfosDiv.className = "outpinfos pinfos nodepart"
 				this.outPinfosDiv.setAttribute("data-nodeid", this.nodeid);
@@ -246,7 +246,7 @@ class NNode {
 			this.bodyDiv.append(this.centerDiv);
 		}
 		this.outPinsDiv.append(pin.createPinDiv());
-		if(!this.noPinfo){
+		if (!this.noPinfo) {
 			const pinfo = pin.createPinfoDiv();
 			pinfo.setAttribute("data-nodeid", this.nodeid);
 			pinfo.setAttribute("data-pinid", pin.pinid);
@@ -254,7 +254,7 @@ class NNode {
 		}
 	}
 
-	removeInPin(pin){
+	removeInPin(pin) {
 		pin.unlinkAll();
 		delete this.inpins[pin.name];
 		this.inpinOrder.splice(this.inpinOrder.indexOf(pin.name), 1);
@@ -262,33 +262,33 @@ class NNode {
 		delete this.board.pins[pin.pinid];
 
 		pin.pinDiv.remove();
-		if(!this.noPinfo){
+		if (!this.noPinfo) {
 			pin.pinfoDiv.remove();
 		}
-		if(pin.editDiv){
+		if (pin.editDiv) {
 			pin.editDiv.remove();
 		}
 		this.updateDims();
 	}
 
-	reAddInPin(pin, index){
+	reAddInPin(pin, index) {
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.splice(index, 0, pin.name);
 		this.pinlist.push(pin);
 		this.board.pins[pin.pinid] = pin;
 
 		this.inPinsDiv.insertBefore(pin.pinDiv, this.inPinsDiv.children[index]);
-		if(this.ipcInfoDiv && pin.pinfoDiv){
+		if (this.ipcInfoDiv && pin.pinfoDiv) {
 			this.ipcInfoDiv.insertBefore(pin.pinfoDiv, this.inPinfosDiv.children[index]);
 		}
-		if(this.ipcEditDiv && pin.editDiv){
+		if (this.ipcEditDiv && pin.editDiv) {
 			this.ipcEditDiv.insertBefore(pin.editDiv, this.ipcEditDiv.children[index]);
 		}
 
 		this.updateDims();
 	}
 
-	removeOutPin(pin){
+	removeOutPin(pin) {
 		pin.unlinkAll();
 		delete this.outpins[pin.name];
 		this.outpinOrder.splice(this.outpinOrder.indexOf(pin.name), 1);
@@ -296,24 +296,24 @@ class NNode {
 		delete this.board.pins[pin.pinid];
 
 		pin.pinDiv.remove();
-		if(!this.noPinfo){
+		if (!this.noPinfo) {
 			pin.pinfoDiv.remove();
 		}
-		if(pin.editDiv){
+		if (pin.editDiv) {
 			pin.editDiv.remove();
 		}
 		this.updateDims();
 	}
 
-	removePin(pin){
-		if(pin.side){
+	removePin(pin) {
+		if (pin.side) {
 			return this.removeOutPin(pin);
-		}else{
+		} else {
 			return this.removeInPin(pin);
 		}
 	}
 
-	reAddOutPin(pin, index){
+	reAddOutPin(pin, index) {
 		this.outpins[pin.name] = pin;
 		this.outpinOrder.splice(index, 0, pin);
 		this.pinlist.push(pin);
@@ -325,10 +325,10 @@ class NNode {
 		this.updateDims();
 	}
 
-	reAddPin(pin, index){
-		if(pin.side){
+	reAddPin(pin, index) {
+		if (pin.side) {
 			return this.reAddOutPin(pin, index);
-		}else{
+		} else {
 			return this.reAddInPin(pin, index);
 		}
 	}
@@ -715,6 +715,7 @@ class NNode {
 		return menu;
 	}
 
+	onAttemptedDropLink(other) {}
 }
 
 makeMultiNodeMenu = function(brd, event, nodes) {

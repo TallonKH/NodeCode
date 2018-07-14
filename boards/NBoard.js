@@ -522,6 +522,7 @@ class NBoard {
 							const lank = this.draggedPin.linkTo(other);
 						} else if (this.clickEndTarget.classList.contains("nodepart")) { // tried to link to node
 							const node = this.getDivNode(this.clickEndTarget);
+							node.onAttemptedDropLink(this.draggedPin);
 							if (this.draggedPin.side) {
 								for (const pinn of node.inpinOrder) {
 									const other = node.inpins[pinn];

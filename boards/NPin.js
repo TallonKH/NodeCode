@@ -255,6 +255,25 @@ class NPin {
 		}
 	}
 
+	areOutTypesCompatible(...inTypes){
+		if(this.multiTyped){
+			for(const type of this.types){
+				for(const inType of inTypes){
+					if(type.isA(inType)){
+						return true;
+					}
+				}
+			}
+		}else{
+			for(const inType of inTypes){
+				if(this.type.isA(inType)){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	createPinDiv() {
 		this.pinDiv = document.createElement("div");
 		this.pinDiv.className = this.side ? "inpin pin" : "outpin pin";

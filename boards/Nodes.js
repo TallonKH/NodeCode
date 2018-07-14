@@ -368,25 +368,8 @@ class AdditionNode extends NNode {
 		super.createNodeDiv();
 		this.addCenter("+");
 
-		const pinA = new NPin("A", NInteger, NDouble);
-		pinA.customEditor = this.makeNumEditor(pinA);
-		pinA.defaultVal = {
-			"int": 0
-		};
-		pinA.defaultDefaultVal = {
-			"int": 0
-		};
-		this.addInPin(pinA);
-
-		const pinB = new NPin("B", NInteger, NDouble);
-		pinB.customEditor = this.makeNumEditor(pinB);
-		pinB.defaultVal = {
-			"int": 0
-		};
-		pinB.defaultDefaultVal = {
-			"int": 0
-		};
-		this.addInPin(pinB);
+		this.addNumInput(true);
+		this.addNumInput(true);
 
 		this.addOutPin(new NPin("Sum", NInteger, NDouble));
 		return this.containerDiv;
@@ -475,6 +458,26 @@ class AdditionNode extends NNode {
 		}
 	}
 
+	addNumInput(noAction = false){
+		let pin;
+		if (this.intlock) {
+			pin = new NPin(alphabet[this.inpinOrder.length], NInteger);
+		} else {
+			pin = new NPin(alphabet[this.inpinOrder.length], NInteger, NDouble);
+		}
+		pin.customEditor = this.makeNumEditor(pin);
+		pin.defaultVal = {
+			"int": 0
+		};
+		pin.defaultDefaultVal = {
+			"int": 0
+		};
+		this.addInPin(pin);
+		if(!noAction){
+			this.board.addAction(new ActAddPin(this.board, pin, this.inpinOrder.length - 1));
+		}
+	}
+
 	makeContextMenu(event) {
 		const menu = super.makeContextMenu(event);
 		const node = this;
@@ -482,21 +485,7 @@ class AdditionNode extends NNode {
 		if (node.inpinOrder.length < 26) {
 			const op = new NMenuOption("Add Input");
 			op.action = function(e) {
-				let pin;
-				if (node.intlock) {
-					pin = new NPin(alphabet[node.inpinOrder.length], NInteger);
-				} else {
-					pin = new NPin(alphabet[node.inpinOrder.length], NInteger, NDouble);
-				}
-				pin.customEditor = node.makeNumEditor(pin);
-				pin.defaultVal = {
-					"int": 0
-				};
-				pin.defaultDefaultVal = {
-					"int": 0
-				};
-				node.addInPin(pin);
-				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length - 1));
+				node.addNumInput();
 				return false;
 			}
 			menu.addOption(op);
@@ -575,17 +564,24 @@ class AdditionNode extends NNode {
 
 	load(data, loadids) {
 		for (let i = 2, l = data.extraIns + 2; i < l; i++) {
-			const pin = new NPin(alphabet[i], NInteger, NDouble);
-			pin.customEditor = this.makeNumEditor(pin);
-			pin.defaultVal = {
-				"int": 0
-			};
-			pin.defaultDefaultVal = {
-				"int": 0
-			};
-			this.addInPin(pin);
+			this.addNumInput(true);
 		}
 		super.load(data, loadids);
+	}
+
+	allLinked(){
+		for(const inn of this.inpinOrder){
+			if(!this.inpins[inn].linkNum){
+				return false;
+			}
+		}
+		return true;
+	}
+
+	onAttemptedDropLink(other){
+		if(other.side && this.allLinked() && other.areOutTypesCompatible(NInteger, NDouble)){
+			this.addNumInput();
+		}
 	}
 
 	static getName() {

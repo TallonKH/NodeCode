@@ -16,7 +16,7 @@ class NMenu {
 		this.searchTerm = "";
 		this.matchedList = [];
 	}
-/^[^;}{>/]*$/
+
 	onClosed(){}
 
 	setHeader(str){
