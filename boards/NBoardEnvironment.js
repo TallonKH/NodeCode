@@ -198,7 +198,10 @@ $(function() {
 	};
 
 	window.onmousedown = function(event) {
-		return main.activeBoard.mouseDown(event);
+		const box = main.activeBoard.boardDiv.getBoundingClientRect();
+		if(event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom){
+			return main.activeBoard.mouseDown(event);
+		}
 	}
 	window.onmouseup = function(event) {
 		return main.activeBoard.mouseUp(event);
