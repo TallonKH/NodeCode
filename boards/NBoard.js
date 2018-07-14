@@ -522,21 +522,38 @@ class NBoard {
 							const lank = this.draggedPin.linkTo(other);
 						} else if (this.clickEndTarget.classList.contains("nodepart")) { // tried to link to node
 							const node = this.getDivNode(this.clickEndTarget);
-							node.onAttemptedDropLink(this.draggedPin);
-							if (this.draggedPin.side) {
-								for (const pinn of node.inpinOrder) {
-									const other = node.inpins[pinn];
-									if ((other.multiConnective || other.linkNum == 0) && this.draggedPin.canPlugInto(other)) {
-										other.linkTo(this.draggedPin);
-										break;
+
+							// null = no custom action specified
+							// false = connection will fail
+							// truthy = connection allowed - returns custom action
+							const action = node.onAttemptedDropLink(this.draggedPin);
+
+							if (action !== null) {
+								if (this.draggedPin.side) {
+									for (const pinn of node.inpinOrder) {
+										const other = node.inpins[pinn];
+										if ((other.multiConnective || other.linkNum == 0)) {
+											if(action){
+												this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
+											}else{
+												this.addAction(new ActCreateLink(this, this.draggedPin, other));
+											}
+											other.linkTo(this.draggedPin);
+											break;
+										}
 									}
-								}
-							} else {
-								for (const pinn of node.outpinOrder) {
-									const other = node.outpins[pinn];
-									if ((other.multiConnective || other.linkNum == 0) && other.canPlugInto(this.draggedPin)) {
-										other.linkTo(this.draggedPin)
-										break;
+								} else {
+									for (const pinn of node.outpinOrder) {
+										const other = node.outpins[pinn];
+										if ((other.multiConnective || other.linkNum == 0)) {
+											if(action){
+												this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
+											}else{
+												this.addAction(new ActCreateLink(this, this.draggedPin, other));
+											}
+											other.linkTo(this.draggedPin)
+											break;
+										}
 									}
 								}
 							}
@@ -952,15 +969,15 @@ class NBoard {
 		this.displayOffset = this.displayOffset.add2(event.deltaX, event.deltaY);
 	}
 
-	setUnsaved(){
-		if(this.saved){
+	setUnsaved() {
+		if (this.saved) {
 			this.saved = false;
 			this.tabDivLink.innerHTML = this.name + "*";
 		}
 	}
 
-	setSaved(){
-		if(!this.saved){
+	setSaved() {
+		if (!this.saved) {
 			this.saved = true;
 			this.tabDivLink.innerHTML = this.name;
 		}

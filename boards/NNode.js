@@ -715,7 +715,9 @@ class NNode {
 		return menu;
 	}
 
-	onAttemptedDropLink(other) {}
+	onAttemptedDropLink(other) {
+		return null;
+	}
 }
 
 makeMultiNodeMenu = function(brd, event, nodes) {

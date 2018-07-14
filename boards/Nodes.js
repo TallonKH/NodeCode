@@ -476,6 +476,7 @@ class AdditionNode extends NNode {
 		if(!noAction){
 			this.board.addAction(new ActAddPin(this.board, pin, this.inpinOrder.length - 1));
 		}
+		return pin;
 	}
 
 	makeContextMenu(event) {
@@ -580,7 +581,10 @@ class AdditionNode extends NNode {
 
 	onAttemptedDropLink(other){
 		if(other.side && this.allLinked() && other.areOutTypesCompatible(NInteger, NDouble)){
-			this.addNumInput();
+			const pin = this.addNumInput(true);
+			return new ActAddPin(this.board, pin, this.inpinOrder.length - 1)
+		}else{
+			return false;
 		}
 	}
 
