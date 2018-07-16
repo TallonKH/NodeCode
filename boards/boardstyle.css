@@ -220,7 +220,6 @@ body {
 #leftsplit {
 	background-color: #eeeeee;
 	padding: 10px 0px 10px 10px;
-
 }
 
 #rightsplit {
@@ -271,7 +270,12 @@ body {
 	box-shadow: 6px 6px 10px #44444488;
 	min-width: 150px;
 	max-width: 300px;
-	max-height: 600px;
+	overflow-x: hidden;
+}
+
+.ctxlist {
+	max-height: 162px;
+	overflow-y: scroll;
 }
 
 .ctxmenu>header {
@@ -282,24 +286,19 @@ body {
 	border-bottom: 1px solid #cccccc;
 }
 
-.menu {
-	overflow-x: hidden;
-	overflow-y: scroll;
-}
-
-.menusearch {
+.ctxmenusearch {
 	width: calc(100% - 6px);
 	margin: 1px;
 }
 
-.menuitem {
+.ctxmenuitem {
 	display: block;
 	font-size: 15px;
 	padding: 0.1em 0.4em;
 	border-bottom: 1px solid #e0e0e0;
 }
 
-.menuitem:hover, .menuitem[selected] {
+.ctxmenuitem:hover, .ctxmenuitem[selected] {
 	background-color: #dddddd;
 }
 

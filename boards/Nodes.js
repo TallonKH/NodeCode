@@ -1,4 +1,4 @@
-class CustomPinMenuNode extends NNode {
+class CustomPiNCtxMenuNode extends NNode {
 	constructor(data = null) {
 		super(data);
 	}
@@ -9,17 +9,17 @@ class CustomPinMenuNode extends NNode {
 		this.setCenterFontSize("20px");
 		const pin = new NPin("A", NComment);
 		this.addInPin(pin);
-		pin.makeContextMenu = this.pinMenuFunc(pin);
+		pin.makeContextMenu = this.piNCtxMenuFunc(pin);
 		return this.containerDiv;
 	}
 
-	pinMenuFunc(pin) {
+	piNCtxMenuFunc(pin) {
 		return function(event) {
 			const menu = NPin.prototype.makeContextMenu.bind(pin)(event);
 
 			let op;
 
-			op = new NMenuOption("Custom Menu Option");
+			op = new NCtxMenuOption("Custom Menu Option");
 			op.action = function(e) {
 				console.log("This is a custom option!");
 			}
@@ -479,21 +479,21 @@ class AdditionNode extends NNode {
 		return pin;
 	}
 
-	makeContextMenu(event) {
-		const menu = super.makeContextMenu(event);
+	makeContextMenu(pos) {
+		const menu = super.makeContextMenu(pos);
 		const node = this;
 		const brd = this.board;
 		if (node.inpinOrder.length < 26) {
-			const op = new NMenuOption("Add Input");
-			op.action = function(e) {
+			const op = new NCtxMenuOption("Add Input");
+			op.action = function(p) {
 				node.addNumInput();
 				return false;
 			}
 			menu.addOption(op);
 		}
 		if (node.inpinOrder.length > 2) {
-			const op = new NMenuOption("Remove Input");
-			op.action = function(e) {
+			const op = new NCtxMenuOption("Remove Input");
+			op.action = function(p) {
 				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
 				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));
 				node.removeInPin(pin);
@@ -623,12 +623,12 @@ class LogicalAndNode extends NNode {
 		return this.containerDiv;
 	}
 
-	makeContextMenu(event) {
-		const menu = super.makeContextMenu(event);
+	makeContextMenu(pos) {
+		const menu = super.makeContextMenu(pos);
 		const node = this;
 		const brd = this.board;
 		if (node.inpinOrder.length < 26) {
-			const op = new NMenuOption("Add Input");
+			const op = new NCtxMenuOption("Add Input");
 			op.action = function(e) {
 				const pin = new NPin(alphabet[node.inpinOrder.length], NBoolean);
 				node.addInPin(pin);
@@ -638,7 +638,7 @@ class LogicalAndNode extends NNode {
 			menu.addOption(op);
 		}
 		if (node.inpinOrder.length > 2) {
-			const op = new NMenuOption("Remove Input");
+			const op = new NCtxMenuOption("Remove Input");
 			op.action = function(e) {
 				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
 				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));

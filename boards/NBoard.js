@@ -31,7 +31,7 @@ class NBoard {
 		this.links = {}; // linkid : [pin1, pin2]
 
 		this.activeCategories = new Set(["Code", "Misc"]);
-		this.activeMenu = null;
+		this.activeCtxMenu = null;
 
 		this.actionStack = [];
 		this.actionStackIndex = -1;
@@ -70,6 +70,11 @@ class NBoard {
 
 	evntToPt(event) {
 		const p = new NPoint(event.clientX, event.clientY).subtract2(this.boundRect.left, this.boundRect.top).subtractp(this.displayOffset).divide1(this.zoom);
+		return p;
+	}
+
+	evntToDivPos(event) {
+		const p = new NPoint(event.clientX, event.clientY).subtract2(this.boundRect.left - 20, 5);
 		return p;
 	}
 
@@ -174,77 +179,78 @@ class NBoard {
 	}
 
 	closeMenu() {
-		if (this.activeMenu) {
-			this.activeMenu.onClosed();
+		if (this.activeCtxMenu) {
+			this.activeCtxMenu.onClosed();
 			try {
-				this.activeMenu.containerDiv.remove();
+				this.activeCtxMenu.containerDiv.remove();
 			} catch (e) {}
-			this.activeMenu = null;
+			this.activeCtxMenu = null;
 		}
 	}
 
-	makeContextMenu(event) {
+	makeContextMenu(pos) {
+		console.log(pos);
 		const brd = this;
-		const menu = new NMenu(this, event);
+		const menu = new NCtxMenu(this, pos);
 		menu.setHeader("Board - " + this.name);
 
 		let op;
 
-		op = new NMenuOption("Create Node");
-		op.action = function(e) {
-			brd.applyMenu(brd.makeNodeCreationMenu(event));
+		op = new NCtxMenuOption("Create Node");
+		op.action = function(p) {
+			brd.applyMenu(brd.makeNodeCreationMenu(pos));
 			return true;
 		}
 		menu.addOption(op);
 
 		if (brd.selectedNodeCount) {
-			op = new NMenuOption("[Selected Nodes]...");
-			op.action = function(e) {
-				brd.applyMenu(makeMultiNodeMenu(brd, event, Object.values(brd.selectedNodes)));
+			op = new NCtxMenuOption("[Selected Nodes]...");
+			op.action = function(p) {
+				brd.applyMenu(makeMultiNodeMenu(brd, pos, Object.values(brd.selectedNodes)));
 				return true;
 			}
 			menu.addOption(op);
 		}
 
 		if (localStorage.getItem("clipboard")) {
-			op = new NMenuOption("Paste");
-			op.action = function(e) {
+			op = new NCtxMenuOption("Paste");
+			op.action = function(p) {
 				const prevSelected = Object.values(brd.selectedNodes);
-				const nodes = brd.pasteNodes(brd.clickEnd);
+				const nodes = brd.pasteNodes(p);
 				brd.addAction(new ActPasteClipboard(brd, prevSelected, nodes));
 			}
 			menu.addOption(op);
 		}
 
-		op = new NMenuOption("Export Board");
-		op.action = function(e) {
+		op = new NCtxMenuOption("Export Board");
+		op.action = function(p) {
 			// TODO M4K3 4 T3XT4R34
 			console.log(JSON.stringify(brd.exportBoard()));
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Select All");
-		op.action = function(e) {
+		op = new NCtxMenuOption("Select All");
+		op.action = function(p) {
 			brd.addAction(new ActSelectAll(brd));
 			brd.selectAllNodes();
 		};
 		menu.addOption(op);
 
 		if (this.actionStackIndex > -1) {
-			op = new NMenuOption("Undo (" + (this.actionStackIndex + 1) + ")");
-			op.action = e => brd.undo();
+			op = new NCtxMenuOption("Undo (" + (this.actionStackIndex + 1) + ")");
+			op.action = p => brd.undo();
 			menu.addOption(op);
 		}
 
 		const diff = this.actionStack.length - 1 - this.actionStackIndex
 		if (diff > 0) {
-			op = new NMenuOption("Redo (" + diff + ")");
-			op.action = e => brd.redo();
+			op = new NCtxMenuOption("Redo (" + diff + ")");
+			op.action = p => brd.redo();
 			menu.addOption(op);
 		}
 
-		op = new NMenuOption("Unsave All");
-		op.action = function() {
+		op = new NCtxMenuOption("Unsave All");
+		op.action = function(p) {
 			if (prompt("Unsaving will remove any revisions of this file stored on your computer. The file will stay open, however, in case you want to re-save it. Please enter the name of this file to confirm.") == brd.name) {
 				alert("Files removed.");
 				brd.env.unsave(brd);
@@ -259,16 +265,16 @@ class NBoard {
 
 	applyMenu(menu) {
 		this.closeMenu();
-		this.activeMenu = menu;
+		this.activeCtxMenu = menu;
 		this.boardDiv.append(menu.createDiv());
 		if (menu.searchable) {
 			menu.searchDiv.focus();
 		}
 	}
 
-	makeNodeCreationMenu(event, pinFilter = null) {
+	makeNodeCreationMenu(pos, pinFilter = null) {
 		const brd = this;
-		const menu = new NMenu(this, event);
+		const menu = new NCtxMenu(this, pos);
 		menu.setHeader("Create Node");
 
 		let validCount = 0;
@@ -335,10 +341,10 @@ class NBoard {
 						continue;
 					}
 				}
-				const op = new NMenuOption(type.getName());
+				const op = new NCtxMenuOption(type.getName());
 				let otherPin = null;
 				if (pinFilter) {
-					op.action = function(e) {
+					op.action = function(p) {
 						const node = brd.createNode(type);
 						if (pinFilter.side) {
 							for (const pinn of node.inpinOrder) {
@@ -368,9 +374,9 @@ class NBoard {
 						}
 					}
 				} else {
-					op.action = function(e) {
+					op.action = function(p) {
 						const node = brd.createNode(type);
-						node.setPosition(brd.evntToPt(e));
+						node.setPosition(p);
 						brd.addAction(new ActAddNode(brd, node));
 					}
 				}
@@ -416,7 +422,7 @@ class NBoard {
 					this.rightMDown = true;
 				}
 		}
-		if (this.activeMenu != null && !this.activeMenu.containerDiv.contains(this.clickStartTarget)) {
+		if (this.activeCtxMenu != null && !this.activeCtxMenu.containerDiv.contains(this.clickStartTarget)) {
 			this.closeMenu();
 		}
 
@@ -533,9 +539,9 @@ class NBoard {
 									for (const pinn of node.inpinOrder) {
 										const other = node.inpins[pinn];
 										if ((other.multiConnective || other.linkNum == 0)) {
-											if(action){
+											if (action) {
 												this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
-											}else{
+											} else {
 												this.addAction(new ActCreateLink(this, this.draggedPin, other));
 											}
 											other.linkTo(this.draggedPin);
@@ -546,9 +552,9 @@ class NBoard {
 									for (const pinn of node.outpinOrder) {
 										const other = node.outpins[pinn];
 										if ((other.multiConnective || other.linkNum == 0)) {
-											if(action){
+											if (action) {
 												this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
-											}else{
+											} else {
 												this.addAction(new ActCreateLink(this, this.draggedPin, other));
 											}
 											other.linkTo(this.draggedPin)
@@ -560,7 +566,7 @@ class NBoard {
 						} else { // tried to link to something else (board, probably);
 							const evnt = this.lastMouseMoveEvent || event;
 							releaseLink = false;
-							this.applyMenu(this.makeNodeCreationMenu(evnt, this.draggedPin));
+							this.applyMenu(this.makeNodeCreationMenu(this.evntToDivPos(evnt), this.draggedPin));
 						}
 						if (releaseLink) {
 							delete this.links[this.draggedPin.pinid];
@@ -622,7 +628,7 @@ class NBoard {
 						this.closeMenu();
 						if (event.target == this.boardDiv) {
 							// board context menu
-							this.applyMenu(this.makeContextMenu(event));
+							this.applyMenu(this.makeContextMenu(this.evntToDivPos(event)));
 						} else if (event.target.classList.contains("nodepart")) {
 							// node context menus
 							const node = this.getDivNode(event.target);
@@ -636,14 +642,14 @@ class NBoard {
 									}
 								}
 								// menu for multiple nodes of varying type
-								this.applyMenu(makeMultiNodeMenu(this, event, Object.values(this.selectedNodes)));
+								this.applyMenu(makeMultiNodeMenu(this, this.evntToDivPos(event), Object.values(this.selectedNodes)));
 							} else {
 								// menu for single node
-								this.applyMenu(node.makeContextMenu(event));
+								this.applyMenu(node.makeContextMenu(this.evntToDivPos(event)));
 							}
 						} else if (event.target.classList.contains("pin")) {
 							// menu for pins
-							this.applyMenu(this.getDivPin(event.target).makeContextMenu(event));
+							this.applyMenu(this.getDivPin(event.target).makeContextMenu(this.evntToDivPos(event)));
 						}
 					}
 				}
@@ -750,6 +756,9 @@ class NBoard {
 	}
 
 	mouseWheel(event) {
+		if (this.activeCtxMenu) {
+			return true;
+		}
 		if (event.ctrlKey) {
 			const prevZoom = this.zoom;
 			this.zoomCounter += event.deltaY;
@@ -782,7 +791,7 @@ class NBoard {
 			case 32: // SPACE
 				this.closeMenu();
 				if (this.lastMouseMoveEvent) {
-					this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent));
+					this.applyMenu(this.makeNodeCreationMenu(this.evntToDivPos(this.lastMouseMoveEvent)));
 				}
 				break;
 			case 8: // BACKSPACE

@@ -317,24 +317,24 @@ class NPin {
 		return this.pinfoDiv;
 	}
 
-	makeContextMenu(event) {
+	makeContextMenu(pos) {
 		const pin = this;
 		const brd = this.node.board;
-		const menu = new NMenu(this.node.board, event);
+		const menu = new NCtxMenu(this.node.board, pos);
 		menu.setHeader("Pin " + (this.side ? "(output)" : "(input)"));
 
 		let op;
 
-		op = new NMenuOption("Details");
-		op.action = function(e){
-			brd.applyMenu(pin.makeDetailsMenu(event));
+		op = new NCtxMenuOption("Details");
+		op.action = function(p){
+			brd.applyMenu(pin.makeDetailsMenu(pos));
 			return true;
 		}
 		menu.addOption(op);
 
 		if (this.linkNum) {
-			op = new NMenuOption("Unlink All");
-			op.action = function(e){
+			op = new NCtxMenuOption("Unlink All");
+			op.action = function(p){
 				brd.addAction(new ActUnlinkPin(brd, pin));
 				pin.unlinkAll();
 			}
@@ -342,8 +342,8 @@ class NPin {
 
 			for (const pinid in this.links) {
 				const linked = this.links[pinid];
-				op = new NMenuOption("Unlink From " + linked.node.constructor.getName() + ":" + linked.name + " (" + linked.pinid + ")");
-				op.action = function(e){
+				op = new NCtxMenuOption("Unlink From " + linked.node.constructor.getName() + ":" + linked.name + " (" + linked.pinid + ")");
+				op.action = function(p){
 					brd.addAction(new ActRemoveLink(brd, pin, linked));
 					pin.unlink(linked);
 				}
@@ -354,29 +354,29 @@ class NPin {
 		return menu;
 	}
 
-	makeDetailsMenu(event) {
+	makeDetailsMenu(pos) {
 		const pin = this;
 		const brd = this.node.board;
-		const menu = new NMenu(this.node.board, event);
+		const menu = new NCtxMenu(this.node.board, pos);
 		menu.setHeader("Pin Details");
 
-		menu.addOption(new NMenuOption("<div class=mih>Name:</div> \"" + this.name + "\""));
-		menu.addOption(new NMenuOption("<div class=mih>Multityped:</div> " + (this.multiTyped ? "Yes" : "No")));
-		menu.addOption(new NMenuOption("<div class=mih>By Reference:</div> " + (this.byRef ? "Yes" : "No")));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Name:</div> \"" + this.name + "\""));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Multityped:</div> " + (this.multiTyped ? "Yes" : "No")));
+		menu.addOption(new NCtxMenuOption("<div class=mih>By Reference:</div> " + (this.byRef ? "Yes" : "No")));
 
 		if (this.multiTyped) {
-			menu.addOption(new NMenuOption("<div class=mih>Types:</div> " + this.types.map(x => x.name).join(", ")));
+			menu.addOption(new NCtxMenuOption("<div class=mih>Types:</div> " + this.types.map(x => x.name).join(", ")));
 		} else {
-			menu.addOption(new NMenuOption("<div class=mih>Type:</div> " + this.type.name));
+			menu.addOption(new NCtxMenuOption("<div class=mih>Type:</div> " + this.type.name));
 		}
 
 		if (this.defaultVal) {
-			menu.addOption(new NMenuOption("<div class=mih>Default Value:</div> " + shallowStringify(this.defaultVal, 1, 0)));
-			menu.addOption(new NMenuOption("<div class=mih>Default Default Value:</div> " + shallowStringify(this.defaultDefaultVal, 1, 0)));
+			menu.addOption(new NCtxMenuOption("<div class=mih>Default Value:</div> " + shallowStringify(this.defaultVal, 1, 0)));
+			menu.addOption(new NCtxMenuOption("<div class=mih>Default Default Value:</div> " + shallowStringify(this.defaultDefaultVal, 1, 0)));
 		}
 
-		menu.addOption(new NMenuOption("<div class=mih>Pin ID:</div> " + this.pinid));
-		menu.addOption(new NMenuOption("<div class=mih>Links (" + this.linkNum + "): </div> " + Object.values(this.links).map(x => x.node.constructor.getName() + ":" + x.name).join(", ")));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Pin ID:</div> " + this.pinid));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Links (" + this.linkNum + "): </div> " + Object.values(this.links).map(x => x.node.constructor.getName() + ":" + x.name).join(", ")));
 
 		return menu;
 	}

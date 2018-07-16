@@ -573,31 +573,31 @@ class NNode {
 	makeContextMenu(event) {
 		const node = this;
 		const brd = this.board;
-		const menu = new NMenu(this.board, event);
+		const menu = new NCtxMenu(this.board, event);
 		menu.setHeader(this.constructor.getName() + " Node" + (this.selected ? " (selected)" : ""));
 
 		let op;
 
-		op = new NMenuOption("Details");
+		op = new NCtxMenuOption("Details");
 		op.action = function(e) {
 			brd.applyMenu(node.makeDetailsMenu(event));
 			return true;
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Copy");
+		op = new NCtxMenuOption("Copy");
 		op.action = function(e) {
 			brd.copyNodes([node]);
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Cut");
+		op = new NCtxMenuOption("Cut");
 		op.action = function(e) {
 			brd.cutNodes([node]);
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Duplicate");
+		op = new NCtxMenuOption("Duplicate");
 		op.action = function(e) {
 			const newNode = brd.duplicateNode(node);
 			brd.addAction(new ActDuplicateNode(brd, newNode));
@@ -623,7 +623,7 @@ class NNode {
 		}
 
 		if (hasInLinks) {
-			op = new NMenuOption("Unlink All Inputs");
+			op = new NCtxMenuOption("Unlink All Inputs");
 			op.action = function(e) {
 				brd.addAction(new ActUnlinkPins(brd, Object.values(node.inpins)));
 				node.unlinkAllInpins();
@@ -631,7 +631,7 @@ class NNode {
 			menu.addOption(op);
 		}
 		if (hasOutLinks) {
-			op = new NMenuOption("Unlink All Outputs");
+			op = new NCtxMenuOption("Unlink All Outputs");
 			op.action = function(e) {
 				brd.addAction(new ActUnlinkPins(brd, Object.values(node.outpins)));
 				node.unlinkAllOutpins();
@@ -640,7 +640,7 @@ class NNode {
 		}
 
 		if (hasInLinks && hasOutLinks) {
-			op = new NMenuOption("Unlink All");
+			op = new NCtxMenuOption("Unlink All");
 			op.action = function(e) {
 				brd.addAction(new ActUnlinkPins(brd, node.pinlist.slice()));
 				node.unlinkAllPins();
@@ -649,7 +649,7 @@ class NNode {
 		}
 
 		if (hasInLinks) {
-			op = new NMenuOption("Select Upstream Nodes");
+			op = new NCtxMenuOption("Select Upstream Nodes");
 			op.action = function(e) {
 				for (const pinid in node.inpins) {
 					const pin = node.inpins[pinid];
@@ -664,7 +664,7 @@ class NNode {
 		}
 
 		if (hasOutLinks) {
-			op = new NMenuOption("Select Downstream Nodes");
+			op = new NCtxMenuOption("Select Downstream Nodes");
 			op.action = function(e) {
 				for (const pinid in node.outpins) {
 					const pin = node.outpins[pinid];
@@ -679,7 +679,7 @@ class NNode {
 		}
 
 		if (hasInLinks && hasOutLinks) {
-			op = new NMenuOption("Select Linked Nodes");
+			op = new NCtxMenuOption("Select Linked Nodes");
 			op.action = function(e) {
 				for (const pin of node.pinlist) {
 					for (const link in pin.links) {
@@ -692,7 +692,7 @@ class NNode {
 			menu.addOption(op);
 		}
 
-		op = new NMenuOption("Delete Node");
+		op = new NCtxMenuOption("Delete Node");
 		op.action = function(e) {
 			brd.addAction(new ActRemoveNode(brd, node));
 			node.remove();
@@ -705,12 +705,12 @@ class NNode {
 	makeDetailsMenu(event) {
 		const node = this;
 		const brd = this.board;
-		const menu = new NMenu(this.board, event);
+		const menu = new NCtxMenu(this.board, event);
 		menu.setHeader("Node Details");
 
-		menu.addOption(new NMenuOption("<div class=mih>Type:</div> \"" + this.constructor.getName() + "\""));
-		menu.addOption(new NMenuOption("<div class=mih>Node ID:</div> " + this.nodeid));
-		menu.addOption(new NMenuOption("<div class=mih>Position:</div> " + this.position.round(2).toString()));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Type:</div> \"" + this.constructor.getName() + "\""));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Node ID:</div> " + this.nodeid));
+		menu.addOption(new NCtxMenuOption("<div class=mih>Position:</div> " + this.position.round(2).toString()));
 
 		return menu;
 	}
@@ -722,19 +722,19 @@ class NNode {
 
 makeMultiNodeMenu = function(brd, event, nodes) {
 	const node = this;
-	const menu = new NMenu(brd, event);
+	const menu = new NCtxMenu(brd, event);
 	menu.setHeader("Multiple Nodes (" + nodes.length + ")");
 
 	let op;
 
-	op = new NMenuOption("Details");
+	op = new NCtxMenuOption("Details");
 	op.action = function(e) {
 		brd.applyMenu(makeMultiNodeDetailsMenu(brd, event, nodes));
 		return true;
 	}
 	menu.addOption(op);
 
-	op = new NMenuOption("Delete All");
+	op = new NCtxMenuOption("Delete All");
 	op.action = function(e) {
 		brd.addAction(new ActRemoveSelectedNodes(brd));
 		for (const node of nodes) {
@@ -743,19 +743,19 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	}
 	menu.addOption(op);
 
-	op = new NMenuOption("Copy");
+	op = new NCtxMenuOption("Copy");
 	op.action = function(e) {
 		brd.copyNodes(nodes);
 	}
 	menu.addOption(op);
 
-	op = new NMenuOption("Cut");
+	op = new NCtxMenuOption("Cut");
 	op.action = function(e) {
 		brd.cutNodes(nodes);
 	}
 	menu.addOption(op);
 
-	op = new NMenuOption("Duplicate");
+	op = new NCtxMenuOption("Duplicate");
 	op.action = function(e) {
 		const newNodes = brd.duplicateNodes(nodes);
 		brd.addAction(new ActDuplicateNodes(brd, newNodes));
@@ -766,14 +766,14 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	}
 	menu.addOption(op);
 
-	op = new NMenuOption("Export as String");
+	op = new NCtxMenuOption("Export as String");
 	op.action = function(e) {
 		// TODO M4K3 4 T3XT4R34
 		console.log(JSON.stringify(brd.saveNodes(nodes)));
 	}
 	menu.addOption(op);
 
-	op = new NMenuOption("Go to");
+	op = new NCtxMenuOption("Go to");
 	op.action = function(e) {
 		//TODO M4K3 TH1S GOTO TH3 C3NT3R
 		brd.displayOffset = getGroupCenter(nodes).multiply1(-1).add2(brd.paneDiv.width / 2, brd.paneDiv.height / 2);
@@ -794,7 +794,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 		}
 	}
 	if (hasLinks) {
-		op = new NMenuOption("Unlink All");
+		op = new NCtxMenuOption("Unlink All");
 		op.action = function(e) {
 			const pins = [];
 			for (const node of nodes) {
@@ -807,7 +807,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 		}
 		menu.addOption(op);
 
-		op = new NMenuOption("Detach Group");
+		op = new NCtxMenuOption("Detach Group");
 		op.action = function(e) {
 			const pendingUnlinks = [];
 			for (const node of nodes) {
@@ -843,14 +843,14 @@ getGroupCenter = function(nodes) {
 
 makeMultiNodeDetailsMenu = function(brd, event, nodes) {
 	const node = this;
-	const menu = new NMenu(brd, event);
+	const menu = new NCtxMenu(brd, event);
 	menu.setHeader("Group Details");
 
 	const bounds = getGroupBounds(nodes);
 
-	menu.addOption(new NMenuOption("<div class=mih>Nodes:</div> " + nodes.length));
-	menu.addOption(new NMenuOption("<div class=mih>Bounds:</div> " + bounds.min.toString() + ", " + bounds.max.toString()));
-	menu.addOption(new NMenuOption("<div class=mih>Center:</div> " + bounds.min.addp(bounds.max).divide1(2)));
+	menu.addOption(new NCtxMenuOption("<div class=mih>Nodes:</div> " + nodes.length));
+	menu.addOption(new NCtxMenuOption("<div class=mih>Bounds:</div> " + bounds.min.toString() + ", " + bounds.max.toString()));
+	menu.addOption(new NCtxMenuOption("<div class=mih>Center:</div> " + bounds.min.addp(bounds.max).divide1(2)));
 
 	return menu;
 }
