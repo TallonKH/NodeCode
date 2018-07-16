@@ -69,7 +69,7 @@ class NBoard {
 	}
 
 	evntToPt(event) {
-		const p = new NPoint(event.clientX, event.clientY).subtract2(25, 60).subtractp(this.displayOffset).divide1(this.zoom);
+		const p = new NPoint(event.clientX, event.clientY).subtract2(this.boundRect.left, this.boundRect.top).subtractp(this.displayOffset).divide1(this.zoom);
 		return p;
 	}
 
