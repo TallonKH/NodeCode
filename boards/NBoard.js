@@ -1044,8 +1044,6 @@ class NBoard {
 
 	fixSize() {
 		const h = window.innerHeight - 90;
-		const w = window.innerWidth - 52;
-		this.paneDiv.width = w;
 		this.paneDiv.height = h;
 		this.boundRect = this.boardDiv.getBoundingClientRect();
 		this.rectDims = new NPoint(this.boundRect.width, this.boundRect.height);

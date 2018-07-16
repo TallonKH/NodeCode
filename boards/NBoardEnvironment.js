@@ -2,6 +2,7 @@ const TAU = 2 * Math.PI;
 class Main {
 	constructor() {
 		this.passedMetas = new Set([87, 84, 82, 81, 78, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57]);
+		this.outerSplit;
 		this.mainTabListDiv;
 		this.mainTabDiv;
 		this.boards = [];
@@ -12,7 +13,12 @@ class Main {
 		this.ctrlDown = false;
 		this.metaDown = false;
 
-		this.presets = {"code":["Code", "Misc", "Regex"], "regex":["Regex", "Misc"], "shader":["Shader","Misc"], "debug":["Code", "Regex", "Shader", "Misc", "Example"]};
+		this.presets = {
+			"code": ["Code", "Misc", "Regex"],
+			"regex": ["Regex", "Misc"],
+			"shader": ["Shader", "Misc"],
+			"debug": ["Code", "Regex", "Shader", "Misc", "Example"]
+		};
 
 		this.savedBoards = JSON.parse(localStorage.getItem("boards")) || {}; // board name : board id;
 
@@ -31,18 +37,18 @@ class Main {
 		for (const type of this.nodeTypeList) {
 			this.nodeTypeDict[type.getName()] = type;
 			const cat = this.nodeCategories[type.getCategory()];
-			if(cat){
+			if (cat) {
 				cat.push(type);
-			}else{
+			} else {
 				this.nodeCategories[type.getCategory()] = [type];
 			}
 		}
 		console.log(this.nodeCategories);
 	}
 
-	saveBoardToStorage(board){
+	saveBoardToStorage(board) {
 		const existing = this.savedBoards[board.name];
-		if(!existing || existing == board.uid || confirm("A saved board already exists under this name. Replace?")){
+		if (!existing || existing == board.uid || confirm("A saved board already exists under this name. Replace?")) {
 			localStorage.setItem("brd_" + board.name, JSON.stringify(board.exportBoard()));
 			this.savedBoards[board.name] = board.uid;
 			localStorage.setItem("boards", JSON.stringify(this.savedBoards));
@@ -51,10 +57,10 @@ class Main {
 		return false;
 	}
 
-	loadBoardFromStorage(name){
-		if(this.savedBoards[name]){
+	loadBoardFromStorage(name) {
+		if (this.savedBoards[name]) {
 			const data = JSON.parse(localStorage.getItem("brd_" + name));
-			if(data){
+			if (data) {
 				return this.newBoard(data);
 			}
 		}
@@ -62,7 +68,7 @@ class Main {
 		return false;
 	}
 
-	unsave(brd){
+	unsave(brd) {
 		localStorage.removeItem("brd_" + brd.name);
 		delete this.savedBoards[brd.name];
 		console.log(this.savedBoards);
@@ -75,13 +81,13 @@ class Main {
 		this.mainTabListDiv.append(brd.createTabDiv());
 		$(this.mainTabDiv).tabs("refresh");
 		this.boards.push(brd);
-		setTimeout(function(){
-			for(const nd in brd.nodes){
+		setTimeout(function() {
+			for (const nd in brd.nodes) {
 				brd.nodes[nd].updatePosition();
 			}
-		},10);
+		}, 10);
 		this.boardCount++;
-		if(typeof data == "object"){
+		if (typeof data == "object") {
 			brd.loadNodes(data);
 		}
 		return brd;
@@ -92,6 +98,19 @@ $(function() {
 	main = new Main();
 	main.mainTabListDiv = document.getElementById("maintablist");
 	main.mainTabDiv = document.getElementById("maintabs");
+
+	// splitpane
+
+	main.outerSplit = Split(["#leftsplit", "#maintabs", "#rightsplit"], {
+		sizes: [15, 70, 15],
+		minSize: [50, 400, 50],
+	});
+
+	let movingMainSplit = false;
+
+	$("body>.gutter").mousedown(function(e) {
+		movingMainSplit = true;
+	});
 
 	// set active board on tab switch
 	$(main.mainTabDiv).tabs({
@@ -123,7 +142,7 @@ $(function() {
 				break;
 		}
 
-		if(main.metaDown && main.passedMetas.has(event.which)){
+		if (main.metaDown && main.passedMetas.has(event.which)) {
 			return true;
 		}
 
@@ -154,7 +173,7 @@ $(function() {
 					}
 					break;
 				case 73: // I
-					if(main.ctrlDown || main.metaDown){
+					if (main.ctrlDown || main.metaDown) {
 						$("#fopener").trigger("click");
 					}
 					break;
@@ -199,15 +218,23 @@ $(function() {
 
 	window.onmousedown = function(event) {
 		const box = main.activeBoard.boardDiv.getBoundingClientRect();
-		if(event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom){
+		if (event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom) {
 			return main.activeBoard.mouseDown(event);
 		}
 	}
 	window.onmouseup = function(event) {
-		return main.activeBoard.mouseUp(event);
+		if (movingMainSplit) {
+			movingMainSplit = false;
+		} else {
+			return main.activeBoard.mouseUp(event);
+		}
 	}
 	window.onmousemove = function(event) {
-		return main.activeBoard.mouseMoved(event);
+		if (movingMainSplit) {
+			main.activeBoard.fixSize();
+		} else {
+			return main.activeBoard.mouseMoved(event);
+		}
 	}
 	window.onmousewheel = function(event) {
 		return main.activeBoard.mouseWheel(event);
@@ -215,15 +242,15 @@ $(function() {
 
 	const url = new URL(window.location.href);
 	const toOpen = JSON.parse(url.searchParams.get("open"));
-	if(toOpen){
+	if (toOpen) {
 		console.log("Opening: " + toOpen);
-		for(const name of toOpen){
+		for (const name of toOpen) {
 			main.loadBoardFromStorage(name);
 		}
 	}
 
 	const preset = url.searchParams.get("preset");
-	if(preset){
+	if (preset) {
 		console.log("Loading preset: " + preset);
 		main.newBoard("Untitled").activeCategories = new Set(main.presets[preset]);
 	}
@@ -245,11 +272,11 @@ $(function() {
 	fopener.onchange = function(event) {
 		const fileList = fopener.files;
 		const file = fileList["0"];
-		if(file){
+		if (file) {
 			reader.readAsText(file);
 		}
 	}
-	reader.onload = function(event){
+	reader.onload = function(event) {
 		const data = JSON.parse(reader.result);
 		const brd = main.newBoard(data);
 

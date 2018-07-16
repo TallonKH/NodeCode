@@ -110,15 +110,15 @@
 
 .ui-tabs {
 	position: relative;
-	padding: 0.5em;
+	padding: 10px 0px;
 	zoom: 1;
 }
 
 .ui-tabs .ui-tabs-nav {
 	margin: 0px;
 	padding: 0px;
-	padding-bottom: 2.2em;
-	border: 5px;
+	padding-bottom: 35px;
+	/* floats tab above board */
 	border-color: #000;
 }
 
@@ -137,6 +137,7 @@
 	display: block;
 	float: left;
 	padding: 8px;
+	/* tab rectangle */
 	text-overflow: ellipsis;
 	overflow: hidden;
 	max-width: 150px;
@@ -155,6 +156,7 @@
 
 .ui-tabs .ui-tabs-panel {
 	padding: 10px;
+	/* dark grey board outline */
 	min-height: 700px;
 	max-height: none;
 }
@@ -198,6 +200,49 @@ body {
 .tab.ui-state-active>a {
 	font-weight: bold;
 	background-color: #c5c5c5;
+}
+
+/* splitters */
+
+.split {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	/*border: 1px dashed #ff000044;*/
+	white-space: nowrap;
+}
+
+.hsplit, .gutter.gutter-horizontal {
+	float: left;
+	height: 100%;
+}
+
+#leftsplit {
+	background-color: #eeeeee;
+	padding: 10px 0px 10px 10px;
+
+}
+
+#rightsplit {
+	background-color: #eeeeee;
+	padding: 10px 10px 10px 0px;
+}
+
+.gutter {
+	background-color: #eee;
+	background-repeat: no-repeat;
+	background-position: 50%;
+}
+
+.gutter.gutter-horizontal {
+	background-image: url('../assets/grip-vertical.png');
+	cursor: ew-resize;
+	height: 100%;
+}
+
+.gutter.gutter-vertical {
+	background-image: url('../assets/grip-horizontal.png');
+	cursor: ns-resize;
 }
 
 /* board */
