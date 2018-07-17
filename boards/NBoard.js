@@ -109,7 +109,6 @@ class NBoard {
 		nodes.forEach(x => x.remove());
 	}
 
-	// TODO ONLY 4LLOW P4ST1NG NOD3S FROM M4TCH1NG NOD3 C4T3GOR13S
 	pasteNodes(position) {
 		const parsed = scrambleIDs(JSON.parse(localStorage.getItem("clipboard")));
 		this.deselectAllNodes();
@@ -1279,7 +1278,10 @@ class NBoard {
 		const nodatas = data.nodes;
 		const addedNodes = [];
 		for (const nodata of nodatas) {
-			addedNodes.push(this.loadNode(nodata));
+			const node = this.loadNode(nodata);
+			if(node){
+				addedNodes.push(node);
+			}
 		}
 		this.loadLinks(data.links);
 		return addedNodes;
@@ -1296,9 +1298,15 @@ class NBoard {
 	}
 
 	loadNode(nodata) {
-		const node = this.createNode(this.env.nodeTypeDict[nodata.type], nodata);
-		node.load(nodata);
-		return node;
+		const type = this.env.nodeTypeDict[nodata.type];
+		const cat = type.getCategory();
+		if(this.activeCategories.has(cat)){
+			const node = this.createNode(type, nodata);
+			node.load(nodata);
+			return node;
+		}else{
+			console.log("Cannot load node of type '" + nodata.type + "' because the category '" + cat + "' is not active!");
+		}
 	}
 
 	createNode(type, data = undefined) {
