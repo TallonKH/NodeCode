@@ -4,6 +4,8 @@ class NAction {
 	}
 	redo() {}
 	undo() {}
+	getType() {}
+	added(actions) {};
 }
 
 class NMacro {
@@ -21,6 +23,8 @@ class NMacro {
 			this.actions[i].undo();
 		}
 	}
+	added() {}
+	getType() {return this.actions.map(a => a.getType())};
 }
 
 class ActDeselectAll extends NAction {
@@ -35,6 +39,9 @@ class ActDeselectAll extends NAction {
 		for (const node of this.prevSelected) {
 			this.board.selectNode(node);
 		}
+	}
+	getType() {
+		return "DeselectAll";
 	}
 }
 
@@ -51,6 +58,9 @@ class ActSelectAll extends NAction {
 		for (const node of this.prevSelected) {
 			this.board.selectNode(node);
 		}
+	}
+	getType() {
+		return "SelectAll";
 	}
 }
 
@@ -69,6 +79,9 @@ class ActSelect extends NAction {
 			this.board.deselectNode(node);
 		}
 	}
+	getType() {
+		return "Select";
+	}
 }
 
 class ActDeselect extends NAction {
@@ -86,6 +99,9 @@ class ActDeselect extends NAction {
 			this.board.selectNode(node);
 		}
 	}
+	getType() {
+		return "Deselect";
+	}
 }
 
 class ActToggleSelect extends NAction {
@@ -101,6 +117,9 @@ class ActToggleSelect extends NAction {
 	undo() {
 		// mirrored action
 		redo();
+	}
+	getType() {
+		return "ToggleSelect";
 	}
 }
 
@@ -120,6 +139,157 @@ class ActMoveSelectedNodes extends NAction {
 		const adelta = this.delta.multiply1(-1);
 		for (const nodeid in this.board.selectedNodes) {
 			this.board.selectedNodes[nodeid].move(adelta);
+		}
+	}
+	getType() {
+		return "MoveSelected";
+	}
+}
+
+class ActNudgeUp extends NAction {
+	constructor(board) {
+		super(board);
+		this.time = (new Date()).getTime();
+		this.dist = board.env.moveDistance;
+	}
+
+	redo() {
+		const delta = new NPoint(0, -this.dist);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	undo() {
+		const delta = new NPoint(0, this.dist);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	getType() {
+		return "NudgeUp";
+	}
+
+	added(actions) {
+		if (actions.length) {
+			const prev = actions[actions.length - 1];
+			if (prev.getType() == "NudgeUp" && (this.time - prev.time) <= 1000) {
+				this.board.actionStackIndex--;
+				actions.pop();
+				this.dist += prev.dist;
+			}
+		}
+	}
+}
+
+class ActNudgeDown extends NAction {
+	constructor(board) {
+		super(board);
+		this.time = (new Date()).getTime();
+		this.dist = board.env.moveDistance;
+	}
+
+	redo() {
+		const delta = new NPoint(0, this.dist);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	undo() {
+		const delta = new NPoint(0, -this.dist);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	getType() {
+		return "NudgeDown";
+	}
+
+	added(actions) {
+		if (actions.length) {
+			const prev = actions[actions.length - 1];
+			if (prev.getType() == "NudgeDown" && (this.time - prev.time) <= 1000) {
+				this.board.actionStackIndex--;
+				actions.pop();
+				this.dist += prev.dist;
+			}
+		}
+	}
+}
+
+class ActNudgeLeft extends NAction {
+	constructor(board) {
+		super(board);
+		this.time = (new Date()).getTime();
+		this.dist = board.env.moveDistance;
+	}
+
+	redo() {
+		const delta = new NPoint(-this.dist, 0);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	undo() {
+		const delta = new NPoint(this.dist, 0);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	getType() {
+		return "NudgeLeft";
+	}
+
+	added(actions) {
+		if (actions.length) {
+			const prev = actions[actions.length - 1];
+			if (prev.getType() == "NudgeLeft" && (this.time - prev.time) <= 1000) {
+				this.board.actionStackIndex--;
+				actions.pop();
+				this.dist += prev.dist;
+			}
+		}
+	}
+}
+
+class ActNudgeRight extends NAction {
+	constructor(board) {
+		super(board);
+		this.time = (new Date()).getTime();
+		this.dist = board.env.moveDistance;
+	}
+
+	redo() {
+		const delta = new NPoint(this.dist, 0);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	undo() {
+		const delta = new NPoint(-this.dist, 0);
+		for (const nodeid in this.board.selectedNodes) {
+			this.board.selectedNodes[nodeid].move(delta);
+		}
+	}
+
+	getType() {
+		return "NudgeRight";
+	}
+
+	added(actions) {
+		if (actions.length) {
+			const prev = actions[actions.length - 1];
+			if (prev.getType() == "NudgeRight" && (this.time - prev.time) <= 1000) {
+				this.board.actionStackIndex--;
+				actions.pop();
+				this.dist += prev.dist;
+			}
 		}
 	}
 }
@@ -143,6 +313,9 @@ class ActMoveNodes extends NAction {
 			node.move(adelta);
 		}
 	}
+	getType() {
+		return "Move";
+	}
 }
 
 class ActAddNode extends NAction {
@@ -157,6 +330,9 @@ class ActAddNode extends NAction {
 
 	undo() {
 		this.board.removeNode(this.node);
+	}
+	getType() {
+		return "AddNode";
 	}
 }
 
@@ -179,6 +355,9 @@ class ActRemoveNode extends NAction {
 			this.node.select();
 		}
 	}
+	getType() {
+		return "RemoveNode";
+	}
 }
 
 class ActRemoveSelectedNodes extends NAction {
@@ -200,6 +379,9 @@ class ActRemoveSelectedNodes extends NAction {
 			node.select();
 		}
 		this.board.loadLinks(this.links);
+	}
+	getType() {
+		return "RemoveSelectedNodes";
 	}
 }
 
@@ -226,6 +408,10 @@ class ActPasteClipboard extends NAction {
 		this.nodes.forEach(x => x.remove());
 		this.prevSelected.forEach(x => x.select());
 	}
+
+	getType() {
+		return "Paste";
+	}
 }
 
 class ActDuplicateNode extends NAction {
@@ -244,6 +430,10 @@ class ActDuplicateNode extends NAction {
 	undo() {
 		this.board.removeNode(this.newNode);
 		this.selected.forEach(x => x.select());
+	}
+
+	getType() {
+		return "DuplicateNode";
 	}
 }
 
@@ -267,6 +457,10 @@ class ActDuplicateNodes extends NAction {
 	undo() {
 		this.newNodes.forEach(x => x.remove());
 		this.selected.forEach(x => x.select());
+	}
+
+	getType() {
+		return "DuplicateNodes";
 	}
 }
 
@@ -294,6 +488,10 @@ class ActCreateLink extends NAction {
 			p2.linkTo(this.prevP2Link);
 		}
 	}
+
+	getType() {
+		return "CreateLink";
+	}
 }
 
 class ActRemoveLink extends NAction {
@@ -310,6 +508,10 @@ class ActRemoveLink extends NAction {
 	undo() {
 		this.board.pins[this.pinid1].linkTo(this.board.pins[this.pinid2]);
 	}
+
+	getType() {
+		return "RemoveLink";
+	}
 }
 
 class ActRemoveLinks extends NAction {
@@ -324,6 +526,10 @@ class ActRemoveLinks extends NAction {
 
 	undo() {
 		this.links.forEach(l => this.board.pins[l[0]].linkTo(this.board.pins[l[1]]));
+	}
+
+	getType() {
+		return "RemoveLinks";
 	}
 }
 
@@ -341,6 +547,10 @@ class ActUnlinkPin extends NAction {
 	undo() {
 		const pin = this.board.pins[this.pinid];
 		this.links.forEach(id => pin.linkTo(this.board.pins[id]));
+	}
+
+	getType() {
+		return "UnlinkPin";
 	}
 }
 
@@ -365,6 +575,10 @@ class ActUnlinkPins extends NAction {
 			this.links[pinid].forEach(pinid2 => pin.linkTo(this.board.pins[pinid2]));
 		}
 	}
+
+	getType() {
+		return "UnlinkPins";
+	}
 }
 
 class ActAddPin extends NAction {
@@ -380,6 +594,10 @@ class ActAddPin extends NAction {
 
 	undo() {
 		this.pin.node.removePin(this.pin);
+	}
+
+	getType() {
+		return "AddPin";
 	}
 }
 
@@ -397,9 +615,13 @@ class ActRemovePin extends NAction {
 
 	undo() {
 		this.pin.node.reAddPin(this.pin, this.index);
-		for(const pinn of this.links){
+		for (const pinn of this.links) {
 			this.pin.linkTo(this.board.pins[pinn]);
 		}
+	}
+
+	getType() {
+		return "RemovePin";
 	}
 }
 
@@ -414,12 +636,12 @@ class ActChangeDefVal extends NAction {
 	}
 
 	redo() {
-		if(this.deletes){
-			if(Array.isArray(this.deletes)){
-				for(const key of this.deletes){
+		if (this.deletes) {
+			if (Array.isArray(this.deletes)) {
+				for (const key of this.deletes) {
 					delete this.ref[key];
 				}
-			}else{
+			} else {
 				clearObj(this.ref);
 			}
 		}
@@ -431,5 +653,9 @@ class ActChangeDefVal extends NAction {
 		clearObj(this.ref, false);
 		Object.assign(this.ref, this.oldVal);
 		this.changeFunc(this.ref);
+	}
+
+	getType() {
+		return "ChangeDefVal";
 	}
 }

@@ -787,26 +787,42 @@ class NBoard {
 				}
 				this.closeMenu();
 				break;
-			case 37: // LEFT ARROW
-				for (const nn in this.selectedNodes) {
-					this.nodes[nn].move(new NPoint(-this.env.moveDistance, 0));
+			case 37:
+				{ // LEFT ARROW
+					const delta = new NPoint(-this.env.moveDistance, 0);
+					this.addAction(new ActNudgeLeft(this));
+					for (const nn in this.selectedNodes) {
+						this.nodes[nn].move(delta);
+					}
+					break;
 				}
-				break;
-			case 39: // RIGHT ARROW
-				for (const nn in this.selectedNodes) {
-					this.nodes[nn].move(new NPoint(this.env.moveDistance, 0));
+			case 39:
+				{ // RIGHT ARROW
+					const delta = new NPoint(this.env.moveDistance, 0);
+					this.addAction(new ActNudgeRight(this));
+					for (const nn in this.selectedNodes) {
+						this.nodes[nn].move(delta);
+					}
+					break;
 				}
-				break;
 			case 38: // UP ARROW
-				for (const nn in this.selectedNodes) {
-					this.nodes[nn].move(new NPoint(0, -this.env.moveDistance));
+				{
+					const delta = new NPoint(0, -this.env.moveDistance);
+					this.addAction(new ActNudgeUp(this));
+					for (const nn in this.selectedNodes) {
+						this.nodes[nn].move(delta);
+					}
+					break;
 				}
-				break;
 			case 40: // DOWN ARROW
-				for (const nn in this.selectedNodes) {
-					this.nodes[nn].move(new NPoint(0, this.env.moveDistance));
+				{
+					const delta = new NPoint(0, this.env.moveDistance);
+					this.addAction(new ActNudgeDown(this));
+					for (const nn in this.selectedNodes) {
+						this.nodes[nn].move(delta);
+					}
+					break;
 				}
-				break;
 			case 32: // SPACE
 				this.closeMenu();
 				if (this.lastMouseMoveEvent) {
@@ -1012,6 +1028,7 @@ class NBoard {
 	}
 
 	addAction(action) {
+		action.added(this.actionStack);
 		this.setUnsaved();
 		this.actionStackIndex++;
 		this.actionStack = this.actionStack.slice(0, this.actionStackIndex);
