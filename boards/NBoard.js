@@ -787,6 +787,26 @@ class NBoard {
 				}
 				this.closeMenu();
 				break;
+			case 37: // LEFT ARROW
+				for (const nn in this.selectedNodes) {
+					this.nodes[nn].move(new NPoint(-this.env.moveDistance, 0));
+				}
+				break;
+			case 39: // RIGHT ARROW
+				for (const nn in this.selectedNodes) {
+					this.nodes[nn].move(new NPoint(this.env.moveDistance, 0));
+				}
+				break;
+			case 38: // UP ARROW
+				for (const nn in this.selectedNodes) {
+					this.nodes[nn].move(new NPoint(0, -this.env.moveDistance));
+				}
+				break;
+			case 40: // DOWN ARROW
+				for (const nn in this.selectedNodes) {
+					this.nodes[nn].move(new NPoint(0, this.env.moveDistance));
+				}
+				break;
 			case 32: // SPACE
 				this.closeMenu();
 				if (this.lastMouseMoveEvent) {
@@ -1279,7 +1299,7 @@ class NBoard {
 		const addedNodes = [];
 		for (const nodata of nodatas) {
 			const node = this.loadNode(nodata);
-			if(node){
+			if (node) {
 				addedNodes.push(node);
 			}
 		}
@@ -1300,11 +1320,11 @@ class NBoard {
 	loadNode(nodata) {
 		const type = this.env.nodeTypeDict[nodata.type];
 		const cat = type.getCategory();
-		if(this.activeCategories.has(cat)){
+		if (this.activeCategories.has(cat)) {
 			const node = this.createNode(type, nodata);
 			node.load(nodata);
 			return node;
-		}else{
+		} else {
 			console.log("Cannot load node of type '" + nodata.type + "' because the category '" + cat + "' is not active!");
 		}
 	}

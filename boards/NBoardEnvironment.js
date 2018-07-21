@@ -27,6 +27,7 @@ class Main {
 		this.dragDistance = 25;
 		this.panSpeed = 0.5;
 		this.snapDistance = 12;
+		this.moveDistance = this.snapDistance * 2;
 		this.maxExecIterations = 500;
 
 		this.nodeTypeList = [
