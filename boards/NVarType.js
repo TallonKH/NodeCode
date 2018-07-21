@@ -111,19 +111,26 @@ NExecution.setMultiOutput(false);
 const NInteger = new NVarType("Integer", function(nvar) {
 	nvar.int = 0;
 }, "#64d4ed", NObject);
-NInteger.edit = function(nvar) {
+NInteger.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
 	inp.className = "pinval integer";
 	inp.type = "number";
 	inp.value = nvar.int;
 	inp.step = "1";
-	inp.onfocusout = function(e) {
-		nvar.int = parseInt(inp.value) || 0;
+
+	const changeNVal = function(){
+		const val = parseInt(inp.value) || 0;
+		if(val != nvar.int){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"int":val}, null, v => inp.value = v.int));
+			nvar.int = val;
+		}
 	}
+
+	inp.onfocusout = changeNVal;
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.int = parseInt(inp.value) || 0;
+				changeNVal();
 				inp.blur();
 				break;
 			case 27: // ESC
@@ -141,18 +148,25 @@ NInteger.changeVal = function(inp, nval) {
 const NDouble = new NVarType("Double", function(nvar) {
 	nvar.double = 0.0;
 }, "#7bed3e", NObject);
-NDouble.edit = function(nvar) {
+NDouble.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
 	inp.className = "pinval double";
 	inp.type = "number";
 	inp.value = nvar.double;
-	inp.onfocusout = function(e) {
-		nvar.double = parseFloat(inp.value) || 0.0;
+
+	const changeNVal = function(){
+		const val = parseFloat(inp.value) || 0.0;
+		if(val != nvar.double){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"double":val}, null, v => inp.value = v.double));
+			nvar.double = val;
+		}
 	}
+
+	inp.onfocusout = changeNVal();
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.double = parseFloat(inp.value) || 0.0;
+				changeNVal();
 				inp.blur();
 				break;
 			case 27: // ESC
@@ -170,7 +184,7 @@ NDouble.changeVal = function(inp, nval) {
 const NBoolean = new NVarType("Boolean", function(nvar) {
 	nvar.boolean = false;
 }, "#ed2121", NObject);
-NBoolean.edit = function(nvar) {
+NBoolean.edit = function(nvar, brd) {
 	const cnt = document.createElement("div");
 	cnt.className = "checkbox boolean container";
 	const id = (~~(Math.random() * 8388607)).toString();
@@ -189,8 +203,16 @@ NBoolean.edit = function(nvar) {
 	lbl.htmlFor = id;
 	cnt.append(lbl);
 
+	const changeNVal = function(){
+		const val = inp.checked;
+		if(val != nvar.boolean){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"boolean":val}, null, v => inp.checked = v.boolean));
+			nvar.boolean = val;
+		}
+	}
+
 	inp.oninput = function(e) {
-		console.log(inp.checked);
+		changeNVal();
 		nvar.boolean = inp.checked;
 	}
 
@@ -203,18 +225,25 @@ NBoolean.changeVal = function(inp, nval) {
 const NString = new NVarType("String", function(nvar) {
 	nvar.string = "";
 }, "#e963c0", NObject);
-NString.edit = function(nvar) {
+NString.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
 	inp.className = "pinval string";
 	inp.type = "text";
 	inp.value = nvar.string;
-	inp.onfocusout = function(e) {
-		nvar.string = inp.value;
+
+	const changeNVal = function(){
+		const val = inp.value;
+		if(val != nvar.string){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"string":val}, null, v => inp.value = v.string));
+			nvar.string = val;
+		}
 	}
+
+	inp.onfocusout = changeNVal;
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 13: // ENTER
-				nvar.string = inp.value;
+				changeNVal();
 				inp.blur();
 				break;
 			case 27: // ESC

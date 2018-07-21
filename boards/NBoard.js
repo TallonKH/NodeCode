@@ -365,7 +365,7 @@ class NBoard {
 							}
 						}
 						delete brd.links[pinFilter.pinid];
-						node.setPosition(brd.evntToPt(e));
+						node.setPosition(p);
 						if (otherPin) {
 							brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
 						} else {
@@ -565,7 +565,7 @@ class NBoard {
 						} else { // tried to link to something else (board, probably);
 							const evnt = this.lastMouseMoveEvent || event;
 							releaseLink = false;
-							this.applyMenu(this.makeNodeCreationMenu(this.evntToDivPos(evnt), this.draggedPin));
+							this.applyMenu(this.makeNodeCreationMenu(evnt, this.draggedPin));
 						}
 						if (releaseLink) {
 							delete this.links[this.draggedPin.pinid];
@@ -627,7 +627,7 @@ class NBoard {
 						this.closeMenu();
 						if (event.target == this.boardDiv) {
 							// board context menu
-							this.applyMenu(this.makeContextMenu(this.evntToDivPos(event)));
+							this.applyMenu(this.makeContextMenu(event));
 						} else if (event.target.classList.contains("nodepart")) {
 							// node context menus
 							const node = this.getDivNode(event.target);
@@ -641,14 +641,14 @@ class NBoard {
 									}
 								}
 								// menu for multiple nodes of varying type
-								this.applyMenu(makeMultiNodeMenu(this, this.evntToDivPos(event), Object.values(this.selectedNodes)));
+								this.applyMenu(makeMultiNodeMenu(this, event, Object.values(this.selectedNodes)));
 							} else {
 								// menu for single node
-								this.applyMenu(node.makeContextMenu(this.evntToDivPos(event)));
+								this.applyMenu(node.makeContextMenu(event));
 							}
 						} else if (event.target.classList.contains("pin")) {
 							// menu for pins
-							this.applyMenu(this.getDivPin(event.target).makeContextMenu(this.evntToDivPos(event)));
+							this.applyMenu(this.getDivPin(event.target).makeContextMenu(event));
 						}
 					}
 				}
@@ -790,7 +790,7 @@ class NBoard {
 			case 32: // SPACE
 				this.closeMenu();
 				if (this.lastMouseMoveEvent) {
-					this.applyMenu(this.makeNodeCreationMenu(this.evntToDivPos(this.lastMouseMoveEvent)));
+					this.applyMenu(this.makeNodeCreationMenu(this.lastMouseMoveEvent));
 				}
 				break;
 			case 8: // BACKSPACE
@@ -1311,6 +1311,7 @@ class NBoard {
 
 	createNode(type, data = undefined) {
 		const node = new type(data);
+		node.board = this;
 		node.createNodeDiv();
 		this.addNode(node);
 		return node;

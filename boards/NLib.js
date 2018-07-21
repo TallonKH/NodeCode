@@ -298,6 +298,12 @@ function getOS() {
 	return os;
 }
 
+function clearObj(obj){
+	for(const key in obj){
+		delete obj[key];
+	}
+}
+
 function downloadFile(filename, text) {
   const link = document.createElement('a');
   link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));

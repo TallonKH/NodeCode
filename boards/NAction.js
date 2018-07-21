@@ -402,3 +402,34 @@ class ActRemovePin extends NAction {
 		}
 	}
 }
+
+class ActChangeDefVal extends NAction {
+	constructor(board, ref, assigns, deletes, changeFunc) {
+		super(board);
+		this.ref = ref;
+		this.oldVal = Object.assign({}, ref);
+		this.assigns = assigns;
+		this.deletes = deletes;
+		this.changeFunc = changeFunc;
+	}
+
+	redo() {
+		if(this.deletes){
+			if(Array.isArray(this.deletes)){
+				for(const key of this.deletes){
+					delete this.ref[key];
+				}
+			}else{
+				clearObj(this.ref);
+			}
+		}
+		Object.assign(this.ref, this.assigns);
+		this.changeFunc(this.ref, true);
+	}
+
+	undo() {
+		clearObj(this.ref, false);
+		Object.assign(this.ref, this.oldVal);
+		this.changeFunc(this.ref);
+	}
+}

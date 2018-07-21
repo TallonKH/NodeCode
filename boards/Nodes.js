@@ -55,7 +55,7 @@ class StringNode extends NNode {
 		this.addHeader("Variable (String)");
 
 		this.addCenter();
-		this.inputDiv = NString.edit(this.val);
+		this.inputDiv = NString.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval string";
 		this.centerDiv.append(this.inputDiv);
 		this.noPinfo = true;
@@ -105,7 +105,7 @@ class IntegerNode extends NNode {
 		super.createNodeDiv();
 		this.addHeader("Variable (Int)");
 		this.addCenter();
-		this.inputDiv = NInteger.edit(this.val);
+		this.inputDiv = NInteger.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval integer";
 		this.centerDiv.append(this.inputDiv);
 		this.noPinfo = true;
@@ -151,7 +151,7 @@ class DoubleNode extends NNode {
 		super.createNodeDiv();
 		this.addHeader("Variable (Double)");
 		this.addCenter();
-		this.inputDiv = NDouble.edit(this.val);
+		this.inputDiv = NDouble.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval double";
 		this.centerDiv.append(this.inputDiv);
 		this.noPinfo = true;
@@ -377,59 +377,81 @@ class AdditionNode extends NNode {
 
 	makeNumEditor(pin) {
 		const node = this;
+		const brd = node.board;
 		return function(nvar) {
 			// const nvar = pin.defaultVal;
 			const inp = document.createElement("input");
 			inp.className = "pinval number";
 			inp.type = "number";
 			inp.value = nvar.double || nvar.int || 0;
-			inp.onfocusout = function(e) {
-				const val = parseFloat(inp.value) || 0;
-				if (val % 1 == 0) {
-					delete nvar.double;
-					nvar.int = val;
-					node.doublelocks.delete(pin);
-				} else {
-					delete nvar.int;
-					nvar.double = val;
-					node.doublelocks.add(pin);
-				}
 
-				if (node.doublelocks.size) {
-					node.outpins["Sum"].setTypes(false, NDouble);
-				} else {
-					node.outpins["Sum"].setTypes(false, NInteger, NDouble);
+			const changeNVal = function(){
+				const val = parseFloat(inp.value) || 0;
+				// !=
+				if (parseFloat(inp.value) != double(nvar)) {
+					if (node.intlock || val % 1 == 0) {
+						const ival = Math.trunc(val);
+						const shouldChange = nvar.double !== undefined
+						brd.addAction(new ActChangeDefVal(brd, nvar, {"int":ival}, ["double"], function(v, redo){
+							if(shouldChange){
+								if(redo){
+									node.doublelocks.delete(pin);
+								}else{
+									node.doublelocks.add(pin);
+								}
+								if (node.doublelocks.size) {
+									node.outpins["Sum"].setTypes(false, NDouble);
+								} else {
+									node.outpins["Sum"].setTypes(false, NInteger, NDouble);
+								}
+							}
+							inp.value = double(v);
+						}));
+						delete nvar.double;
+						nvar.int = ival;
+						inp.value = nvar.int.toString();
+						node.doublelocks.delete(pin)
+					} else {
+						const shouldChange = nvar.int !== undefined
+						brd.addAction(new ActChangeDefVal(brd, nvar, {"double":val}, ["int"], function(v, redo){
+							if(shouldChange){
+								if(redo){
+									node.doublelocks.add(pin);
+								}else{
+									node.doublelocks.delete(pin);
+								}
+								if (node.doublelocks.size) {
+									node.outpins["Sum"].setTypes(false, NDouble);
+								} else {
+									node.outpins["Sum"].setTypes(false, NInteger, NDouble);
+								}
+							}
+							inp.value = double(v);
+						}));
+						delete nvar.int;
+						nvar.double = val;
+						node.doublelocks.add(pin);
+					}
+
+					if (node.doublelocks.size) {
+						node.outpins["Sum"].setTypes(false, NDouble);
+					} else {
+						node.outpins["Sum"].setTypes(false, NInteger, NDouble);
+					}
 				}
 			}
+
+			inp.onfocusout = changeNVal;
 			inp.onkeydown = function(e) {
 				switch (e.which) {
 					case 13: // ENTER
-						const val = parseFloat(inp.value) || 0;
-						if (node.intlock) {
-							nvar.int = Math.trunc(val);
-							inp.value = nvar.int.toString();
-						} else {
-							if (val % 1 == 0) {
-								delete nvar.double;
-								nvar.int = val;
-								node.doublelocks.delete(pin);
-							} else {
-								delete nvar.int;
-								nvar.double = val;
-								node.doublelocks.add(pin);
-							}
-						}
+						changeNVal();
 						inp.blur();
 						break;
 					case 27: // ESC
 						inp.value = nvar.double;
 						inp.blur();
 						break;
-				}
-				if (node.doublelocks.size) {
-					node.outpins["Sum"].setTypes(false, NDouble);
-				} else {
-					node.outpins["Sum"].setTypes(false, NInteger, NDouble);
 				}
 			}
 			return inp;

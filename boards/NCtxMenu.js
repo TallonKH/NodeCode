@@ -1,6 +1,7 @@
 class NCtxMenu {
-	constructor(board, pos) {
-		this.pos = pos;
+	constructor(board, evnt) {
+		this.evnt = evnt;
+		this.divPos = board.evntToDivPos(evnt);
 		this.board = board;
 		this.searchable = true;
 		this.containerDiv;
@@ -33,8 +34,8 @@ class NCtxMenu {
 
 		this.containerDiv = document.createElement("div");
 		this.containerDiv.className = "ctxmenu";
-		this.containerDiv.style.left = this.pos.x + "px";
-		this.containerDiv.style.top = this.pos.y + "px";
+		this.containerDiv.style.left = this.divPos.x + "px";
+		this.containerDiv.style.top = this.divPos.y + "px";
 
 		if(this.headerString){
 			this.headerDiv = document.createElement("header");
@@ -52,7 +53,7 @@ class NCtxMenu {
 				switch (e.which) {
 					case 13: // ENTER
 						if (menu.matchCount) {
-							if(menu.matchedList[menu.selectedIndex].action(menu.pos) != true){
+							if(menu.matchedList[menu.selectedIndex].action(menu.board.evntToPt(menu.evnt)) != true){
 								menu.board.closeMenu();
 							}
 						}
