@@ -266,7 +266,7 @@ class NNode {
 			pin.pinfoDiv.remove();
 		}
 		if (pin.editDiv) {
-			pin.editDiv.remove();
+			pin.editDiv.parentNode.remove();
 		}
 		this.updateDims();
 	}
@@ -278,11 +278,16 @@ class NNode {
 		this.board.pins[pin.pinid] = pin;
 
 		this.inPinsDiv.insertBefore(pin.pinDiv, this.inPinsDiv.children[index]);
-		if (this.ipcInfoDiv && pin.pinfoDiv) {
-			this.ipcInfoDiv.insertBefore(pin.pinfoDiv, this.inPinfosDiv.children[index]);
+		if (this.ipcNameDiv && pin.pinfoDiv) {
+			this.ipcNameDiv.insertBefore(pin.pinfoDiv, this.ipcNameDiv.children[index]);
 		}
 		if (this.ipcEditDiv && pin.editDiv) {
-			this.ipcEditDiv.insertBefore(pin.editDiv, this.ipcEditDiv.children[index]);
+			const pinfoDiv = document.createElement("div");
+			pinfoDiv.className = "nodepart pinfo " + (this.side ? "outpinfo" : "inpinfo");
+			pinfoDiv.setAttribute("data-nodeid", this.nodeid);
+			pinfoDiv.setAttribute("data-pinid", pin.pinid);
+			this.ipcEditDiv.insertBefore(pinfoDiv, this.ipcEditDiv.children[index]);
+			pinfoDiv.append(pin.editDiv);
 		}
 
 		this.updateDims();

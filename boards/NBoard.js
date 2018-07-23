@@ -188,7 +188,6 @@ class NBoard {
 	}
 
 	makeContextMenu(pos) {
-		console.log(pos);
 		const brd = this;
 		const menu = new NCtxMenu(this, pos);
 		menu.setHeader("Board - " + this.name);
