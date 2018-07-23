@@ -18,17 +18,17 @@ class NCtxMenu {
 		this.matchedList = [];
 	}
 
-	onClosed(){}
+	onClosed() {}
 
-	setHeader(str){
+	setHeader(str) {
 		this.headerString = str;
 	}
 
-	makeSearchable(b){
+	makeSearchable(b) {
 		this.searchable = b;
 	}
 
-	createDiv(){
+	createDiv() {
 		const menu = this;
 		const sd = this.searchDiv;
 
@@ -37,13 +37,13 @@ class NCtxMenu {
 		this.containerDiv.style.left = this.divPos.x + "px";
 		this.containerDiv.style.top = this.divPos.y + "px";
 
-		if(this.headerString){
+		if (this.headerString) {
 			this.headerDiv = document.createElement("header");
 			this.headerDiv.innerHTML = this.headerString;
 			this.containerDiv.append(this.headerDiv);
 		}
 
-		if(this.searchable){
+		if (this.searchable) {
 			this.searchDiv = document.createElement("input");
 			this.searchDiv.type = "text";
 			this.searchDiv.className = "ctxmenusearch";
@@ -53,7 +53,7 @@ class NCtxMenu {
 				switch (e.which) {
 					case 13: // ENTER
 						if (menu.matchCount) {
-							if(menu.matchedList[menu.selectedIndex].action(menu.board.evntToPt(menu.evnt)) != true){
+							if (menu.matchedList[menu.selectedIndex].action(menu.board.evntToPt(menu.evnt)) != true) {
 								menu.board.closeMenu();
 							}
 						}
@@ -154,7 +154,7 @@ class NCtxMenu {
 		this.listDiv.className = "ctxlist";
 		this.containerDiv.append(this.listDiv);
 
-		for(const option of this.optionList){
+		for (const option of this.optionList) {
 			const div = option.createDiv();
 			this.listDiv.append(div);
 			this.options[div] = option;
@@ -162,14 +162,14 @@ class NCtxMenu {
 		}
 		this.matchCount = this.optionList.length;
 
-		if(this.optionList.length){
+		if (this.optionList.length) {
 			this.optionList[0].select();
 		}
 
 		return this.containerDiv;
 	}
 
-	addOption(option){
+	addOption(option) {
 		option.menu = this;
 		this.optionList.push(option);
 	}
@@ -185,25 +185,25 @@ class NCtxMenuOption {
 		this.menu;
 	}
 
-	setTags(...tags){
+	setTags(...tags) {
 		this.tags = tags;
 	}
 
-	select(){
+	select() {
 		this.mainDiv.setAttribute("selected", true);
 	}
 
-	deselect(){
+	deselect() {
 		this.mainDiv.removeAttribute("selected");
 	}
 
-	createDiv(){
+	createDiv() {
 		const op = this;
 		this.mainDiv = document.createElement("div");
 		this.mainDiv.className = "ctxmenuitem";
 		this.mainDiv.innerHTML = this.name;
 		this.mainDiv.onclick = function(e) {
-			if(op.action(op.menu.board.evntToPt(e)) != true){
+			if (op.action(op.menu.board.evntToPt(e)) != true) {
 				op.menu.board.closeMenu();
 			}
 		}
@@ -211,8 +211,46 @@ class NCtxMenuOption {
 	}
 }
 
-class NMenuItem {
-	constructor() {
+createCollapseDiv = function(title) {
+	const container = document.createElement("div");
 
+	const collapser = document.createElement("div");
+	collapser.className = "collapser";
+
+	const clpserTitle = document.createElement("div");
+	clpserTitle.className = "text";
+	clpserTitle.innerHTML = title;
+	collapser.append(clpserTitle);
+
+	const clpserIcon = document.createElement("i");
+	clpserIcon.className = "material-icons";
+	clpserIcon.innerHTML = "expand_less";
+	collapser.append(clpserIcon);
+
+	const collapsing = document.createElement("div");
+	collapsing.className = "collapsing";
+	collapser.append(collapsing);
+
+	container.append(collapser);
+	container.append(collapsing);
+
+	collapser.onclick = function(e) {
+		if (collapser.hasAttribute("open")) {
+			collapser.removeAttribute("open");
+			collapsing.removeAttribute("open");
+			collapsing.style.maxHeight = "0px";
+		} else {
+			collapser.setAttribute("open", true);
+			collapsing.setAttribute("open", true);
+			collapsing.style.maxHeight = collapsing.scrollHeight + "px";
+		}
+	}
+
+	return {
+		"container": container,
+		"collapser": collapser,
+		"title": clpserTitle,
+		"icon": clpserIcon,
+		"collapsing": collapsing
 	}
 }

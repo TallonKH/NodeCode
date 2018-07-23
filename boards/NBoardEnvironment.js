@@ -5,6 +5,8 @@ class Main {
 		this.outerSplit;
 		this.mainTabListDiv;
 		this.mainTabDiv;
+		this.leftMenuDiv;
+		this.rightMenuDiv;
 		this.boards = [];
 		this.boardCount = 0;
 		this.activeBoard = null;
@@ -44,7 +46,6 @@ class Main {
 				this.nodeCategories[type.getCategory()] = [type];
 			}
 		}
-		console.log(this.nodeCategories);
 	}
 
 	saveBoardToStorage(board) {
@@ -94,6 +95,12 @@ class Main {
 		return brd;
 	}
 
+	setupLeftMenu(){
+		let item = createCollapseDiv("Files");
+		item.collapsing.innerHTML = "Contents";
+		main.leftMenuDiv.append(item.container);
+	}
+
 	inCurrentBoard(event){
 		const box = main.activeBoard.boardDiv.getBoundingClientRect();
 		return (event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom);
@@ -104,9 +111,10 @@ $(function() {
 	main = new Main();
 	main.mainTabListDiv = document.getElementById("maintablist");
 	main.mainTabDiv = document.getElementById("maintabs");
+	main.leftMenuDiv = document.getElementById("leftmenu");
+	main.rightMenuDiv = document.getElementById("rightmenu");
 
 	// splitpane
-
 	main.outerSplit = Split(["#leftsplit", "#maintabs", "#rightsplit"], {
 		sizes: [15, 70, 15],
 		minSize: [15, 400, 15],
@@ -119,6 +127,8 @@ $(function() {
 	$("body>.gutter").mousedown(function(e) {
 		movingMainSplit = true;
 	});
+
+	main.setupLeftMenu();
 
 	// set active board on tab switch
 	$(main.mainTabDiv).tabs({

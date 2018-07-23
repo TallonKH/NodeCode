@@ -125,7 +125,7 @@
 }
 
 .ui-tabs .ui-tabs-nav::-webkit-scrollbar {
-  height: 4px;
+	height: 4px;
 }
 
 .ui-tabs .ui-tabs-nav::-webkit-scrollbar-track {
@@ -135,7 +135,6 @@
 .ui-tabs .ui-tabs-nav::-webkit-scrollbar-thumb {
 	background-color: #959595;
 	width: 4px;
-
 }
 
 .ui-tabs .ui-tabs-nav li {
@@ -381,17 +380,10 @@ canvas {
 	border-bottom-right-radius: 0px;
 }
 
-.node>header[hidden] {
-	background-color: #c1c1c1;
-	padding: 0em 0.3em;
-	height: 15px;
-	color: none;
-	transition: background-color 0.3s, color 0.3s, flex 0.3s, padding 0.3s;
-}
-
 .node>header {
-	padding: 0.3em 0.3em 0.5em 0.5em;
-	height: 15px;
+	font-size: 14px;
+	padding: 5px 5px 5px 6px;
+	height: 25px;
 	background-color: #9f9f9f;
 	color: #000000;
 	order: 0;
@@ -636,7 +628,7 @@ input.pinval, input.nodeval {
 }
 
 .selectbox[anti] {
-	background: repeating-linear-gradient(135deg, #fff50055, #fff50055 .25em, #ff990055 0, #ff990055 .75em);
+	background: repeating-linear-gradient(135deg, #fff50055, #fff50055 4px, #ff990055 0, #ff990055 8px);
 	border: 3px solid #fc000088;
 }
 
@@ -645,15 +637,15 @@ input.pinval, input.nodeval {
 .pin {
 	border: 1px solid #00000011;
 	border-radius: 50%;
-	width: 12px;
-	height: 12px;
+	width: 14px;
+	height: 14px;
 }
 
 .pin[ref] {
 	transform: rotateZ(45deg);
 	border-radius: 0;
-	width: 8px;
-	height: 8px;
+	width: 12px;
+	height: 12px;
 }
 
 .board:not([linking]) .pin:hover, .pin:hover[match], .pin[active], .pin[linking] {
@@ -720,19 +712,19 @@ input.pinval, input.nodeval {
 	height: auto;
 }
 
-.listmenu>.collapser {
+.listmenu>div>.collapser {
 	padding: 0px 4px;
 	background-color: #d8d8d8;
 	border-bottom: 2px solid #c8c8c8;
 	transition: border-bottom 0.2s, background-color 0.2s;
 }
 
-.listmenu>.collapser[open] {
+.listmenu>div>.collapser[open] {
 	background-color: #d0d0d0;
 	border-bottom: 2px solid #00000000;
 }
 
-.listmenu>.collapsing {
+.listmenu>div>.collapsing {
 	background-color: #f3f3f3;
 }
 
