@@ -1,4 +1,4 @@
-class CustomPiNCtxMenuNode extends NNode {
+class CustomPinMenuNode extends NNode {
 	constructor(data = null) {
 		super(data);
 	}
@@ -385,18 +385,20 @@ class AdditionNode extends NNode {
 			inp.type = "number";
 			inp.value = nvar.double || nvar.int || 0;
 
-			const changeNVal = function(){
+			const changeNVal = function() {
 				const val = parseFloat(inp.value) || 0;
 				// !=
 				if (parseFloat(inp.value) != double(nvar)) {
 					if (node.intlock || val % 1 == 0) {
 						const ival = Math.trunc(val);
 						const shouldChange = nvar.double !== undefined
-						brd.addAction(new ActChangeDefVal(brd, nvar, {"int":ival}, ["double"], function(v, redo){
-							if(shouldChange){
-								if(redo){
+						brd.addAction(new ActChangeDefVal(brd, nvar, {
+							"int": ival
+						}, ["double"], function(v, redo) {
+							if (shouldChange) {
+								if (redo) {
 									node.doublelocks.delete(pin);
-								}else{
+								} else {
 									node.doublelocks.add(pin);
 								}
 								if (node.doublelocks.size) {
@@ -413,11 +415,13 @@ class AdditionNode extends NNode {
 						node.doublelocks.delete(pin)
 					} else {
 						const shouldChange = nvar.int !== undefined
-						brd.addAction(new ActChangeDefVal(brd, nvar, {"double":val}, ["int"], function(v, redo){
-							if(shouldChange){
-								if(redo){
+						brd.addAction(new ActChangeDefVal(brd, nvar, {
+							"double": val
+						}, ["int"], function(v, redo) {
+							if (shouldChange) {
+								if (redo) {
 									node.doublelocks.add(pin);
-								}else{
+								} else {
 									node.doublelocks.delete(pin);
 								}
 								if (node.doublelocks.size) {
@@ -480,7 +484,7 @@ class AdditionNode extends NNode {
 		}
 	}
 
-	addNumInput(noAction = false){
+	addNumInput(noAction = false) {
 		let pin;
 		if (this.intlock) {
 			pin = new NPin(alphabet[this.inpinOrder.length], NInteger);
@@ -495,7 +499,7 @@ class AdditionNode extends NNode {
 			"int": 0
 		};
 		this.addInPin(pin);
-		if(!noAction){
+		if (!noAction) {
 			this.board.addAction(new ActAddPin(this.board, pin, this.inpinOrder.length - 1));
 		}
 		return pin;
@@ -592,21 +596,30 @@ class AdditionNode extends NNode {
 		super.load(data, loadids);
 	}
 
-	allLinked(){
-		for(const inn of this.inpinOrder){
-			if(!this.inpins[inn].linkNum){
+	allLinked() {
+		for (const inn of this.inpinOrder) {
+			if (!this.inpins[inn].linkNum) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	onAttemptedDropLink(other){
-		if(other.side && this.allLinked() && other.areOutTypesCompatible(NInteger, NDouble)){
-			const pin = this.addNumInput(true);
-			return new ActAddPin(this.board, pin, this.inpinOrder.length - 1)
-		}else{
-			return false;
+	onAttemptedDropLink(other) {
+		if (other.side) {
+
+			if (this.allLinked()) {
+				if (other.areOutTypesCompatible(NInteger, NDouble)) {
+					const pin = this.addNumInput(true);
+					return new ActAddPin(this.board, pin, this.inpinOrder.length - 1)
+				} else {
+					return false;
+				}
+			}else{
+				return null;
+			}
+		} else {
+			return null;
 		}
 	}
 

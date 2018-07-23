@@ -533,31 +533,35 @@ class NBoard {
 							// truthy = connection allowed - returns custom action
 							const action = node.onAttemptedDropLink(this.draggedPin);
 
-							if (action !== null) {
+							if (action !== false) {
 								if (this.draggedPin.side) {
 									for (const pinn of node.inpinOrder) {
 										const other = node.inpins[pinn];
 										if ((other.multiConnective || other.linkNum == 0)) {
-											if (action) {
-												this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
-											} else {
-												this.addAction(new ActCreateLink(this, this.draggedPin, other));
+											if (this.draggedPin.canPlugInto(other)) {
+												if (action) {
+													this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
+												} else {
+													this.addAction(new ActCreateLink(this, this.draggedPin, other));
+												}
+												other.linkTo(this.draggedPin);
+												break;
 											}
-											other.linkTo(this.draggedPin);
-											break;
 										}
 									}
 								} else {
 									for (const pinn of node.outpinOrder) {
 										const other = node.outpins[pinn];
 										if ((other.multiConnective || other.linkNum == 0)) {
-											if (action) {
-												this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
-											} else {
-												this.addAction(new ActCreateLink(this, this.draggedPin, other));
+											if (other.canPlugInto(this.draggedPin)) {
+												if (action) {
+													this.addAction(new NMacro(action, new ActCreateLink(this, this.draggedPin, other)));
+												} else {
+													this.addAction(new ActCreateLink(this, this.draggedPin, other));
+												}
+												other.linkTo(this.draggedPin);
+												break;
 											}
-											other.linkTo(this.draggedPin)
-											break;
 										}
 									}
 								}
@@ -796,6 +800,9 @@ class NBoard {
 					}
 					break;
 				}
+			case 80:
+				console.log(this.actionStack);
+				break;
 			case 39:
 				{ // RIGHT ARROW
 					const delta = new NPoint(this.env.moveDistance, 0);
@@ -850,6 +857,7 @@ class NBoard {
 						downloadFile(this.name + ".json", JSON.stringify(this.exportBoard()));
 					}
 				}
+				break;
 			case 75: // K
 				this.cutting = !this.cutting;
 				this.redraw();
