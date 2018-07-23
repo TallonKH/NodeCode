@@ -24,7 +24,9 @@ class NMacro {
 		}
 	}
 	added() {}
-	getType() {return this.actions.map(a => a.getType())};
+	getType() {
+		return this.actions.map(a => a.getType())
+	};
 }
 
 class ActDeselectAll extends NAction {

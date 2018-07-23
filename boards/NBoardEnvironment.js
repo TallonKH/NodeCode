@@ -93,6 +93,11 @@ class Main {
 		}
 		return brd;
 	}
+
+	inCurrentBoard(event){
+		const box = main.activeBoard.boardDiv.getBoundingClientRect();
+		return (event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom);
+	}
 }
 
 $(function() {
@@ -104,7 +109,9 @@ $(function() {
 
 	main.outerSplit = Split(["#leftsplit", "#maintabs", "#rightsplit"], {
 		sizes: [15, 70, 15],
-		minSize: [50, 400, 50],
+		minSize: [15, 400, 15],
+		gutterSize: 5,
+		snapOffset: 5
 	});
 
 	let movingMainSplit = false;
@@ -218,8 +225,7 @@ $(function() {
 	};
 
 	window.onmousedown = function(event) {
-		const box = main.activeBoard.boardDiv.getBoundingClientRect();
-		if (event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom) {
+		if(main.inCurrentBoard(event)){
 			return main.activeBoard.mouseDown(event);
 		}
 	}
@@ -238,7 +244,10 @@ $(function() {
 		}
 	}
 	window.onmousewheel = function(event) {
-		return main.activeBoard.mouseWheel(event);
+		if(main.inCurrentBoard(event)){
+			return main.activeBoard.mouseWheel(event);
+		}
+		return true;
 	}
 
 	const url = new URL(window.location.href);

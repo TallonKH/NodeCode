@@ -210,3 +210,9 @@ class NCtxMenuOption {
 		return this.mainDiv;
 	}
 }
+
+class NMenuItem {
+	constructor() {
+
+	}
+}

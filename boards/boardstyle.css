@@ -6,6 +6,7 @@
 }
 
 * {
+	box-sizing: border-box;
 	font-family: "Roboto";
 	font-weight: 400;
 	-webkit-touch-callout: none;
@@ -110,25 +111,40 @@
 
 .ui-tabs {
 	position: relative;
-	padding: 10px 0px;
 	zoom: 1;
 }
 
 .ui-tabs .ui-tabs-nav {
 	margin: 0px;
 	padding: 0px;
-	padding-bottom: 35px;
-	/* floats tab above board */
-	border-color: #000;
+	height: 29px;
+	white-space: nowrap;
+	display: flex;
+	overflow-y: hidden;
+	overflow-x: scroll;
+}
+
+.ui-tabs .ui-tabs-nav::-webkit-scrollbar {
+  height: 4px;
+}
+
+.ui-tabs .ui-tabs-nav::-webkit-scrollbar-track {
+	background-color: #c5c5c5;
+}
+
+.ui-tabs .ui-tabs-nav::-webkit-scrollbar-thumb {
+	background-color: #959595;
+	width: 4px;
+
 }
 
 .ui-tabs .ui-tabs-nav li {
+	display: inline-block;
 	list-style: none;
 	float: left;
 	position: relative;
 	top: 0px;
 	margin: 0;
-	border-bottom: 0 !important;
 	padding: 0;
 	white-space: nowrap;
 }
@@ -136,18 +152,16 @@
 .ui-tabs .ui-tabs-nav li a {
 	display: block;
 	float: left;
-	padding: 8px;
+	font-size: 16px;
+	padding: 0px 12px 0px 6px;
 	/* tab rectangle */
 	text-overflow: ellipsis;
 	overflow: hidden;
-	max-width: 150px;
+	max-width: 250px;
 	min-width: 25px;
-	height: 19px;
+	height: 25px;
+	line-height: 150%;
 	text-decoration: none;
-}
-
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a {
-	cursor: text;
 }
 
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
@@ -155,8 +169,6 @@
 }
 
 .ui-tabs .ui-tabs-panel {
-	padding: 10px;
-	/* dark grey board outline */
 	min-height: 700px;
 	max-height: none;
 }
@@ -170,27 +182,31 @@ html {
 }
 
 body {
-	margin: 10px;
-	height: calc(100% - 20px);
+	border: 5px solid #ececec;
+	margin: 0px;
+	padding: 0px;
+	height: 100%;
 }
 
 .tabs {
+	border: 4px solid #c5c5c5;
 	background-color: #ececec;
-	height: calc(100% - 20px);
+	height: 100%;
 }
 
 .tabpane {
-	height: calc(100% - 54px);
-	background-color: #c5c5c5;
+	height: calc(100% - 25px);
 	overflow: hidden;
 	margin: 0px;
 	padding: 0px;
 }
 
 .tab>a {
-	color: #000000;
-	background-color: #d6d6d6;
+	color: #888888;
+	background-color: #d9d9d9;
 	transition: background-color 0.2s, font-weight 0.2s;
+	margin: 0px 4px 0px 0px;
+	display: inline-block;
 }
 
 .tab.ui-state-hover>a {
@@ -198,6 +214,7 @@ body {
 }
 
 .tab.ui-state-active>a {
+	color: #000000;
 	font-weight: bold;
 	background-color: #c5c5c5;
 }
@@ -219,16 +236,16 @@ body {
 
 #leftsplit {
 	background-color: #eeeeee;
-	padding: 10px 0px 10px 10px;
+	/*padding: 10px 0px 10px 10px;*/
 }
 
 #rightsplit {
 	background-color: #eeeeee;
-	padding: 10px 10px 10px 0px;
+	/*padding: 10px 10px 10px 0px;*/
 }
 
 .gutter {
-	background-color: #eee;
+	background-color: #eeeeee;
 	background-repeat: no-repeat;
 	background-position: 50%;
 }
@@ -287,8 +304,8 @@ body {
 }
 
 .ctxmenusearch {
-	width: calc(100% - 6px);
-	margin: 1px;
+	width: calc(100% - 4px);
+	margin: 2px;
 }
 
 .ctxmenuitem {
@@ -661,4 +678,69 @@ input.pinval, input.nodeval {
 	position: absolute;
 	background-color: #00000088;
 	pointer-events: all;
+}
+
+/* Collapsable */
+
+.collapser {
+	width: 100%;
+	overflow: hidden;
+	display: flex;
+	vertical-align: middle;
+}
+
+.collapser[open] {}
+
+.collapser>.text {
+	flex: 1 1 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	line-height: 150%;
+}
+
+.collapser>i {
+	flex: 0 0 1;
+	float: right;
+	transform: rotate(-90deg);
+	transition: transform 0.2s ease 0s;
+	overflow: hidden;
+}
+
+.collapser[open]>i {
+	transform: rotate(-180deg);
+}
+
+.collapsing {
+	max-height: 0px;
+	transition: max-height 0.2s;
+	overflow: hidden;
+	height: auto;
+}
+
+.listmenu>.collapser {
+	padding: 0px 4px;
+	background-color: #d8d8d8;
+	border-bottom: 2px solid #c8c8c8;
+	transition: border-bottom 0.2s, background-color 0.2s;
+}
+
+.listmenu>.collapser[open] {
+	background-color: #d0d0d0;
+	border-bottom: 2px solid #00000000;
+}
+
+.listmenu>.collapsing {
+	background-color: #f3f3f3;
+}
+
+/* list menus */
+
+.listmenu {
+	height: 100%;
+	background-color: #ffffff;
+	border: 4px solid #c5c5c5;
+}
+
+.lmitem {
+	width: 100%;
 }
