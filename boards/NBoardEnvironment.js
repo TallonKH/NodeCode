@@ -71,10 +71,12 @@ class Main {
 	}
 
 	unsave(brd) {
+		brd.named = false;
 		localStorage.removeItem("brd_" + brd.name);
 		delete this.savedBoards[brd.name];
 		console.log(this.savedBoards);
 		localStorage.setItem("boards", JSON.stringify(this.savedBoards));
+		this.rememberOpened();
 	}
 
 	newBoard(data) {
@@ -95,15 +97,33 @@ class Main {
 		return brd;
 	}
 
-	setupLeftMenu(){
-		let item = createCollapseDiv("Files");
-		item.collapsing.innerHTML = "Contents";
-		main.leftMenuDiv.append(item.container);
+	setupLeftMenu() {
+		let item; {
+			item = createCollapseDiv("Files")
+			main.leftMenuDiv.append(item.container);
+
+			const contents = item.collapsing;
+
+			const fileList = document.createElement("ul");
+			fileList.className = "filelist";
+			const boards = JSON.parse(localStorage.getItem("boards"));
+			for (const boardn in boards) {
+				const item = document.createElement("li");
+				item.innerHTML = boardn;
+				fileList.append(item);
+			}
+			contents.append(fileList);
+		}
+
 	}
 
-	inCurrentBoard(event){
+	inCurrentBoard(event) {
 		const box = main.activeBoard.boardDiv.getBoundingClientRect();
 		return (event.clientX < box.right && event.clientX > box.left && event.clientY > box.top && event.clientY < box.bottom);
+	}
+
+	rememberOpened() {
+		localStorage.setItem("toOpen", JSON.stringify(this.boards.filter(x => x.named).map(x => x.name)));
 	}
 }
 
@@ -235,7 +255,7 @@ $(function() {
 	};
 
 	window.onmousedown = function(event) {
-		if(main.inCurrentBoard(event)){
+		if (main.inCurrentBoard(event)) {
 			return main.activeBoard.mouseDown(event);
 		}
 	}
@@ -254,25 +274,29 @@ $(function() {
 		}
 	}
 	window.onmousewheel = function(event) {
-		if(main.inCurrentBoard(event)){
+		if (main.inCurrentBoard(event)) {
 			return main.activeBoard.mouseWheel(event);
 		}
 		return true;
 	}
 
-	const url = new URL(window.location.href);
-	const toOpen = JSON.parse(url.searchParams.get("open"));
-	if (toOpen) {
-		console.log("Opening: " + toOpen);
-		for (const name of toOpen) {
-			main.loadBoardFromStorage(name);
-		}
-	}
-
-	const preset = url.searchParams.get("preset");
+	const preset = localStorage.getItem("initialPreset");
 	if (preset) {
 		console.log("Loading preset: " + preset);
-		main.newBoard("Untitled").activeCategories = new Set(main.presets[preset]);
+		main.newBoard("Untitled_" + preset).activeCategories = new Set(main.presets[preset]);
+	}
+
+	const toOpen = JSON.parse(localStorage.getItem("toOpen"));
+	if (toOpen) {
+		for (const name of toOpen) {
+			console.log("Opening: " + name);
+			main.loadBoardFromStorage(name);
+		}
+		localStorage.removeItem("initialPreset");
+	}
+
+	if(!main.boards.length){
+		window.open('../homepage/main.html',"_self");
 	}
 
 	$(main.mainTabDiv).tabs("option", "active", 0);

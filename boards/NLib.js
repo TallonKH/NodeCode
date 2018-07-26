@@ -1,4 +1,4 @@
-const alphabet = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+const alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 class NPoint {
 	constructor(x = 0, y = 0) {
 		this.x = x;
@@ -74,15 +74,15 @@ class NPoint {
 	}
 
 	round(n = 0) {
-		if(n){
+		if (n) {
 			const factor = Math.pow(10, n);
 			return new NPoint(Math.round(this.x * factor) / factor, Math.round(this.y * factor) / factor);
-		}else{
+		} else {
 			return new NPoint(Math.round(this.x), Math.round(this.y));
 		}
 	}
 
-	copy(){
+	copy() {
 		return new NPoint(this.x, this.y);
 	}
 
@@ -298,25 +298,25 @@ function getOS() {
 	return os;
 }
 
-function clearObj(obj){
-	for(const key in obj){
+function clearObj(obj) {
+	for (const key in obj) {
 		delete obj[key];
 	}
 }
 
 function downloadFile(filename, text) {
-  const link = document.createElement('a');
-  link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-  link.setAttribute('download', filename);
+	const link = document.createElement('a');
+	link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+	link.setAttribute('download', filename);
 
-  link.style.display = 'none';
-  document.body.appendChild(link);
+	link.style.display = 'none';
+	document.body.appendChild(link);
 
-  link.click();
+	link.click();
 
-  link.remove();
+	link.remove();
 }
 
-function currentTimeMillis(){
+function currentTimeMillis() {
 	return (new Date()).getTime();
 }

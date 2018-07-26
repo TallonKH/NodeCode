@@ -900,6 +900,8 @@ class NBoard {
 						if (name) {
 							this.name = name;
 							this.named = true;
+							this.env.rememberOpened();
+							localStorage.removeItem("initialPreset");
 						} else {
 							break;
 						}
