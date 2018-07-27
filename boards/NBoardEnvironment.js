@@ -46,6 +46,9 @@ class Main {
 				this.nodeCategories[type.getCategory()] = [type];
 			}
 		}
+
+		this.fileList;
+		this.fileListMap = {};
 	}
 
 	saveBoardToStorage(board) {
@@ -72,6 +75,7 @@ class Main {
 
 	unsave(brd) {
 		brd.named = false;
+		brd.setUnsaved();
 		localStorage.removeItem("brd_" + brd.name);
 		delete this.savedBoards[brd.name];
 		console.log(this.savedBoards);
@@ -94,27 +98,76 @@ class Main {
 		if (typeof data == "object") {
 			brd.loadNodes(data);
 		}
+		this.refreshFileList();
 		return brd;
 	}
 
 	setupLeftMenu() {
-		let item; {
+		const main = this;
+		let item;
+
+		{
 			item = createCollapseDiv("Files")
 			main.leftMenuDiv.append(item.container);
 
 			const contents = item.collapsing;
 
-			const fileList = document.createElement("ul");
-			fileList.className = "filelist";
-			const boards = JSON.parse(localStorage.getItem("boards"));
-			for (const boardn in boards) {
-				const item = document.createElement("li");
-				item.innerHTML = boardn;
-				fileList.append(item);
+			main.fileList = document.createElement("ul");
+			main.fileList.className = "filelist";
+			this.refreshFileList();
+			contents.append(main.fileList);
+		}
+	}
+
+	refreshFileList() {
+		const brdns = Object.keys(JSON.parse(localStorage.getItem("boards")));
+		const brdnset = new Set(brdns);
+
+		for (const brdn in this.fileListMap) {
+			this.fileListMap[brdn].remove();
+			if (!brdnset.has(brdn)) {
+				delete this.fileListMap[brdn];
 			}
-			contents.append(fileList);
 		}
 
+		brdns.sort();
+
+		for (const brdn of brdns) {
+			let item = this.fileListMap[brdn];
+
+			if (!item) {
+				item = this.createFileListItem(brdn);
+				this.fileListMap[brdn] = item;
+			}
+			
+			item.removeAttribute("open");
+
+			for (const brd of this.boards) {
+				if (brd.name == brdn) {
+					console.log(brdn + " opened");
+					item.setAttribute("open", true);
+				}
+			}
+
+			this.fileList.append(item);
+		}
+	}
+
+	createFileListItem(boardn) {
+		const item = document.createElement("li");
+		item.innerHTML = boardn;
+		item.className = "filebutton";
+
+		item.onclick = function(e) {
+			for (const brd of main.boards) {
+				if (brd.name == boardn) {
+					return false;
+				}
+			}
+			main.loadBoardFromStorage(boardn);
+			return false;
+		}
+		return item;
 	}
 
 	inCurrentBoard(event) {
@@ -295,8 +348,8 @@ $(function() {
 		localStorage.removeItem("initialPreset");
 	}
 
-	if(!main.boards.length){
-		window.open('../homepage/main.html',"_self");
+	if (!main.boards.length) {
+		window.open('../homepage/main.html', "_self");
 	}
 
 	$(main.mainTabDiv).tabs("option", "active", 0);

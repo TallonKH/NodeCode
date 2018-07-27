@@ -252,6 +252,7 @@ class NBoard {
 			if (prompt("Unsaving will remove any revisions of this file stored on your computer. The file will stay open, however, in case you want to re-save it. Please enter the name of this file to confirm.") == brd.name) {
 				alert("Files removed.");
 				brd.env.unsave(brd);
+				brd.env.refreshFileList();
 			} else {
 				alert("Cancelled. No files removed.");
 			}
@@ -895,19 +896,23 @@ class NBoard {
 				break;
 			case 83: // S
 				if (main.ctrlDown || this.env.metaDown) {
+					let saveChanged = false;
 					if (!this.named || this.env.shiftDown) {
 						const name = prompt("What would you like to name this file?", this.name);
 						if (name) {
+							saveChanged = true;
 							this.name = name;
 							this.named = true;
-							this.env.rememberOpened();
 							localStorage.removeItem("initialPreset");
 						} else {
 							break;
 						}
 					}
 					this.saved = this.env.saveBoardToStorage(this);
-
+					if (saveChanged) {
+						this.env.rememberOpened();
+						this.env.refreshFileList();
+					}
 					if (this.saved) {
 						this.tabDivLink.innerHTML = this.name;
 					}
