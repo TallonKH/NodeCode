@@ -293,6 +293,18 @@ body {
 	overflow-y: scroll;
 }
 
+.ctxlist::-webkit-scrollbar {
+	width: 4px;
+}
+
+.ctxlist::-webkit-scrollbar-track {
+	background: none;
+}
+
+.ctxlist::-webkit-scrollbar-thumb {
+	background-color: #959595;
+}
+
 .ctxmenu>header {
 	font-size: 16px;
 	font-weight: bold;
@@ -778,10 +790,10 @@ input.pinval, input.nodeval {
 	min-height: 50px;
 	max-height: 300px;
 	overflow-y: scroll;
+	background-color: #444444;
 }
 
 .consoleitem {
-	background-color: #444444;
 	font-family: monospace;
 	color: #8bffa1;
 	display: block;
@@ -812,16 +824,4 @@ input.pinval, input.nodeval {
 
 .consoleitem:first-child {
 	border-top: 1px solid #b8b8b8;
-}
-
-.console:-webkit-scrollbar {
-	width: 4px;
-}
-
-.console::-webkit-scrollbar-track {
-	background-color: #c5c5c5;
-}
-
-.console::-webkit-scrollbar-thumb {
-	background-color: #959595;
 }

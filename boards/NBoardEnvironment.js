@@ -137,7 +137,7 @@ class Main {
 			inp.onkeydown = function(e) {
 				switch (e.which) {
 					case 13: // ENTER
-						if(inp.value.length){
+						if (inp.value.length) {
 							main.logt("> " + inp.value);
 							main.processCommand(inp.value);
 							inp.value = "";
@@ -161,7 +161,7 @@ class Main {
 		d.innerHTML = text;
 		this.consoleDiv.append(d);
 
-		if(scrtopPre - this.consoleDiv.scrollTop < 20){
+		if (scrtopPre - this.consoleDiv.scrollTop < 20) {
 			this.consoleDiv.scrollTop = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
 		}
 	}
@@ -249,10 +249,6 @@ $(function() {
 	});
 
 	main.setupLeftMenu();
-	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
-	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
-	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
-	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
 	// set active board on tab switch
 	$(main.mainTabDiv).tabs({
 		activate: function(event, ui) {
