@@ -211,7 +211,7 @@ class NCtxMenuOption {
 	}
 }
 
-createCollapseDiv = function(title) {
+createCollapseDiv = function(title, maxHeight = undefined) {
 	const container = document.createElement("div");
 
 	const collapser = document.createElement("div");
@@ -228,21 +228,36 @@ createCollapseDiv = function(title) {
 	collapser.append(clpserIcon);
 
 	const collapsing = document.createElement("div");
+	collapsing.clpsMaxHeight = maxHeight;
 	collapsing.className = "collapsing";
 	collapser.append(collapsing);
 
 	container.append(collapser);
 	container.append(collapsing);
-
+	const maxHeightTransitionNone = function(){
+		// if statement fixes collapsing appearing open when closed if spammed
+		if(collapsing.hasAttribute("open")){
+			collapsing.style.maxHeight = "none";
+		}
+	}
 	collapser.onclick = function(e) {
 		if (collapser.hasAttribute("open")) {
 			collapser.removeAttribute("open");
 			collapsing.removeAttribute("open");
-			collapsing.style.maxHeight = "0px";
+			// sketchy 0-delay hack to set maxheight from none to a number before setting it to 0 to allow transition
+			collapsing.style.maxHeight = collapsing.offsetHeight + "px";
+			window.setTimeout(x => collapsing.style.maxHeight = "0px", 0);
 		} else {
 			collapser.setAttribute("open", true);
 			collapsing.setAttribute("open", true);
-			collapsing.style.maxHeight = collapsing.scrollHeight + "px";
+			if (typeof collapsing.clpsMaxHeight == "number") {
+				collapsing.style.maxHeight = Math.min(collapsing.clpsMaxHeight, collapsing.scrollHeight) + "px";
+			} else {
+				collapsing.style.maxHeight = collapsing.scrollHeight + "px";
+			}
+			// wait until transition is done, then set max height to none
+			window.clearTimeout(maxHeightTransitionNone);
+			window.setTimeout(maxHeightTransitionNone, 200);
 		}
 	}
 

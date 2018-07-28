@@ -102,12 +102,16 @@ class Main {
 		return brd;
 	}
 
+	processCommand(cmd) {
+
+	}
+
 	setupLeftMenu() {
 		const main = this;
 		let item;
 
 		{
-			item = createCollapseDiv("Files")
+			item = createCollapseDiv("Files", 50);
 			main.leftMenuDiv.append(item.container);
 
 			const contents = item.collapsing;
@@ -116,6 +120,49 @@ class Main {
 			main.fileList.className = "filelist";
 			this.refreshFileList();
 			contents.append(main.fileList);
+		}
+
+		{
+			item = createCollapseDiv("Console");
+			main.leftMenuDiv.append(item.container);
+
+			const contents = item.collapsing;
+			main.consoleDiv = document.createElement("div");
+			main.consoleDiv.className = "console";
+			contents.append(main.consoleDiv);
+			const inp = document.createElement("input");
+			main.consoleInput = inp;
+			inp.className = "consoleinput";
+			inp.placeholder = "type here";
+			inp.onkeydown = function(e) {
+				switch (e.which) {
+					case 13: // ENTER
+						if(inp.value.length){
+							main.logt("> " + inp.value);
+							main.processCommand(inp.value);
+							inp.value = "";
+						}
+						return false;
+					case 27: // ESC
+						inp.blur();
+						return false;
+				}
+				return true;
+			}
+			contents.append(main.consoleInput);
+		}
+	}
+
+	logt(text) {
+		const scrtopPre = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
+
+		const d = document.createElement("div");
+		d.className = "consoleitem";
+		d.innerHTML = text;
+		this.consoleDiv.append(d);
+
+		if(scrtopPre - this.consoleDiv.scrollTop < 20){
+			this.consoleDiv.scrollTop = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
 		}
 	}
 
@@ -139,7 +186,7 @@ class Main {
 				item = this.createFileListItem(brdn);
 				this.fileListMap[brdn] = item;
 			}
-			
+
 			item.removeAttribute("open");
 
 			for (const brd of this.boards) {
@@ -202,7 +249,10 @@ $(function() {
 	});
 
 	main.setupLeftMenu();
-
+	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
+	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
+	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
+	main.logt("asdf asdf dfsdfsa adfda d a ddsa dd adf asd f");
 	// set active board on tab switch
 	$(main.mainTabDiv).tabs({
 		activate: function(event, ui) {
