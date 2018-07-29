@@ -12,6 +12,7 @@ class NBoard {
 			this.uid = data.id;
 			this.zoom = data.zoom;
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
+			this.activeCategories = new Set(data.cats);
 		}
 		this.tabId = "maintab-" + env.boardCount;
 		this.saved = ~~env.savedBoards[this.name];
@@ -30,7 +31,6 @@ class NBoard {
 		this.pins = {}; // pinid : pin
 		this.links = {}; // linkid : [pin1, pin2]
 
-		this.activeCategories = new Set(["Code", "Misc"]);
 		this.activeCtxMenu = null;
 
 		this.actionStack = [];

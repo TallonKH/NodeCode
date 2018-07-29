@@ -255,3 +255,210 @@ NString.edit = function(nvar, brd) {
 NString.changeVal = function(inp, nval) {
 	inp.value = nval.string;
 }
+
+const NVector1 = new NVarType("Vec1", function(nvar) {
+	nvar.float = 0.0;
+}, "#fc6d6d", NObject);
+NVector1.edit = function(nvar, brd) {
+	const inp = document.createElement("input");
+	inp.className = "pinval vec1";
+	inp.type = "number";
+	inp.value = nvar.float;
+
+	const changeNVal = function(){
+		const val = parseFloat(inp.value) || 0.0;
+		if(val != nvar.float){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"float":val}, null, v => inp.value = v.float));
+			nvar.float = val;
+		}
+	}
+
+	inp.onfocusout = changeNVal();
+	inp.onkeydown = function(e) {
+		switch (e.which) {
+			case 13: // ENTER
+				changeNVal();
+				inp.blur();
+				break;
+			case 27: // ESC
+				inp.value = nvar.float;
+				inp.blur();
+				break;
+		}
+	}
+	return inp;
+};
+NVector1.changeVal = function(inp, nval) {
+	inp.value = nval.float;
+}
+
+const NVector2 = new NVarType("Vec2", function(nvar) {
+	nvar.x = 0.0;
+	nvar.y = 0.0;
+}, "#99eb7c", NObject);
+NVector2.edit = function(nvar, brd) {
+	const wrapper = document.createElement("div");
+	wrapper.className = "vec2";
+
+	const inp1 = document.createElement("input");
+	inp1.className = "pinval vec2 vec2x";
+	inp1.type = "number";
+	inp1.value = nvar.x;
+	wrapper.append(inp1);
+
+	const inp2 = document.createElement("input");
+	inp2.className = "pinval vec2 vec2y";
+	inp2.type = "number";
+	inp2.value = nvar.y;
+	wrapper.append(inp2);
+
+	const changeNValX = function(){
+		const val = parseFloat(inp1.value) || 0.0;
+		if(val != nvar.x){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"x":val}, null, v => inp1.value = v.x));
+			nvar.x = val;
+		}
+	}
+
+	const changeNValY = function(){
+		const val = parseFloat(inp2.value) || 0.0;
+		if(val != nvar.y){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"y":val}, null, v => inp2.value = v.y));
+			nvar.y = val;
+		}
+	}
+
+	inp1.onfocusout = changeNValX();
+	inp1.onkeydown = function(e) {
+		switch (e.which) {
+			case 13: // ENTER
+				changeNValX();
+				inp1.blur();
+				break;
+			case 27: // ESC
+				inp1.value = nvar.x;
+				inp1.blur();
+				break;
+		}
+	}
+
+	inp2.onfocusout = changeNValY();
+	inp2.onkeydown = function(e) {
+		switch (e.which) {
+			case 13: // ENTER
+				changeNValY();
+				inp2.blur();
+				break;
+			case 27: // ESC
+				inp2.value = nvar.y;
+				inp2.blur();
+				break;
+		}
+	}
+	return wrapper;
+};
+NVector2.changeVal = function(inp, nval) {
+	$(inp).find(".vec2x").get(0).value = nval.x;
+	$(inp).find(".vec2y").get(0).value = nval.y;
+}
+
+const NVector3 = new NVarType("Vec3", function(nvar) {
+	nvar.x = 0.0;
+	nvar.y = 0.0;
+	nvar.z = 0.0;
+}, "#6f7df2", NObject);
+NVector3.edit = function(nvar, brd) {
+	const wrapper = document.createElement("div");
+	wrapper.className = "vec3";
+
+	const inp1 = document.createElement("input");
+	inp1.className = "pinval vec3 vec3x";
+	inp1.type = "number";
+	inp1.value = nvar.x;
+	wrapper.append(inp1);
+
+	const inp2 = document.createElement("input");
+	inp2.className = "pinval vec3 vec3y";
+	inp2.type = "number";
+	inp2.value = nvar.y;
+	wrapper.append(inp2);
+
+	const inp3 = document.createElement("input");
+	inp3.className = "pinval vec3 vec3z";
+	inp3.type = "number";
+	inp3.value = nvar.z;
+	wrapper.append(inp3);
+
+	const changeNValX = function(){
+		const val = parseFloat(inp1.value) || 0.0;
+		if(val != nvar.x){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"x":val}, null, v => inp1.value = v.x));
+			nvar.x = val;
+		}
+	}
+
+	const changeNValY = function(){
+		const val = parseFloat(inp2.value) || 0.0;
+		if(val != nvar.y){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"y":val}, null, v => inp2.value = v.y));
+			nvar.y = val;
+		}
+	}
+
+	const changeNValZ = function(){
+		const val = parseFloat(inp3.value) || 0.0;
+		if(val != nvar.z){
+			brd.addAction(new ActChangeDefVal(brd, nvar, {"z":val}, null, v => inp3.value = v.z));
+			nvar.z = val;
+		}
+	}
+
+	inp1.onfocusout = changeNValX();
+	inp1.onkeydown = function(e) {
+		switch (e.which) {
+			case 13: // ENTER
+				changeNValX();
+				inp1.blur();
+				break;
+			case 27: // ESC
+				inp1.value = nvar.x;
+				inp1.blur();
+				break;
+		}
+	}
+
+	inp2.onfocusout = changeNValY();
+	inp2.onkeydown = function(e) {
+		switch (e.which) {
+			case 13: // ENTER
+				changeNValY();
+				inp2.blur();
+				break;
+			case 27: // ESC
+				inp2.value = nvar.y;
+				inp2.blur();
+				break;
+		}
+	}
+	return wrapper;
+
+	inp3.onfocusout = changeNValZ();
+	inp3.onkeydown = function(e) {
+		switch (e.which) {
+			case 13: // ENTER
+				changeNValY();
+				inp3.blur();
+				break;
+			case 27: // ESC
+				inp3.value = nvar.z;
+				inp3.blur();
+				break;
+		}
+	}
+	return wrapper;
+};
+NVector3.changeVal = function(inp, nval) {
+	$(inp).find(".vec3x").get(0).value = nval.x;
+	$(inp).find(".vec3y").get(0).value = nval.y;
+	$(inp).find(".vec3z").get(0).value = nval.z;
+}
