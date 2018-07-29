@@ -1,4 +1,4 @@
-//TODO F1X ONFOCUSOUT NOT DO1NG 4NYTH1NG
+// TODO F1X ONFOCUSOUT NOT DO1NG 4NYTH1NG WH3N CL1CK1NG OUT
 
 varTypes = {};
 class NVarType {
@@ -113,7 +113,7 @@ const NInteger = new NVarType("Integer", function(nvar) {
 }, "#64d4ed", NObject);
 NInteger.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
-	inp.className = "pinval integer";
+	inp.className = "integer";
 	inp.type = "number";
 	inp.value = nvar.int;
 	inp.step = "1";
@@ -151,7 +151,7 @@ const NDouble = new NVarType("Double", function(nvar) {
 }, "#7bed3e", NObject);
 NDouble.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
-	inp.className = "pinval double";
+	inp.className = "double";
 	inp.type = "number";
 	inp.value = nvar.double;
 
@@ -229,7 +229,7 @@ const NString = new NVarType("String", function(nvar) {
 }, "#e963c0", NObject);
 NString.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
-	inp.className = "pinval string";
+	inp.className = "string";
 	inp.type = "text";
 	inp.value = nvar.string;
 
@@ -266,7 +266,7 @@ const NVector1 = new NVarType("Vec1", function(nvar) {
 }, "#fc6d6d", NObject);
 NVector1.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
-	inp.className = "pinval vec1";
+	inp.className = "vec1";
 	inp.type = "number";
 	inp.value = nvar.float;
 
@@ -307,13 +307,13 @@ NVector2.edit = function(nvar, brd) {
 	wrapper.className = "vec2";
 
 	const inp1 = document.createElement("input");
-	inp1.className = "pinval vec2 vec2x";
+	inp1.className = "vec2 vec2x";
 	inp1.type = "number";
 	inp1.value = nvar.x;
 	wrapper.append(inp1);
 
 	const inp2 = document.createElement("input");
-	inp2.className = "pinval vec2 vec2y";
+	inp2.className = "vec2 vec2y";
 	inp2.type = "number";
 	inp2.value = nvar.y;
 	wrapper.append(inp2);
@@ -375,24 +375,25 @@ const NVector3 = new NVarType("Vec3", function(nvar) {
 	nvar.y = 0.0;
 	nvar.z = 0.0;
 }, "#6f7df2", NObject);
+// TODO 4DD 4 COLOR P1CK3R
 NVector3.edit = function(nvar, brd) {
 	const wrapper = document.createElement("div");
 	wrapper.className = "vec3";
 
 	const inp1 = document.createElement("input");
-	inp1.className = "pinval vec3 vec3x";
+	inp1.className = "vec3 vec3x";
 	inp1.type = "number";
 	inp1.value = nvar.x;
 	wrapper.append(inp1);
 
 	const inp2 = document.createElement("input");
-	inp2.className = "pinval vec3 vec3y";
+	inp2.className = "vec3 vec3y";
 	inp2.type = "number";
 	inp2.value = nvar.y;
 	wrapper.append(inp2);
 
 	const inp3 = document.createElement("input");
-	inp3.className = "pinval vec3 vec3z";
+	inp3.className = "vec3 vec3z";
 	inp3.type = "number";
 	inp3.value = nvar.z;
 	wrapper.append(inp3);

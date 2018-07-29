@@ -33,9 +33,199 @@ class STypeTestNode extends NNode {
 	static getCategory() {
 		return "Shader";
 	}
+}
+
+
+class SVector1Node extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.val = NVector1.construct();
+		this.inputVal;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Vector1");
+		this.addCenter();
+		this.inputDiv = NVector1.edit(this.val, this.board);
+		this.inputDiv.className = "nodeval vec1";
+		this.centerDiv.append(this.inputDiv);
+		this.noPinfo = true;
+		this.addOutPin(new NPin("Value", NVector1));
+		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+
+	saveExtra(data) {
+		data.val = this.val;
+	}
+
+	load(data, loadids) {
+		super.load(data, loadids);
+		Object.assign(this.val, data.val);
+		this.inputDiv.value = this.val.float;
+	}
+
+	static getName() {
+		return "S_Vector1";
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
 
 	static getTags() {
-		return ["plus", "+", "sum"];
+		return ["float1"];
+	}
+}
+
+class SVector2Node extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.val = NVector2.construct();
+		this.inputVal;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Vector2");
+		this.addCenter();
+		this.inputDiv = NVector2.edit(this.val, this.board);
+		this.inputDiv.className = "nodeval vec2";
+		this.centerDiv.append(this.inputDiv);
+		this.noPinfo = true;
+		this.addOutPin(new NPin("Value", NVector2));
+		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+
+	saveExtra(data) {
+		data.val = this.val;
+	}
+
+	load(data, loadids) {
+		super.load(data, loadids);
+		Object.assign(this.val, data.val);
+		$(this.inputDiv).find(".vec2x").get(0).value = this.val.x;
+		$(this.inputDiv).find(".vec2y").get(0).value = this.val.y;
+	}
+
+	static getName() {
+		return "S_Vector2";
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["float2"];
+	}
+}
+
+class SVector3Node extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.val = NVector3.construct();
+		this.inputVal;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Vector3");
+		this.addCenter();
+		this.inputDiv = NVector3.edit(this.val, this.board);
+		this.inputDiv.className = "nodeval vec3";
+		this.centerDiv.append(this.inputDiv);
+		this.noPinfo = true;
+		this.addOutPin(new NPin("Value", NVector3));
+		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+
+	saveExtra(data) {
+		data.val = this.val;
+	}
+
+	load(data, loadids) {
+		super.load(data, loadids);
+		Object.assign(this.val, data.val);
+		$(this.inputDiv).find(".vec3x").get(0).value = this.val.x;
+		$(this.inputDiv).find(".vec3y").get(0).value = this.val.y;
+		$(this.inputDiv).find(".vec3z").get(0).value = this.val.z;
+	}
+
+	static getName() {
+		return "S_Vector3";
+	}
+
+	static getOutTypes() {
+		return [NVector3];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["float3"];
+	}
+}
+
+class SDisplayNode extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.canvas;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter();
+		this.canvas = document.createElement("canvas");
+		this.canvas.className = "displaynode";
+		this.centerDiv.append(this.canvas);
+		this.noPinfo = true;
+		this.addHeader("Shader Dislay");
+		this.addInPin(new NPin("_", NVector1, NVector2, NVector3));
+
+		return this.containerDiv;
+	}
+
+	static getName() {
+		return "S_Display";
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["output", "preview"];
 	}
 }
 

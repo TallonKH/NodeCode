@@ -427,6 +427,9 @@ canvas {
 .nodeval {
 	transform: translateY(50%);
 	margin: 0px 25px 0px 10px;
+}
+
+input.nodeval, .nodeval input {
 	text-overflow: ellipsis;
 	display: table;
 	text-align: left;
@@ -482,13 +485,13 @@ input[type=checkbox]:checked+label.boolean:after {
 	color: #6c6c6c;
 }
 
-.pinval {
+.pinfo>input {
 	height: 15px;
 	width: 60px;
 	margin: 0px;
 }
 
-input.pinval, input.nodeval {
+.pinfo>input, input.nodeval {
 	outline: none;
 }
 
@@ -537,21 +540,40 @@ input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer
 	box-shadow: 0px 0px 2px 2px #d75e5e;
 }
 
+.pinfo>div.vec2 {
+	width: 92px;
+}
+
+.pinfo>div.vec2>input {
+	width: 45px;
+}
+
+input.nodeval.vec1 {
+	width: 150px;
+}
+
+.nodeval.vec2>input {
+	width: 75px;
+}
+
+.nodeval.vec3>input {
+	width: 50px;
+}
+
 div.vec2 {
 	overflow: visible;
-	padding: 0px;
+	padding: 0px
 	display: flex;
 	border: 1px solid #99eb7c;
-	width: 92px;
 }
 
 input.vec2 {
 	display: inline-block;
-	width: 45px;
 	border: none;
 }
 
 input.vec2:focus {
+	outline: none;
 	border-right: 1px solid #00000000;
 	box-shadow: 0px 0px 2px 2px #78b861;
 	z-index: 1;
@@ -565,22 +587,29 @@ input.vec2:first-child:focus {
 	border-right: 1px solid #00000000;
 }
 
+.pinfo>div.vec3 {
+	width: 92px;
+}
+
 div.vec3 {
 	overflow: visible;
 	padding: 0px;
 	display: flex;
 	border: 1px solid #6f7df2;
-	width: 92px;
+}
+
+.pinfo>div.vec3>input {
+	width: 30px;
 }
 
 input.vec3 {
 	display: inline-block;
-	width: 30px;
 	border: none;
 	border-right: 1px solid #6f7df2;
 }
 
 input.vec3:focus {
+	outline: none;
 	border-right: 1px solid #00000000;
 	box-shadow: 0px 0px 2px 2px #5a66c9;
 	z-index: 1;
