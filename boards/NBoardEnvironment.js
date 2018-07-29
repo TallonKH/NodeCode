@@ -33,7 +33,7 @@ class Main {
 		this.maxExecIterations = 500;
 
 		this.nodeTypeList = [
-			StringNode, IntegerNode, DoubleNode, DisplayNode, PrintNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode, LogicalAndNode, CustomPinMenuNode, STypeTestNode, SAdditionNode
+			StringNode, IntegerNode, DoubleNode, DisplayNode, PrintNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode, LogicalAndNode, CustomPinMenuNode, STypeTestNode, SDisplayNode, SVector1Node, SVector2Node, SVector3Node, SAdditionNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
