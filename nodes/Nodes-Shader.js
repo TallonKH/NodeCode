@@ -5,8 +5,8 @@ class STypeTestNode extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addCenter("+");
-
+		this.addCenter("|||");
+		this.addHeader("Vector Types");
 		this.addInPin(new NPin("Vec 1 In", NVector1));
 		this.addInPin(new NPin("Vec 2 In", NVector2));
 		this.addInPin(new NPin("Vec 3 In", NVector3));

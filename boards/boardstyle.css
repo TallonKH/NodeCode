@@ -654,14 +654,14 @@ input.vec3:last-child {
 	text-align: right;
 }
 
-.pins:not([nopinfo]):hover+.pinfos, .pinfos[opened], .pinfos:hover {
+.pins:not([nopinfo]):hover+.pinfos, .pinfos[opened], .pinfos:focus-within, .pinfos:hover {
 	visibility: visible;
 	transition: all var(--pinfo-transition-time) ease var(--pinfo-delay);
 	background-color: #bebebe;
 	flex: 1 0 0;
 }
 
-.pins:not([nopinfo]):hover~.center, .pinfos[opened]~.center, .pinfos:hover~.center {
+.pins:not([nopinfo]):hover~.center, .pinfos[opened]~.center, .pinfos:focus-within~.center, .pinfos:hover~.center {
 	transition: flex var(--pinfo-transition-time) ease var(--pinfo-delay);
 	flex: 0 1 0;
 }
@@ -686,11 +686,11 @@ input.vec3:last-child {
 	justify-content: flex-end;
 }
 
-.pins:hover+.inpinfos, .inpinfos[opened], .inpinfos:hover {
+.pins:hover+.inpinfos, .inpinfos[opened], .inpinfos:hover, .inpinfos:focus-within {
 	border-right: 2px solid #6b6b6b;
 }
 
-.pins:hover+.outpinfos, .outpinfos[opened], .outpinfos:hover {
+.pins:hover+.outpinfos, .outpinfos[opened], .outpinfos:hover, .outpinfos:focus-within {
 	border-left: 2px solid #6b6b6b;
 }
 
