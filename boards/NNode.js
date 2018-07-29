@@ -780,7 +780,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 	op = new NCtxMenuOption("Go to");
 	op.action = function(e) {
-		//TODO M4K3 TH1S GOTO TH3 C3NT3R
+		// F1X TH1S
 		brd.displayOffset = getGroupCenter(nodes).multiply1(-1).add2(brd.paneDiv.width / 2, brd.paneDiv.height / 2);
 		brd.redraw();
 	}

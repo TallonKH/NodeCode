@@ -203,7 +203,7 @@ class PrintNode extends NNode {
 
 	inputExecuted(pin) {
 		const val = this.inputN("Value");
-		this.board.env.logt(JSON.stringify(val));
+		this.board.env.logt(shallowStringify(val, 4, 0), Function.prototype);
 		this.execN("__");
 	}
 

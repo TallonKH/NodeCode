@@ -694,8 +694,6 @@ input.pinval, input.nodeval {
 	vertical-align: middle;
 }
 
-.collapser[open] {}
-
 .collapser>.text {
 	flex: 1 1 0;
 	overflow: hidden;
@@ -724,18 +722,21 @@ input.pinval, input.nodeval {
 
 .listmenu>div>.collapser {
 	padding: 0px 4px;
-	background-color: #d8d8d8;
-	border-bottom: 2px solid #c8c8c8;
+	background-color: #e8e8e8;
 	transition: border-bottom 0.2s, background-color 0.2s;
 }
 
+.listmenu>div>.collapser:hover {
+	background-color: #e4e4e4;
+}
+
 .listmenu>div>.collapser[open] {
-	background-color: #d0d0d0;
-	border-bottom: 2px solid #00000000;
+	background-color: #dadada;
 }
 
 .listmenu>div>.collapsing {
 	background-color: #f3f3f3;
+	border-bottom: 2px solid #c8c8c8;
 }
 
 /* list menus */
@@ -794,6 +795,8 @@ input.pinval, input.nodeval {
 }
 
 .consoleitem {
+	background-color: #444444;
+	transition: background-color 0.4s;
 	font-family: monospace;
 	color: #8bffa1;
 	display: block;
@@ -806,6 +809,10 @@ input.pinval, input.nodeval {
 	-moz-user-select: all;
 	-ms-user-select: all;
 	user-select: all;*/
+}
+
+.consoleitem[dclickable]:hover {
+	background-color: #666666;
 }
 
 .consoleinput {

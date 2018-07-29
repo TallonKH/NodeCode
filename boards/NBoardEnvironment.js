@@ -153,12 +153,18 @@ class Main {
 		}
 	}
 
-	logt(text) {
+	logt(text, src=null) {
 		const scrtopPre = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
 
 		const d = document.createElement("div");
 		d.className = "consoleitem";
 		d.innerHTML = text;
+
+		if(src){
+			d.setAttribute("dclickable", true);
+			d.ondblclick = src;
+		}
+
 		this.consoleDiv.append(d);
 
 		if (scrtopPre - this.consoleDiv.scrollTop < 20) {
