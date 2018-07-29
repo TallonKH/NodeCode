@@ -1,3 +1,5 @@
+//TODO F1X ONFOCUSOUT NOT DO1NG 4NYTH1NG
+
 varTypes = {};
 class NVarType {
 	constructor(name, addValues, color, ...parents) {
@@ -127,6 +129,7 @@ NInteger.edit = function(nvar, brd) {
 	inp.onfocusout = changeNVal;
 	inp.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNVal();
 				inp.blur();
@@ -163,6 +166,7 @@ NDouble.edit = function(nvar, brd) {
 	inp.onfocusout = changeNVal();
 	inp.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNVal();
 				inp.blur();
@@ -240,6 +244,7 @@ NString.edit = function(nvar, brd) {
 	inp.onfocusout = changeNVal;
 	inp.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNVal();
 				inp.blur();
@@ -276,6 +281,7 @@ NVector1.edit = function(nvar, brd) {
 	inp.onfocusout = changeNVal();
 	inp.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNVal();
 				inp.blur();
@@ -331,6 +337,7 @@ NVector2.edit = function(nvar, brd) {
 	inp1.onfocusout = changeNValX();
 	inp1.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNValX();
 				inp1.blur();
@@ -345,6 +352,7 @@ NVector2.edit = function(nvar, brd) {
 	inp2.onfocusout = changeNValY();
 	inp2.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNValY();
 				inp2.blur();
@@ -416,6 +424,7 @@ NVector3.edit = function(nvar, brd) {
 	inp1.onfocusout = changeNValX();
 	inp1.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNValX();
 				inp1.blur();
@@ -430,6 +439,7 @@ NVector3.edit = function(nvar, brd) {
 	inp2.onfocusout = changeNValY();
 	inp2.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
 				changeNValY();
 				inp2.blur();
@@ -440,13 +450,13 @@ NVector3.edit = function(nvar, brd) {
 				break;
 		}
 	}
-	return wrapper;
 
 	inp3.onfocusout = changeNValZ();
 	inp3.onkeydown = function(e) {
 		switch (e.which) {
+			case 9: // TAB
 			case 13: // ENTER
-				changeNValY();
+				changeNValZ();
 				inp3.blur();
 				break;
 			case 27: // ESC
