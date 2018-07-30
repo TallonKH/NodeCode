@@ -460,7 +460,7 @@ class NNode {
 			"varMap": {}
 		};
 
-		let pre = "precision mediump float;\n\nvarying vec2 fragTexCoord;\n\nvoid main() {\n\tgl_FragColor = ";
+		let pre = "precision mediump float;\n\nvarying vec2 fragTexCoord;\n\nvoid main() {\n";
 		let str = this.getSCompile(pin, type, data, 0);
 		switch (type.name) {
 			case "Vec1":
@@ -479,16 +479,15 @@ class NNode {
 				break;
 		}
 		let end = ";\n}"
-
 		const vars = Object.entries(data.varMap);
 		vars.sort(function(a, b) {
 			a[1].depth - b[1].depth
 		});
 		for (const v of vars) {
-			pre.append("\t" + v.compiled + "\n");
+			pre = pre + "\t" + v[1].compiled + "\n";
 		}
-		console.log(pre + str + end);
-		return pre + str + end;
+		console.log(pre + "\tgl_FragColor = " + str + end);
+		return pre + "\tgl_FragColor = " + str + end;
 	}
 
 	getSCompile(pin, varType, data, depth) {
@@ -497,8 +496,11 @@ class NNode {
 			if (pin.linkNum > 1) {
 				// check if variable has already been 'declared'
 				let v = data.varMap[pin];
+				let name;
 				// if var has not already been 'declared,' generate a unique name
-				if (!name) {
+				if (v) {
+					name = v.name;
+				}else{
 					name = this.getOutputVarName(pin);
 					let num = 0;
 					while (data.varNameSet.has(name + num.toString())) {
@@ -508,13 +510,20 @@ class NNode {
 
 					let depth2 = data.varMap[pin];
 					depth2 = depth2 ? depth2.depth : 0;
-					depth = Math.math(depth, depth2);
+					depth = Math.max(depth, depth2);
 
-					const compiled = varType.compileName + " " + name + " = " + this.scompile(pin, data) + ";";
+					let cpd = this.scompile(pin, data);
+					if(numbers.has(cpd[0])){
+						cpd = varType.compileName + "(" + cpd + ")";
+					}
+					const compiled = varType.compileName + " " + name + " = " + cpd + ";";
+
+					console.log(compiled);
 
 					data.varMap[pin] = {
 						"depth": depth,
-						"compiled": compiled
+						"compiled": compiled,
+						"name": name
 					};
 					data.varNameSet.add(name);
 
