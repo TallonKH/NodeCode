@@ -560,6 +560,10 @@ input.nodeval.vec1 {
 	width: 50px;
 }
 
+.nodeval.vec4>input {
+	width: 38px;
+}
+
 div.vec2 {
 	overflow: visible;
 	padding: 0px
@@ -591,6 +595,10 @@ input.vec2:first-child:focus {
 	width: 92px;
 }
 
+.pinfo>div.vec4 {
+	width: 92px;
+}
+
 div.vec3 {
 	overflow: visible;
 	padding: 0px;
@@ -598,14 +606,31 @@ div.vec3 {
 	border: 1px solid #6f7df2;
 }
 
+div.vec4 {
+	overflow: visible;
+	padding: 0px;
+	display: flex;
+	border: 1px solid #d26bf1;
+}
+
 .pinfo>div.vec3>input {
 	width: 30px;
+}
+
+.pinfo>div.vec4>input {
+	width: 23px;
 }
 
 input.vec3 {
 	display: inline-block;
 	border: none;
 	border-right: 1px solid #6f7df2;
+}
+
+input.vec4 {
+	display: inline-block;
+	border: none;
+	border-right: 1px solid #d26bf1;
 }
 
 input.vec3:focus {
@@ -615,7 +640,18 @@ input.vec3:focus {
 	z-index: 1;
 }
 
+input.vec4:focus {
+	outline: none;
+	border-right: 1px solid #00000000;
+	box-shadow: 0px 0px 2px 2px #ab57c4;
+	z-index: 1;
+}
+
 input.vec3:last-child {
+	border-right: none;
+}
+
+input.vec4:last-child {
 	border-right: none;
 }
 
@@ -926,4 +962,10 @@ input.vec3:last-child {
 
 .consoleitem:first-child {
 	border-top: 1px solid #b8b8b8;
+}
+
+.displaynode {
+	margin: 20px;
+	width: 30px;
+	height: 30px;
 }

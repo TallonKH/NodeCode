@@ -10,10 +10,12 @@ class STypeTestNode extends NNode {
 		this.addInPin(new NPin("Vec 1 In", NVector1));
 		this.addInPin(new NPin("Vec 2 In", NVector2));
 		this.addInPin(new NPin("Vec 3 In", NVector3));
+		this.addInPin(new NPin("Vec 4 In", NVector4));
 
 		this.addOutPin(new NPin("Vec 1 Out", NVector1));
 		this.addOutPin(new NPin("Vec 2 Out", NVector2));
 		this.addOutPin(new NPin("Vec 3 Out", NVector3));
+		this.addOutPin(new NPin("Vec 4 Out", NVector4));
 
 		return this.containerDiv;
 	}
@@ -23,11 +25,11 @@ class STypeTestNode extends NNode {
 	}
 
 	static getInTypes() {
-		return [NVector1, NVector2, NVector3];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getOutTypes() {
-		return [NVector1, NVector2, NVector3];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getCategory() {
@@ -35,12 +37,10 @@ class STypeTestNode extends NNode {
 	}
 }
 
-
 class SVector1Node extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.val = NVector1.construct();
-		this.inputVal;
 	}
 
 	createNodeDiv() {
@@ -69,6 +69,10 @@ class SVector1Node extends NNode {
 		this.inputDiv.value = this.val.float;
 	}
 
+	scompile(pin, data) {
+		return NVector1.scompile(this.val);
+	}
+
 	static getName() {
 		return "S_Vector1";
 	}
@@ -90,7 +94,6 @@ class SVector2Node extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.val = NVector2.construct();
-		this.inputVal;
 	}
 
 	createNodeDiv() {
@@ -120,6 +123,10 @@ class SVector2Node extends NNode {
 		$(this.inputDiv).find(".vec2y").get(0).value = this.val.y;
 	}
 
+	scompile(pin, data) {
+		return NVector2.scompile(this.val);
+	}
+
 	static getName() {
 		return "S_Vector2";
 	}
@@ -141,7 +148,6 @@ class SVector3Node extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.val = NVector3.construct();
-		this.inputVal;
 	}
 
 	createNodeDiv() {
@@ -172,6 +178,10 @@ class SVector3Node extends NNode {
 		$(this.inputDiv).find(".vec3z").get(0).value = this.val.z;
 	}
 
+	scompile(pin, data) {
+		return NVector3.scompile(this.val);
+	}
+
 	static getName() {
 		return "S_Vector3";
 	}
@@ -189,23 +199,105 @@ class SVector3Node extends NNode {
 	}
 }
 
-class SDisplayNode extends NNode {
+class SVector4Node extends NNode {
 	constructor(data = null) {
 		super(data);
-		this.canvas;
+		this.val = NVector4.construct();
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
+		this.addHeader("Vector4");
 		this.addCenter();
+		this.inputDiv = NVector4.edit(this.val, this.board);
+		this.inputDiv.className = "nodeval vec4";
+		this.centerDiv.append(this.inputDiv);
+		this.noPinfo = true;
+		this.addOutPin(new NPin("Value", NVector4));
+		return this.containerDiv;
+	}
+
+	returnValRequested(pin) {
+		return this.val;
+	}
+
+	saveExtra(data) {
+		data.val = this.val;
+	}
+
+	load(data, loadids) {
+		super.load(data, loadids);
+		Object.assign(this.val, data.val);
+		$(this.inputDiv).find(".vec4x").get(0).value = this.val.x;
+		$(this.inputDiv).find(".vec4y").get(0).value = this.val.y;
+		$(this.inputDiv).find(".vec4z").get(0).value = this.val.z;
+		$(this.inputDiv).find(".vec4a").get(0).value = this.val.a;
+	}
+
+	scompile(pin, data) {
+		return NVector4.scompile(this.val);
+	}
+
+	static getName() {
+		return "S_Vector4";
+	}
+
+	static getOutTypes() {
+		return [NVector4];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["float4"];
+	}
+}
+
+class SDisplayNode extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.canvas;
+		this.gl;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+
+		this.addCenter();
+		const node = this;
+
+		const refresher = document.createElement("i");
+		refresher.className = "material-icons";
+		refresher.innerHTML = "refresh";
+		refresher.onclick = function(e) {
+			node.recompileCanvas();
+		}
+		this.centerDiv.append(refresher);
+
 		this.canvas = document.createElement("canvas");
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
+
 		this.noPinfo = true;
 		this.addHeader("Shader Dislay");
-		this.addInPin(new NPin("_", NVector1, NVector2, NVector3));
+		this.addInPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
 
 		return this.containerDiv;
+	}
+
+	recompileCanvas() {
+		if (this.gl) {
+			this.gl.delete();
+		}
+		const inpin = this.inpins["_"];
+		if (inpin.linkNum) {
+			const link = inpin.getSingleLinked();
+			if (!link.multiTyped) {
+				this.gl = setupWebGLRectangle(this.canvas, this.fullSCompile(inpin, link.type));
+			}
+		}
 	}
 
 	static getName() {
@@ -213,10 +305,6 @@ class SDisplayNode extends NNode {
 	}
 
 	static getInTypes() {
-		return [NVector1, NVector2, NVector3];
-	}
-
-	static getOutTypes() {
 		return [NVector1, NVector2, NVector3];
 	}
 

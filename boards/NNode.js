@@ -420,8 +420,8 @@ class NNode {
 	inputExecuted(pin) {}
 
 	getValue(pin) {
-		if (pin.isExec) {
-			console.log("Can't get a return value from an exec pin! (" + pin.name + ")");
+		if (!pin.type || (pin.type && !pin.type.hasValue)) {
+			console.log("Can't get a return value from (" + pin.name + ")!");
 			return null;
 		}
 		if (pin.side) { // if called on an output, run node logic
@@ -448,6 +448,213 @@ class NNode {
 	// shortcut to execute by name
 	execN(outpinName) {
 		this.execute(this.outpins[outpinName]);
+	}
+
+	getOutputVarName(pin) {
+		return "var";
+	}
+
+	fullSCompile(pin, type) {
+		const data = {
+			"varNameSet": new Set(),
+			"varMap": {}
+		};
+
+		let pre = "precision mediump float;\n\nvarying vec2 fragTexCoord;\n\nvoid main() {\n\tgl_FragColor = ";
+		let str = this.getSCompile(pin, type, data, 0);
+		switch (type.name) {
+			case "Vec1":
+				str = "vec4(vec3(" + str + "), 1.0)";
+				break;
+			case "Vec2":
+				str = "vec4(" + str + ", 0.0, 1.0)";
+				break;
+			case "Vec3":
+				str = "vec4(" + str + ", 1.0)";
+				break;
+			case "Vec4":
+				if(numbers.has(str[0])){
+					str = "vec4(" + str + ")";
+				}
+				break;
+		}
+		let end = ";\n}"
+
+		const vars = Object.entries(data.varMap);
+		vars.sort(function(a, b) {
+			a[1].depth - b[1].depth
+		});
+		for (const v of vars) {
+			pre.append("\t" + v.compiled + "\n");
+		}
+		console.log(pre + str + end);
+		return pre + str + end;
+	}
+
+	getSCompile(pin, varType, data, depth) {
+		if (pin.side) {
+			// if output has multiple connections, do not repeat calculation - insert variable instead
+			if (pin.linkNum > 1) {
+				// check if variable has already been 'declared'
+				let v = data.varMap[pin];
+				// if var has not already been 'declared,' generate a unique name
+				if (!name) {
+					name = this.getOutputVarName(pin);
+					let num = 0;
+					while (data.varNameSet.has(name + num.toString())) {
+						num++;
+					}
+					name = name + num.toString();
+
+					let depth2 = data.varMap[pin];
+					depth2 = depth2 ? depth2.depth : 0;
+					depth = Math.math(depth, depth2);
+
+					const compiled = varType.compileName + " " + name + " = " + this.scompile(pin, data) + ";";
+
+					data.varMap[pin] = {
+						"depth": depth,
+						"compiled": compiled
+					};
+					data.varNameSet.add(name);
+
+					// keep track of 'depth' to know which variables need to be declared before others
+					depth++;
+				}
+				return name;
+			} else {
+				return this.scompile(pin, data);
+			}
+		} else {
+			if (pin.linkNum) {
+				const link = pin.getSingleLinked();
+				if (link.multiTyped) {
+					this.board.env.logt("Cannot compile shader when output pin " + link.name + ":" + link.node.name + " has multiple types!");
+				} else {
+					switch (varType.name) {
+						case "Vec1":
+							switch (link.type.name) {
+								case "Vec1":
+									return link.node.getSCompile(link, NVector1, data, depth);
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Vec1 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec3 to Vec1 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec4":
+									this.board.env.logt("Cannot convert Vec4 to Vec1 at " + pin.name + ":" + this.type);
+									return null;
+							}
+						case "Vec2":
+							switch (link.type.name) {
+								case "Vec1":
+									return "vec2(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
+								case "Vec2":
+									return link.node.getSCompile(link, NVector2, data, depth);
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec3 to Vec2 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec4":
+									this.board.env.logt("Cannot convert Vec4 to Vec2 at " + pin.name + ":" + this.type);
+									return null;
+							}
+						case "Vec3":
+							switch (link.type.name) {
+								case "Vec1":
+									return "vec3(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Vec3 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									return link.node.getSCompile(link, NVector3, data, depth);
+								case "Vec4":
+									this.board.env.logt("Cannot convert Vec4 to Vec3 at " + pin.name + ":" + this.type);
+									return null;
+							}
+						case "Vec4":
+							switch (link.type.name) {
+								case "Vec1":
+									return "vec4(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Vec4 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec4 to Vec4 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec4":
+									return link.node.getSCompile(link, NVector4, data, depth);
+							}
+					}
+				}
+			} else {
+				if (pin.multiTyped) {
+					this.board.env.logt("Cannot compile shader when unlinked pin " + pin.name + ":" + this.type + " does not have default value!");
+					return null;
+				} else {
+					switch (varType.name) {
+						case "Vec1":
+							switch (pin.type.name) {
+								case "Vec1":
+									return NVector1.scompile(pin.defaultVal);
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Vec1 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec3 to Vec1 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec4 to Vec1 at " + pin.name + ":" + this.type);
+									return null;
+							}
+						case "Vec2":
+							switch (pin.type.name) {
+								case "Vec1":
+									return "vec2(" + NVector1.scompile(pin.defaultVal) + ")";
+								case "Vec2":
+									return NVector2.scompile(pin.defaultVal);
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec3 to Vec2 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec4 to Vec2 at " + pin.name + ":" + this.type);
+									return null;
+							}
+						case "Vec3":
+							switch (pin.type.name) {
+								case "Vec1":
+									return "vec3(" + NVector1.scompile(pin.defaultVal) + ")";
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Vec3 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									return NVector3.scompile(pin.defaultVal);
+								case "Vec4":
+									this.board.env.logt("Cannot convert Vec4 to Vec3 at " + pin.name + ":" + this.type);
+									return null;
+							}
+						case "Vec4":
+							switch (pin.type.name) {
+								case "Vec1":
+									return "vec4(" + NVector1.scompile(pin.defaultVal) + ")";
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Vec4 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec3 to Vec4 at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec4":
+									return NVector4.scompile(pin.defaultVal);
+							}
+					}
+				}
+			}
+		}
+	}
+
+	scompile(pin, data) {
+		console.log(pin.name + ":" + this.type + " does not have an scompile function!");
+		return "ERROR";
 	}
 
 	execute(pin) {

@@ -10,6 +10,7 @@ class NVarType {
 		this.addValues = addValues;
 		this.color = color;
 		this.parents = new Set(parents);
+		this.hasVal = true;
 		this.edit = null;
 		this.allParents = [];
 		for (const parent of parents) {
@@ -80,11 +81,11 @@ getValidOutTypes = function(ins, outs) {
 }
 
 double = function(v) {
-	if(v.double !== undefined){
+	if (v.double !== undefined) {
 		return v.double;
 	}
 
-	if(v.int !== undefined){
+	if (v.int !== undefined) {
 		return v.int;
 	}
 
@@ -104,7 +105,9 @@ boolean = function(v) {
 const NObject = new NVarType("Object", function(nvar) {}, "#8c8c8c");
 const NComment = new NVarType("Comment", function(nvar) {}, "#bababa");
 NComment.setMultiInput(true);
+NComment.hasVal = false;
 const NExecution = new NVarType("Execution", function(nvar) {}, "#404040");
+NExecution.hasVal = false;
 NExecution.setMultiInput(true);
 NExecution.setMultiOutput(false);
 
@@ -118,10 +121,12 @@ NInteger.edit = function(nvar, brd) {
 	inp.value = nvar.int;
 	inp.step = "1";
 
-	const changeNVal = function(){
+	const changeNVal = function() {
 		const val = parseInt(inp.value) || 0;
-		if(val != nvar.int){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"int":val}, null, v => inp.value = v.int));
+		if (val != nvar.int) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"int": val
+			}, null, v => inp.value = v.int));
 			nvar.int = val;
 		}
 	}
@@ -155,10 +160,12 @@ NDouble.edit = function(nvar, brd) {
 	inp.type = "number";
 	inp.value = nvar.double;
 
-	const changeNVal = function(){
+	const changeNVal = function() {
 		const val = parseFloat(inp.value) || 0.0;
-		if(val != nvar.double){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"double":val}, null, v => inp.value = v.double));
+		if (val != nvar.double) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"double": val
+			}, null, v => inp.value = v.double));
 			nvar.double = val;
 		}
 	}
@@ -205,10 +212,12 @@ NBoolean.edit = function(nvar, brd) {
 	lbl.htmlFor = id;
 	cnt.append(lbl);
 
-	const changeNVal = function(){
+	const changeNVal = function() {
 		const val = inp.checked;
-		if(val != nvar.boolean){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"boolean":val}, null, v => inp.checked = v.boolean));
+		if (val != nvar.boolean) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"boolean": val
+			}, null, v => inp.checked = v.boolean));
 			nvar.boolean = val;
 		}
 	}
@@ -233,10 +242,12 @@ NString.edit = function(nvar, brd) {
 	inp.type = "text";
 	inp.value = nvar.string;
 
-	const changeNVal = function(){
+	const changeNVal = function() {
 		const val = inp.value;
-		if(val != nvar.string){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"string":val}, null, v => inp.value = v.string));
+		if (val != nvar.string) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"string": val
+			}, null, v => inp.value = v.string));
 			nvar.string = val;
 		}
 	}
@@ -264,16 +275,22 @@ NString.changeVal = function(inp, nval) {
 const NVector1 = new NVarType("Vec1", function(nvar) {
 	nvar.float = 0.0;
 }, "#fc6d6d", NObject);
+NVector1.compileName = "vec1";
+NVector1.scompile = function(nvar) {
+	return fstr(nvar.float);
+};
 NVector1.edit = function(nvar, brd) {
 	const inp = document.createElement("input");
 	inp.className = "vec1";
 	inp.type = "number";
 	inp.value = nvar.float;
 
-	const changeNVal = function(){
+	const changeNVal = function() {
 		const val = parseFloat(inp.value) || 0.0;
-		if(val != nvar.float){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"float":val}, null, v => inp.value = v.float));
+		if (val != nvar.float) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"float": val
+			}, null, v => inp.value = v.float));
 			nvar.float = val;
 		}
 	}
@@ -297,11 +314,16 @@ NVector1.edit = function(nvar, brd) {
 NVector1.changeVal = function(inp, nval) {
 	inp.value = nval.float;
 }
+NVector1.hasVal = false;
 
 const NVector2 = new NVarType("Vec2", function(nvar) {
 	nvar.x = 0.0;
 	nvar.y = 0.0;
 }, "#99eb7c", NObject);
+NVector2.compileName = "vec2";
+NVector2.scompile = function(nvar) {
+	return fstr(nvar.x) + ", " + fstr(nvar.y);
+};
 NVector2.edit = function(nvar, brd) {
 	const wrapper = document.createElement("div");
 	wrapper.className = "vec2";
@@ -318,18 +340,22 @@ NVector2.edit = function(nvar, brd) {
 	inp2.value = nvar.y;
 	wrapper.append(inp2);
 
-	const changeNValX = function(){
+	const changeNValX = function() {
 		const val = parseFloat(inp1.value) || 0.0;
-		if(val != nvar.x){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"x":val}, null, v => inp1.value = v.x));
+		if (val != nvar.x) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"x": val
+			}, null, v => inp1.value = v.x));
 			nvar.x = val;
 		}
 	}
 
-	const changeNValY = function(){
+	const changeNValY = function() {
 		const val = parseFloat(inp2.value) || 0.0;
-		if(val != nvar.y){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"y":val}, null, v => inp2.value = v.y));
+		if (val != nvar.y) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"y": val
+			}, null, v => inp2.value = v.y));
 			nvar.y = val;
 		}
 	}
@@ -369,12 +395,17 @@ NVector2.changeVal = function(inp, nval) {
 	$(inp).find(".vec2x").get(0).value = nval.x;
 	$(inp).find(".vec2y").get(0).value = nval.y;
 }
+NVector2.hasVal = false;
 
 const NVector3 = new NVarType("Vec3", function(nvar) {
 	nvar.x = 0.0;
 	nvar.y = 0.0;
 	nvar.z = 0.0;
 }, "#6f7df2", NObject);
+NVector3.compileName = "vec3";
+NVector3.scompile = function(nvar) {
+	return fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z);
+};
 // TODO 4DD 4 COLOR P1CK3R
 NVector3.edit = function(nvar, brd) {
 	const wrapper = document.createElement("div");
@@ -398,26 +429,32 @@ NVector3.edit = function(nvar, brd) {
 	inp3.value = nvar.z;
 	wrapper.append(inp3);
 
-	const changeNValX = function(){
+	const changeNValX = function() {
 		const val = parseFloat(inp1.value) || 0.0;
-		if(val != nvar.x){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"x":val}, null, v => inp1.value = v.x));
+		if (val != nvar.x) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"x": val
+			}, null, v => inp1.value = v.x));
 			nvar.x = val;
 		}
 	}
 
-	const changeNValY = function(){
+	const changeNValY = function() {
 		const val = parseFloat(inp2.value) || 0.0;
-		if(val != nvar.y){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"y":val}, null, v => inp2.value = v.y));
+		if (val != nvar.y) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"y": val
+			}, null, v => inp2.value = v.y));
 			nvar.y = val;
 		}
 	}
 
-	const changeNValZ = function(){
+	const changeNValZ = function() {
 		const val = parseFloat(inp3.value) || 0.0;
-		if(val != nvar.z){
-			brd.addAction(new ActChangeDefVal(brd, nvar, {"z":val}, null, v => inp3.value = v.z));
+		if (val != nvar.z) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"z": val
+			}, null, v => inp3.value = v.z));
 			nvar.z = val;
 		}
 	}
@@ -473,3 +510,152 @@ NVector3.changeVal = function(inp, nval) {
 	$(inp).find(".vec3y").get(0).value = nval.y;
 	$(inp).find(".vec3z").get(0).value = nval.z;
 }
+NVector3.hasVal = false;
+
+const NVector4 = new NVarType("Vec4", function(nvar) {
+	nvar.x = 0.0;
+	nvar.y = 0.0;
+	nvar.z = 0.0;
+	nvar.a = 0.0;
+}, "#d26bf1", NObject);
+NVector4.compileName = "vec4";
+NVector4.scompile = function(nvar) {
+	return fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ", " + fstr(nvar.a);
+};
+// TODO 4DD 4 COLOR P1CK3R
+NVector4.edit = function(nvar, brd) {
+	const wrapper = document.createElement("div");
+	wrapper.className = "vec4";
+
+	const inp1 = document.createElement("input");
+	inp1.className = "vec4 vec4x";
+	inp1.type = "number";
+	inp1.value = nvar.x;
+	wrapper.append(inp1);
+
+	const inp2 = document.createElement("input");
+	inp2.className = "vec4 vec4y";
+	inp2.type = "number";
+	inp2.value = nvar.y;
+	wrapper.append(inp2);
+
+	const inp3 = document.createElement("input");
+	inp3.className = "vec4 vec4z";
+	inp3.type = "number";
+	inp3.value = nvar.z;
+	wrapper.append(inp3);
+
+	const inp4 = document.createElement("input");
+	inp4.className = "vec4 vec4a";
+	inp4.type = "number";
+	inp4.value = nvar.a;
+	wrapper.append(inp4);
+
+	const changeNValX = function() {
+		const val = parseFloat(inp1.value) || 0.0;
+		if (val != nvar.x) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"x": val
+			}, null, v => inp1.value = v.x));
+			nvar.x = val;
+		}
+	}
+
+	const changeNValY = function() {
+		const val = parseFloat(inp2.value) || 0.0;
+		if (val != nvar.y) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"y": val
+			}, null, v => inp2.value = v.y));
+			nvar.y = val;
+		}
+	}
+
+	const changeNValZ = function() {
+		const val = parseFloat(inp3.value) || 0.0;
+		if (val != nvar.z) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"z": val
+			}, null, v => inp3.value = v.z));
+			nvar.z = val;
+		}
+	}
+
+	const changeNValA = function() {
+		const val = parseFloat(inp4.value) || 0.0;
+		if (val != nvar.a) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"a": val
+			}, null, v => inp4.value = v.a));
+			nvar.a = val;
+		}
+	}
+
+	inp1.onfocusout = changeNValX();
+	inp1.onkeydown = function(e) {
+		switch (e.which) {
+			case 9: // TAB
+			case 13: // ENTER
+				changeNValX();
+				inp1.blur();
+				break;
+			case 27: // ESC
+				inp1.value = nvar.x;
+				inp1.blur();
+				break;
+		}
+	}
+
+	inp2.onfocusout = changeNValY();
+	inp2.onkeydown = function(e) {
+		switch (e.which) {
+			case 9: // TAB
+			case 13: // ENTER
+				changeNValY();
+				inp2.blur();
+				break;
+			case 27: // ESC
+				inp2.value = nvar.y;
+				inp2.blur();
+				break;
+		}
+	}
+
+	inp3.onfocusout = changeNValZ();
+	inp3.onkeydown = function(e) {
+		switch (e.which) {
+			case 9: // TAB
+			case 13: // ENTER
+				changeNValZ();
+				inp3.blur();
+				break;
+			case 27: // ESC
+				inp3.value = nvar.z;
+				inp3.blur();
+				break;
+		}
+	}
+
+	inp4.onfocusout = changeNValA();
+	inp4.onkeydown = function(e) {
+		switch (e.which) {
+			case 9: // TAB
+			case 13: // ENTER
+				changeNValA();
+				inp4.blur();
+				break;
+			case 27: // ESC
+				inp4.value = nvar.a;
+				inp4.blur();
+				break;
+		}
+	}
+	return wrapper;
+};
+NVector4.changeVal = function(inp, nval) {
+	$(inp).find(".vec4x").get(0).value = nval.x;
+	$(inp).find(".vec4y").get(0).value = nval.y;
+	$(inp).find(".vec4z").get(0).value = nval.z;
+	$(inp).find(".vec4a").get(0).value = nval.a;
+}
+NVector4.hasVal = false;
