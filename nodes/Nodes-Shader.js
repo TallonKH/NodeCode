@@ -454,7 +454,7 @@ class SRoundNode extends NNode {
 			outTypes = getVecChildrenU(inTypes);
 		} else {
 			// narrow down to types that are acceptable by both (any types for all pins linked to output) and (any types for pin linked to input)
-			// THERE'S NO SUCH THING AS TOO MANY LAMBDAS
+			// THERE'S NO SUCH THING AS TOO MANY ARROW FUNCTIONS
 			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => getVecChildrenU(inpl.getTypes()).indexOf(x) >= 0);
 			// narrow outTypes down to types that can be cast from inTypes
 			outTypes = getVecChildrenU(inTypes);

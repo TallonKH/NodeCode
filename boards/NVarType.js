@@ -372,7 +372,7 @@ const NVector2 = new NVarType("Vec2", function(nvar) {
 }, "#99eb7c", NObject);
 NVector2.compileName = "vec2";
 NVector2.scompile = function(nvar) {
-	return fstr(nvar.x) + ", " + fstr(nvar.y);
+	return "vec2(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ")";
 };
 NVector2.edit = function(nvar, brd) {
 	const wrapper = document.createElement("div");
@@ -454,7 +454,7 @@ const NVector3 = new NVarType("Vec3", function(nvar) {
 }, "#6f7df2", NObject);
 NVector3.compileName = "vec3";
 NVector3.scompile = function(nvar) {
-	return fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z);
+	return "vec3(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ")";
 };
 // TODO 4DD 4 COLOR P1CK3R
 NVector3.edit = function(nvar, brd) {
@@ -570,7 +570,7 @@ const NVector4 = new NVarType("Vec4", function(nvar) {
 }, "#d26bf1", NObject);
 NVector4.compileName = "vec4";
 NVector4.scompile = function(nvar) {
-	return fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ", " + fstr(nvar.a);
+	return "vec4(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ", " + fstr(nvar.a) + ")";
 };
 // TODO 4DD 4 COLOR P1CK3R
 NVector4.edit = function(nvar, brd) {
