@@ -402,22 +402,9 @@ class STexCoordNode extends NNode {
 	}
 }
 
-class SRoundNode extends NNode {
+class SmartVecNode1 extends NNode {
 	constructor(data = null) {
 		super(data);
-	}
-
-	createNodeDiv() {
-		super.createNodeDiv();
-		this.addHeader("Round");
-		this.customWidth = 150;
-		this.addCenter("⌊ ⌉");
-		this.centerText.style.fontSize = "40px";
-		this.centerText.style.transform = "translate(0px,-5px)";
-		this.noPinfo = true;
-		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
-		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
-		return this.containerDiv;
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
@@ -447,7 +434,7 @@ class SRoundNode extends NNode {
 			outTypes = [NVector1, NVector2, NVector3, NVector4];
 		} else if (inpl === null) {
 			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
-			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
 			// if only output is connected, outTypes can be anything
 			outTypes = [NVector1, NVector2, NVector3, NVector4];
 		} else if (outpl === null) {
@@ -458,12 +445,28 @@ class SRoundNode extends NNode {
 		} else {
 			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
 			// THERE'S NO SUCH THING AS TOO MANY ARROW FUNCTIONS
-			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
 			// narrow outTypes down to types that can be cast from the input types
 			outTypes = getVecChildrenU(inpl.getTypes());
 		}
 		inp.setTypes(!side, ...inTypes);
 		outp.setTypes(side, ...outTypes);
+	}
+}
+
+class SRoundNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Round");
+		this.addCenter("⌊ ⌉");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.centerText.style.transform = "translate(0px,-5px)";
+
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
 	}
 
 	scompile(pin, varType, data, depth) {
@@ -474,8 +477,106 @@ class SRoundNode extends NNode {
 		return "S_Round";
 	}
 
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["round", "texcoord", "uv"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
 	static getOutTypes() {
 		return [NVector1, NVector2, NVector3, NVector4];
+	}
+}
+
+class SmartVecNode2 extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		this.updateTypes(self.side);
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes(self.side);
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes(self.side);
+	}
+
+	updateTypes(side) {
+		const inp1 = this.inpins["A"];
+		const inp2 = this.inpins["B"];
+
+		let inpl = [];
+		if(inp1.linkNum){
+			inpl.push(inp1.getSingleLinked());
+		}
+		if(inp2.linkNum){
+			inpl.push(inp2.getSingleLinked());
+		}
+		if(!inpl.length){
+			inpl = null;
+		}
+
+		const outp = this.outpins["out"];
+		const outpl = outp.linkNum ? Object.values(outp.links) : null;
+
+		let inTypes;
+		let outTypes;
+
+		if (inpl === null && outpl === null) {
+			inTypes = [NVector1, NVector2, NVector3, NVector4];
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (inpl === null) {
+			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only output is connected, outTypes can be anything
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (outpl === null) {
+			// narrow outTypes down to types that can be cast from the input types
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only input is connected, limit inTypes to types that can be cast from acceptable out types
+			inTypes = getVecParentsU(outTypes);
+		} else {
+			// combo of prev 2 statements
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0))
+		}
+		inp1.setTypes(!side, ...inTypes);
+		inp2.setTypes(!side, ...inTypes);
+		outp.setTypes(side, ...outTypes);
+	}
+}
+
+class SSubtractNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("-");
+		this.customWidth = 150;
+		// this.centerText.style.fontSize = "40px";
+		// this.centerText.style.transform = "translate(0px,-5px)";
+
+		this.noPinfo = true;
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "(" + this.getSCompile(this.inpins["A"], varType, data, depth) + " - " + this.getSCompile(this.inpins["B"], varType, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Subtract";
 	}
 
 	static getCategory() {
@@ -483,6 +584,14 @@ class SRoundNode extends NNode {
 	}
 
 	static getTags() {
-		return ["round", "texcoord", "uv"];
+		return ["subtract", "minus", "-", "difference"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 }
