@@ -445,19 +445,19 @@ class SRoundNode extends NNode {
 		} else if (inpl === null) {
 			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
 			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
-			// narrow outTypes down to types that can be cast from inTypes
-			outTypes = getVecChildrenU(inTypes);
+			// if only output is connected, outTypes can be anything
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
 		} else if (outpl === null) {
-			// narrow down to types that are acceptable by (any types for pin linked to input)
-			inTypes = getVecChildrenU(inpl.getTypes());
-			// narrow outTypes down to types that can be cast from inTypes
-			outTypes = getVecChildrenU(inTypes);
+			// if only input is connected, inTypes can be anything
+			inTypes = [NVector1, NVector2, NVector3, NVector4];
+			// narrow outTypes down to types that can be cast from the input types
+			outTypes = getVecChildrenU(inpl.getTypes());
 		} else {
-			// narrow down to types that are acceptable by both (any types for all pins linked to output) and (any types for pin linked to input)
+			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
 			// THERE'S NO SUCH THING AS TOO MANY ARROW FUNCTIONS
-			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => getVecChildrenU(inpl.getTypes()).indexOf(x) >= 0);
-			// narrow outTypes down to types that can be cast from inTypes
-			outTypes = getVecChildrenU(inTypes);
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+			// narrow outTypes down to types that can be cast from the input types
+			outTypes = getVecChildrenU(inpl.getTypes());
 		}
 		inp.setTypes(!side, ...inTypes);
 		outp.setTypes(side, ...outTypes);
