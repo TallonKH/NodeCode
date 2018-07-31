@@ -114,6 +114,7 @@ class NNode {
 			txt.setAttribute("data-nodeid", this.nodeid);
 			txt.innerHTML = text;
 			this.centerDiv.append(txt);
+			this.centerText = txt;
 		}
 		this.bodyDiv.append(this.centerDiv);
 	}
@@ -344,52 +345,60 @@ class NNode {
 	}
 
 	updateDims() {
-		//HEIGHT
-		// pins
-		const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 24;
-		// center
-		if (this.centerDiv) {
-			// var hc = this.centerDiv.clientHeight;
-			var hc2 = 0;
-			if (this.centerDiv.children.length) {
-				hc2 = 60;
-			}
-		}
-		let h = Math.max(hp, hc2);
-
-		// header
-		if (this.headerDiv) {
-			h += 22;
-		}
-		this.nodeDiv.style.height = h + "px";
-
-		//WIDTH
-		let w = 0;
-		// center
-		if (this.centerDiv) {
-			w = this.centerDiv.scrollWidth;
-		}
-		// header
-		if (this.headerDiv) {
-			w = Math.max(w, this.headerDiv.scrollWidth);
-		}
-		// pinfo + inputs
-		if (this.inPinfosDiv) {
-			let lastPinfo = 0;
-			for (const div of this.inPinfosDiv.children) {
-				if (div.nodeNode == "INPUT") {
-					w = Math.max(w, div.scrollWidth);
-				} else {
-
+		if(typeof this.customHeight == "number"){
+			this.nodeDiv.style.height = this.customHeight + "px";
+		}else{
+			//HEIGHT
+			// pins
+			const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 24;
+			// center
+			if (this.centerDiv) {
+				// var hc = this.centerDiv.clientHeight;
+				var hc2 = 0;
+				if (this.centerDiv.children.length) {
+					hc2 = 60;
 				}
 			}
-		}
-		if (this.outPinfosDiv) {
-			for (const div of this.outPinfosDiv.children) {
-				w = Math.max(w, div.scrollWidth);
+			let h = Math.max(hp, hc2);
+
+			// header
+			if (this.headerDiv) {
+				h += 22;
 			}
+			this.nodeDiv.style.height = h + "px";
 		}
-		this.nodeDiv.style.minWidth = w + "px";
+
+		if(typeof this.customWidth == "number"){
+			this.nodeDiv.style.width = this.customWidth + "px";
+		}else{
+			//WIDTH
+			let w = 0;
+			// center
+			if (this.centerDiv) {
+				w = this.centerDiv.scrollWidth;
+			}
+			// header
+			if (this.headerDiv) {
+				w = Math.max(w, this.headerDiv.scrollWidth);
+			}
+			// pinfo + inputs
+			if (this.inPinfosDiv) {
+				let lastPinfo = 0;
+				for (const div of this.inPinfosDiv.children) {
+					if (div.nodeNode == "INPUT") {
+						w = Math.max(w, div.scrollWidth);
+					} else {
+
+					}
+				}
+			}
+			if (this.outPinfosDiv) {
+				for (const div of this.outPinfosDiv.children) {
+					w = Math.max(w, div.scrollWidth);
+				}
+			}
+			this.nodeDiv.style.minWidth = w + "px";
+		}
 	}
 
 	setPosition(pos) {

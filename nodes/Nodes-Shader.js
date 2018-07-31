@@ -265,7 +265,7 @@ class SDisplayNode extends NNode {
 		this.centerDiv.append(this.canvas);
 
 		this.noPinfo = true;
-		this.addHeader("Shader Dislay");
+		this.addHeader("Shader Display");
 		this.addInPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
 
 		return this.containerDiv;
@@ -410,7 +410,10 @@ class SRoundNode extends NNode {
 	createNodeDiv() {
 		super.createNodeDiv();
 		this.addHeader("Round");
+		this.customWidth = 150;
 		this.addCenter("⌊ ⌉");
+		this.centerText.style.fontSize = "40px";
+		this.centerText.style.transform = "translate(0px,-5px)";
 		this.noPinfo = true;
 		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
 		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
