@@ -325,7 +325,7 @@ NString.changeVal = function(inp, nval) {
 const NVector1 = new NVarType("Vec1", function(nvar) {
 	nvar.float = 0.0;
 }, "#fc6d6d", NObject);
-NVector1.compileName = "vec1";
+NVector1.compileName = "float";
 NVector1.scompile = function(nvar) {
 	return fstr(nvar.float);
 };

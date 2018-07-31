@@ -500,18 +500,18 @@ class SmartVecNode2 extends NNode {
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
-		this.updateTypes(self.side);
+		this.updateTypes(self);
 	}
 
 	pinLinked(self, other) {
-		this.updateTypes(self.side);
+		this.updateTypes(self);
 	}
 
 	pinUnlinked(self, other) {
-		this.updateTypes(self.side);
+		this.updateTypes(self);
 	}
 
-	updateTypes(side) {
+	updateTypes(pin) {
 		const inp1 = this.inpins["A"];
 		const inp2 = this.inpins["B"];
 
@@ -548,11 +548,15 @@ class SmartVecNode2 extends NNode {
 		} else {
 			// combo of prev 2 statements
 			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
-			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0))
+			console.log(outTypes);
+			const t = getVecParentsU(outTypes);
+			console.log(t);
+
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => t.indexOf(x) >= 0);
 		}
-		inp1.setTypes(!side, ...inTypes);
-		inp2.setTypes(!side, ...inTypes);
-		outp.setTypes(side, ...outTypes);
+		inp1.setTypes(pin === inp1, ...inTypes);
+		inp2.setTypes(pin === inp2, ...inTypes);
+		outp.setTypes(pin === outp, ...outTypes);
 	}
 }
 
