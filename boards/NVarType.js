@@ -54,6 +54,7 @@ class NVarType {
 		return false;
 	}
 }
+
 getValidInTypes = function(ins, outs) {
 	const valid = new Set();
 	for (const o of outs) {
@@ -100,6 +101,55 @@ boolean = function(v) {
 		}
 	}
 	return false;
+}
+
+getCompatVecTypes = function(outs, ins) {
+	const from = getVecChildrenU(outs)
+	return getVecParentsU(ins).filter(x => from.indexOf(x) >= 0);
+}
+
+getVecChildren = function(type) {
+	switch (type.name) {
+		case "Vec1":
+			return [NVector1, NVector2, NVector3, NVector4];
+		case "Vec2":
+			return [NVector2];
+		case "Vec3":
+			return [NVector3];
+		case "Vec4":
+			return [NVector4];
+	}
+	return null;
+}
+
+getVecParents = function(type) {
+	switch (type.name) {
+		case "Vec1":
+			return [NVector1];
+		case "Vec2":
+			return [NVector1, NVector2];
+		case "Vec3":
+			return [NVector1, NVector3];
+		case "Vec4":
+			return [NVector1, NVector4];
+	}
+	return null;
+}
+
+getVecChildrenU = function(types) {
+	return Array.from(new Set([].concat(...types.map(type => getVecChildren(type)))));
+}
+
+getVecParentsU = function(types) {
+	return Array.from(new Set([].concat(...types.map(type => getVecParents(type)))));
+}
+
+getVecChildrenI = function(types) {
+	return types.map(x => getVecChildren(x)).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+}
+
+getVecParentsI = function(types) {
+	return types.map(x => getVecParents(x)).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
 }
 
 const NObject = new NVarType("Object", function(nvar) {}, "#8c8c8c");

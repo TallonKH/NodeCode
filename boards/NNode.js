@@ -490,6 +490,10 @@ class NNode {
 		return pre + "\tgl_FragColor = " + str + end;
 	}
 
+	getReturnType(outpin){
+		return outpin.type;
+	}
+
 	getSCompile(pin, varType, data, depth) {
 		if (pin.side) {
 			// if output has multiple connections, do not repeat calculation - insert variable instead
@@ -512,7 +516,7 @@ class NNode {
 					depth2 = depth2 ? depth2.depth : 0;
 					depth = Math.max(depth, depth2);
 
-					let cpd = this.scompile(pin, data);
+					let cpd = this.scompile(pin, varType, data, depth);
 					if(numbers.has(cpd[0])){
 						cpd = varType.compileName + "(" + cpd + ")";
 					}
@@ -532,17 +536,18 @@ class NNode {
 				}
 				return name;
 			} else {
-				return this.scompile(pin, data);
+				return this.scompile(pin, varType, data, depth);
 			}
 		} else {
 			if (pin.linkNum) {
 				const link = pin.getSingleLinked();
-				if (link.multiTyped) {
-					this.board.env.logt("Cannot compile shader when output pin " + link.name + ":" + link.node.name + " has multiple types!");
+				const otherType = link.node.getReturnType(link);
+				if (!otherType) {
+					this.board.env.logt(link.name + ":" + link.node.name + " has no return type!");
 				} else {
 					switch (varType.name) {
 						case "Vec1":
-							switch (link.type.name) {
+							switch (otherType.name) {
 								case "Vec1":
 									return link.node.getSCompile(link, NVector1, data, depth);
 								case "Vec2":
@@ -556,7 +561,7 @@ class NNode {
 									return null;
 							}
 						case "Vec2":
-							switch (link.type.name) {
+							switch (otherType.name) {
 								case "Vec1":
 									return "vec2(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
 								case "Vec2":
@@ -569,7 +574,7 @@ class NNode {
 									return null;
 							}
 						case "Vec3":
-							switch (link.type.name) {
+							switch (otherType.name) {
 								case "Vec1":
 									return "vec3(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
 								case "Vec2":
@@ -582,7 +587,7 @@ class NNode {
 									return null;
 							}
 						case "Vec4":
-							switch (link.type.name) {
+							switch (otherType.name) {
 								case "Vec1":
 									return "vec4(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
 								case "Vec2":
@@ -598,7 +603,7 @@ class NNode {
 				}
 			} else {
 				if (pin.multiTyped) {
-					this.board.env.logt("Cannot compile shader when unlinked pin " + pin.name + ":" + this.type + " does not have default value!");
+					this.board.env.logt("Failed to compile shader - unlinked pin " + pin.name + ":" + this.type + " has no default value!");
 					return null;
 				} else {
 					switch (varType.name) {
@@ -661,7 +666,7 @@ class NNode {
 		}
 	}
 
-	scompile(pin, data) {
+	scompile(pin, varType, data, depth) {
 		console.log(pin.name + ":" + this.type + " does not have an scompile function!");
 		return "ERROR";
 	}

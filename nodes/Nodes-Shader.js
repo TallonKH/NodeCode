@@ -55,10 +55,6 @@ class SVector1Node extends NNode {
 		return this.containerDiv;
 	}
 
-	returnValRequested(pin) {
-		return this.val;
-	}
-
 	saveExtra(data) {
 		data.val = this.val;
 	}
@@ -69,7 +65,7 @@ class SVector1Node extends NNode {
 		this.inputDiv.value = this.val.float;
 	}
 
-	scompile(pin, data) {
+	scompile(pin, varType, data, depth) {
 		return NVector1.scompile(this.val);
 	}
 
@@ -86,7 +82,7 @@ class SVector1Node extends NNode {
 	}
 
 	static getTags() {
-		return ["float1"];
+		return ["1d", "vec1", "vector1", "float1", "grayscale", "greyscale", "constant", "number"];
 	}
 }
 
@@ -108,10 +104,6 @@ class SVector2Node extends NNode {
 		return this.containerDiv;
 	}
 
-	returnValRequested(pin) {
-		return this.val;
-	}
-
 	saveExtra(data) {
 		data.val = this.val;
 	}
@@ -123,7 +115,7 @@ class SVector2Node extends NNode {
 		$(this.inputDiv).find(".vec2y").get(0).value = this.val.y;
 	}
 
-	scompile(pin, data) {
+	scompile(pin, varType, data, depth) {
 		return NVector2.scompile(this.val);
 	}
 
@@ -140,7 +132,7 @@ class SVector2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["float2"];
+		return ["2d", "vec2", "vector2", "float2", "coordinate", "position", "location", "uv"];
 	}
 }
 
@@ -162,10 +154,6 @@ class SVector3Node extends NNode {
 		return this.containerDiv;
 	}
 
-	returnValRequested(pin) {
-		return this.val;
-	}
-
 	saveExtra(data) {
 		data.val = this.val;
 	}
@@ -178,7 +166,7 @@ class SVector3Node extends NNode {
 		$(this.inputDiv).find(".vec3z").get(0).value = this.val.z;
 	}
 
-	scompile(pin, data) {
+	scompile(pin, varType, data, depth) {
 		return NVector3.scompile(this.val);
 	}
 
@@ -195,7 +183,7 @@ class SVector3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["float3"];
+		return ["3d", "vec3", "vector3", "float3", "color", "colour", "position", "location"];
 	}
 }
 
@@ -217,10 +205,6 @@ class SVector4Node extends NNode {
 		return this.containerDiv;
 	}
 
-	returnValRequested(pin) {
-		return this.val;
-	}
-
 	saveExtra(data) {
 		data.val = this.val;
 	}
@@ -234,7 +218,7 @@ class SVector4Node extends NNode {
 		$(this.inputDiv).find(".vec4a").get(0).value = this.val.a;
 	}
 
-	scompile(pin, data) {
+	scompile(pin, varType, data, depth) {
 		return NVector4.scompile(this.val);
 	}
 
@@ -251,7 +235,7 @@ class SVector4Node extends NNode {
 	}
 
 	static getTags() {
-		return ["float4"];
+		return ["4d", "vec4", "float4", "color", "colour"];
 	}
 }
 
@@ -317,282 +301,61 @@ class SDisplayNode extends NNode {
 	}
 }
 
-class SAdditionNode extends NNode {
+class SComponentNode extends NNode {
 	constructor(data = null) {
 		super(data);
-		this.intlock = false;
-		this.doublelocks = new Set();
+		this.canvas;
+		this.gl;
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addCenter("+");
 
-		this.addNumInput(true);
-		this.addNumInput(true);
+		this.addCenter();
+		// 4 <select> divs in a row
+		// 		each select has following options:
+		//				if input is vec1:		none, x
+		//				if input is vec2:		none, x, y
+		//				if input is vec3:		none, x, y, z
+		//				if input is vec4:		none, x, y, z, a
+		//			EXCEPT: first selector does not have 'none' option
+		// 		each select div is greyed out unless previous one is not 'none'
+		//				eg:
+		//						[X],[Y],[Y],[X]		-->		vec4 output (input.xyyx)
+		//						[X],[Y],[-],[ ]		-->		vec2 output (input.xy)
+		//						[Z],[-],[ ],[ ]		-->		vec1 output (input.z)
+		// connecting the input forces all selectors to limit options
+		// connecting the output forces correct number of selectors to be active, removing 'none' option where required
+		// selecting an options forces input to be a vector that contains the selected component, and also forces the output length
+		// by default, output should be vec1 set to X (and options should be [x],[-],[ ],[ ])
+		this.addInPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
 
-		this.addOutPin(new NPin("Sum", NInteger, NDouble));
 		return this.containerDiv;
 	}
 
-	makeNumEditor(pin) {
-		const node = this;
-		const brd = node.board;
-		return function(nvar) {
-			// const nvar = pin.defaultVal;
-			const inp = document.createElement("input");
-			inp.className = "pinval number";
-			inp.type = "number";
-			inp.value = nvar.double || nvar.int || 0;
-
-			const changeNVal = function() {
-				const val = parseFloat(inp.value) || 0;
-				// !=
-				if (parseFloat(inp.value) != double(nvar)) {
-					if (node.intlock || val % 1 == 0) {
-						const ival = Math.trunc(val);
-						const shouldChange = nvar.double !== undefined
-						brd.addAction(new ActChangeDefVal(brd, nvar, {
-							"int": ival
-						}, ["double"], function(v, redo) {
-							if (shouldChange) {
-								if (redo) {
-									node.doublelocks.delete(pin);
-								} else {
-									node.doublelocks.add(pin);
-								}
-								if (node.doublelocks.size) {
-									node.outpins["Sum"].setTypes(false, NDouble);
-								} else {
-									node.outpins["Sum"].setTypes(false, NInteger, NDouble);
-								}
-							}
-							inp.value = double(v);
-						}));
-						delete nvar.double;
-						nvar.int = ival;
-						inp.value = nvar.int.toString();
-						node.doublelocks.delete(pin)
-					} else {
-						const shouldChange = nvar.int !== undefined
-						brd.addAction(new ActChangeDefVal(brd, nvar, {
-							"double": val
-						}, ["int"], function(v, redo) {
-							if (shouldChange) {
-								if (redo) {
-									node.doublelocks.add(pin);
-								} else {
-									node.doublelocks.delete(pin);
-								}
-								if (node.doublelocks.size) {
-									node.outpins["Sum"].setTypes(false, NDouble);
-								} else {
-									node.outpins["Sum"].setTypes(false, NInteger, NDouble);
-								}
-							}
-							inp.value = double(v);
-						}));
-						delete nvar.int;
-						nvar.double = val;
-						node.doublelocks.add(pin);
-					}
-
-					if (node.doublelocks.size) {
-						node.outpins["Sum"].setTypes(false, NDouble);
-					} else {
-						node.outpins["Sum"].setTypes(false, NInteger, NDouble);
-					}
-				}
-			}
-
-			inp.onfocusout = changeNVal;
-			inp.onkeydown = function(e) {
-				switch (e.which) {
-					case 13: // ENTER
-						changeNVal();
-						inp.blur();
-						break;
-					case 27: // ESC
-						inp.value = nvar.double;
-						inp.blur();
-						break;
-				}
-			}
-			return inp;
-		};
-	}
-
-	linkedPinChangedType(self, linked, from, to) {
-		this.pinUnlinked(self, linked);
-		this.pinLinked(self, linked);
-	}
-
-	pinUnlinked(self, other) {
-		if (self.side) {
-			if (this.intlock) {
-				this.intlock = false;
-				for (const inn in this.inpins) {
-					this.inpins[inn].setTypes(false, NInteger, NDouble);
-				}
-			}
-		} else {
-			if (this.doublelocks.delete(other)) {
-				if (this.doublelocks.size == 0) {
-					this.outpins["Sum"].setTypes(false, NInteger, NDouble);
-				}
-			}
+	recompileCanvas() {
+		if (this.gl) {
+			this.gl.delete();
 		}
-	}
-
-	addNumInput(noAction = false) {
-		let pin;
-		if (this.intlock) {
-			pin = new NPin(alphabet[this.inpinOrder.length], NInteger);
-		} else {
-			pin = new NPin(alphabet[this.inpinOrder.length], NInteger, NDouble);
-		}
-		pin.customEditor = this.makeNumEditor(pin);
-		pin.defaultVal = {
-			"int": 0
-		};
-		pin.defaultDefaultVal = {
-			"int": 0
-		};
-		this.addInPin(pin);
-		if (!noAction) {
-			this.board.addAction(new ActAddPin(this.board, pin, this.inpinOrder.length - 1));
-		}
-		return pin;
-	}
-
-	makeContextMenu(pos) {
-		const menu = super.makeContextMenu(pos);
-		const node = this;
-		const brd = this.board;
-		if (node.inpinOrder.length < 26) {
-			const op = new NCtxMenuOption("Add Input");
-			op.action = function(p) {
-				node.addNumInput();
-				return false;
+		const inpin = this.inpins["_"];
+		if (inpin.linkNum) {
+			const link = inpin.getSingleLinked();
+			if (!link.multiTyped) {
+				this.gl = setupWebGLRectangle(this.canvas, this.fullSCompile(inpin, link.type));
 			}
-			menu.addOption(op);
-		}
-		if (node.inpinOrder.length > 2) {
-			const op = new NCtxMenuOption("Remove Input");
-			op.action = function(p) {
-				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
-				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));
-				node.removeInPin(pin);
-				return false;
-			}
-			menu.addOption(op);
-		}
-
-		return menu;
-	}
-
-	pinLinked(self, other) {
-		if (self.side) {
-			if (other.multiTyped) {
-				var isInt = !NDouble.areAny(other.types);
-			} else {
-				var isInt = other.type.isA(NInteger)
-			}
-			if (isInt) {
-				this.intlock = true;
-				for (const inn in this.inpins) {
-					this.inpins[inn].setTypes(false, NInteger);
-				}
-			}
-		} else {
-			if (other.multiTyped) {
-				if (!NInteger.areAny(other.types)) {
-					this.outpins["Sum"].setTypes(false, NDouble);
-					this.doublelocks.add(other);
-					this.intlock = false;
-				}
-			} else {
-				if (other.type.isA(NDouble)) {
-					if (!this.doublelocks.size) {
-						this.outpins["Sum"].setTypes(false, NDouble);
-					}
-					this.doublelocks.add(other);
-					this.intlock = false;
-				}
-			}
-		}
-	}
-
-	returnValRequested(pin) {
-		if (this.intlock || this.doublelocks.size == 0) {
-			let sum = 0;
-			for (const inn of this.inpinOrder) {
-				const inp = this.inpins[inn];
-				sum += this.getValue(inp).int;
-			}
-			return {
-				"int": sum
-			};
-		} else {
-			let sum = 0;
-			for (const inn of this.inpinOrder) {
-				const inp = this.inpins[inn];
-				sum += double(this.getValue(inp));
-			}
-			return {
-				"double": sum
-			};
-		}
-	}
-
-	saveExtra(data) {
-		data.extraIns = this.inpinOrder.length - 2;
-	}
-
-	load(data, loadids) {
-		for (let i = 2, l = data.extraIns + 2; i < l; i++) {
-			this.addNumInput(true);
-		}
-		super.load(data, loadids);
-	}
-
-	allLinked() {
-		for (const inn of this.inpinOrder) {
-			if (!this.inpins[inn].linkNum) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	onAttemptedDropLink(other) {
-		if (other.side) {
-
-			if (this.allLinked()) {
-				if (other.areOutTypesCompatible(NInteger, NDouble)) {
-					const pin = this.addNumInput(true);
-					return new ActAddPin(this.board, pin, this.inpinOrder.length - 1)
-				} else {
-					return false;
-				}
-			} else {
-				return null;
-			}
-		} else {
-			return null;
 		}
 	}
 
 	static getName() {
-		return "S_Addition";
+		return "S_Components";
 	}
 
 	static getInTypes() {
-		return [NInteger, NDouble];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getOutTypes() {
-		return [NInteger, NDouble];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getCategory() {
@@ -600,6 +363,123 @@ class SAdditionNode extends NNode {
 	}
 
 	static getTags() {
-		return ["plus", "+", "sum"];
+		return ["component", "mask", "break", "x", "y", "z", "a", "xy", "xyz", ".", "part"];
+	}
+}
+
+class STexCoordNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Texture Coordinate");
+		this.addCenter();
+		this.noPinfo = true;
+		this.addOutPin(new NPin("_", NVector2));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "fragTexCoord";
+	}
+
+	static getName() {
+		return "S_Texture Coordinate";
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["texture coordinate", "texcoord", "uv"];
+	}
+}
+
+class SRoundNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Round");
+		this.addCenter("⌊ ⌉");
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		this.updateTypes(self.side);
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes(self.side);
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes(self.side);
+	}
+
+	updateTypes(side) {
+		const inp = this.inpins["in"];
+		const inpl = inp.linkNum ? inp.getSingleLinked() : null;
+
+		const outp = this.outpins["out"];
+		const outpl = outp.linkNum ? Object.values(outp.links) : null;
+
+		let inTypes;
+		let outTypes;
+
+		if (inpl === null && outpl === null) {
+			inTypes = [NVector1, NVector2, NVector3, NVector4];
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (inpl === null) {
+			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+			// narrow outTypes down to types that can be cast from inTypes
+			outTypes = getVecChildrenU(inTypes);
+		} else if (outpl === null) {
+			// narrow down to types that are acceptable by (any types for pin linked to input)
+			inTypes = getVecChildrenU(inpl.getTypes());
+			// narrow outTypes down to types that can be cast from inTypes
+			outTypes = getVecChildrenU(inTypes);
+		} else {
+			// narrow down to types that are acceptable by both (any types for all pins linked to output) and (any types for pin linked to input)
+			// THERE'S NO SUCH THING AS TOO MANY LAMBDAS
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => getVecChildrenU(inpl.getTypes()).indexOf(x) >= 0);
+			// narrow outTypes down to types that can be cast from inTypes
+			outTypes = getVecChildrenU(inTypes);
+		}
+		inp.setTypes(!side, ...inTypes);
+		outp.setTypes(side, ...outTypes);
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "floor(" + this.getSCompile(this.inpins["in"], varType, data, depth) + " + 0.5)";
+	}
+
+	static getName() {
+		return "S_Round";
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["round", "texcoord", "uv"];
 	}
 }

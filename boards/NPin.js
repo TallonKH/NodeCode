@@ -27,6 +27,10 @@ class NPin {
 		this.linkNum = 0;
 	}
 
+	getTypes(){
+		return this.multiTyped ? this.types : [this.type];
+	}
+
 	setTypes(silent, ...types) {
 		const prev = {
 			"types": this.types,
@@ -155,17 +159,18 @@ class NPin {
 			b.unlinkAll();
 		}
 
-		// alert nodes
-		a.node.pinLinked(a, b);
-		b.node.pinLinked(b, a);
-
 		a.links[b.pinid] = b;
 		b.links[a.pinid] = a;
 		a.linkNum++;
 		b.linkNum++;
-
 		this.node.board.links[a.pinid + b.pinid] = [a, b];
+
+		// alert nodes
+		a.node.pinLinked(a, b);
+		b.node.pinLinked(b, a);
+
 		this.node.board.redraw();
+
 		return true;
 	}
 

@@ -33,7 +33,11 @@ class Main {
 		this.maxExecIterations = 500;
 
 		this.nodeTypeList = [
-			StringNode, IntegerNode, DoubleNode, DisplayNode, PrintNode, SubstringNode, AdditionNode, IncrementNode, CommentNode, BranchNode, LogicalAndNode, CustomPinMenuNode, STypeTestNode, SDisplayNode, SVector1Node, SVector2Node, SVector3Node, SVector4Node, SAdditionNode
+			StringNode, IntegerNode, DoubleNode, DisplayNode, PrintNode,
+			SubstringNode, AdditionNode, IncrementNode, CommentNode,
+			BranchNode, LogicalAndNode, CustomPinMenuNode, STypeTestNode,
+			SDisplayNode, SVector1Node, SVector2Node, SVector3Node, SVector4Node,
+			STexCoordNode, SRoundNode, SComponentNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
@@ -153,14 +157,14 @@ class Main {
 		}
 	}
 
-	logt(text, src=null) {
+	logt(text, src = null) {
 		const scrtopPre = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
 
 		const d = document.createElement("div");
 		d.className = "consoleitem";
 		d.innerHTML = text;
 
-		if(src){
+		if (src) {
 			d.setAttribute("dclickable", true);
 			d.ondblclick = src;
 		}
