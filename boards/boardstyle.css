@@ -967,7 +967,34 @@ input.vec4:last-child {
 }
 
 .displaynode {
-	margin: 20px;
-	width: 30px;
+	margin: 10px;
+	width: 200px;
+	height: 200px;
+}
+
+.compselect>select {
+	margin-top: -3px;
+	flex-basis: 1;
+	background: transparent;
+	border: none;
+	font-size: 20px;
 	height: 30px;
+	width: 30px;
+	border: 1px solid #000000;
+	-webkit-appearance: none;
+	-webkit-border-radius: 0px;
+	margin-left: 4px;
+	text-align-last: center;
+}
+
+.compselect>select:focus {
+	outline: none;
+}
+
+.compselect>select:disabled {
+	border: 1px solid #aaaaaa;
+}
+
+.compselect {
+	display: flex;
 }

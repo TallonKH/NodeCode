@@ -249,6 +249,8 @@ class SDisplayNode extends NNode {
 	createNodeDiv() {
 		super.createNodeDiv();
 
+		this.customWidth = 270;
+		this.customHeight = 250;
 		this.addCenter();
 		const node = this;
 
@@ -304,31 +306,129 @@ class SComponentNode extends NNode {
 		super(data);
 		this.canvas;
 		this.gl;
+		this.selectInLocks = []
+		this.selectOutLocks = []
+		this.linkInLocks = [NVector4, NVector3, NVector2, NVector1];
+		this.linkOutLocks = [NVector1];
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 
+		this.noPinfo = true;
+		this.customWidth = 210;
+		this.customHeight = 50;
 		this.addCenter();
-		// 4 <select> divs in a row
-		// 		each select has following options:
-		//				if input is vec1:		none, x
-		//				if input is vec2:		none, x, y
-		//				if input is vec3:		none, x, y, z
-		//				if input is vec4:		none, x, y, z, a
-		//			EXCEPT: first selector does not have 'none' option
-		// 		each select div is greyed out unless previous one is not 'none'
-		//				eg:
-		//						[X],[Y],[Y],[X]		-->		vec4 output (input.xyyx)
-		//						[X],[Y],[-],[ ]		-->		vec2 output (input.xy)
-		//						[Z],[-],[ ],[ ]		-->		vec1 output (input.z)
-		// connecting the input forces all selectors to limit options
-		// connecting the output forces correct number of selectors to be active, removing 'none' option where required
-		// selecting an options forces input to be a vector that contains the selected component, and also forces the output length
-		// by default, output should be vec1 set to X (and options should be [x],[-],[ ],[ ])
-		this.addInPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
+
+		const node = this;
+		const inp = new NPin("in", NVector4, NVector3, NVector2, NVector1);
+		const outp = new NPin("out", NVector1);
+		this.addInPin(inp);
+		this.addOutPin(outp);
+
+		this.switchboard = document.createElement("div");
+		this.switchboard.className = "nodeval compselect";
+		this.centerDiv.append(this.switchboard);
+
+		const switches = [];
+		this.switches = switches;
+		for (let i = 0; i < 4; i++) {
+			let sw;
+			if (i == 0) {
+				sw = makeSelectInput("x", "y", "z", "w");
+				sw.value = "0";
+				sw.adjustedVal = 1;
+				sw.prevVal = 1;
+			} else {
+				sw = makeSelectInput("_", "x", "y", "z", "w");
+				sw.value = "0";
+				sw.adjustedVal = 0;
+				sw.prevVal = 0;
+			}
+			if (i > 1) {
+				sw.disabled = true;
+			}
+			switches.push(sw);
+			this.switchboard.append(sw);
+
+			sw.onchange = function(e) {
+				sw.adjustedVal = (i == 0) ? (parseInt(sw.value) + 1) : parseInt(sw.value);
+				if (sw.adjustedVal == 0 && sw.prevVal != 0) {
+					for (let i2 = i + 1; i2 < 4; i2++) {
+						const other = switches[i2];
+						other.disabled = true;
+						other.value = "0";
+						other.adjustedVal = 0;
+					}
+
+					outp.setTypes(false, varTypes["Vec" + i.toString()]);
+					for (const linkid in outp.links) {
+						const otherp = outp.links[linkid];
+						if (!outp.canPlugInto(otherp)) {
+							outp.unlink(otherp);
+						}
+					}
+					node.board.redraw();
+				} else {
+					if (sw.prevVal == 0) {
+						let i2 = i + 1;
+						for (; i2 < 4; i2++) {
+							const other = switches[i2];
+							other.disabled = false;
+							other.value = other.prevVal.toString();
+							other.adjustedVal = other.prevVal;
+							if (other.value == "0") {
+								break;
+							}
+						}
+						outp.setTypes(false, varTypes["Vec" + i2.toString()]);
+						for (const linkid in outp.links) {
+							const otherp = outp.links[linkid];
+							if (!outp.canPlugInto(otherp)) {
+								outp.unlink(otherp);
+							}
+						}
+						node.board.redraw();
+					}
+				}
+
+				if (sw.adjustedVal != sw.prevVal) {
+					const max = Math.max(...switches.map(x => x.adjustedVal));
+					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - max));
+
+					if (inp.linkNum) {
+						const otherp = inp.getSingleLinked();
+						if (!otherp.canPlugInto(inp)) {
+							inp.unlink(otherp);
+							node.board.redraw();
+						}
+					}
+				}
+				sw.prevVal = sw.adjustedVal;
+			}
+		}
 
 		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return this.getSCompile(this.inpins["in"], null, data, depth) + "." + this.switches.map(s => [null, "x", "y", "z", "w"][s.adjustedVal]).filter(x => x).join("");
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		this.updateTypes();
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes();
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes();
+	}
+
+	updateTypes() {
+
 	}
 
 	static getName() {
@@ -340,7 +440,7 @@ class SComponentNode extends NNode {
 	}
 
 	static getOutTypes() {
-		return [NVector1, NVector2, NVector3, NVector4];
+		return [NVector1];
 	}
 
 	static getCategory() {
@@ -348,11 +448,7 @@ class SComponentNode extends NNode {
 	}
 
 	static getTags() {
-		return ["component", "mask", "break", "x", "y", "z", "a", "xy", "xyz", ".", "part"];
-	}
-
-	getReturnType(outpin){
-		// TODO F1X TH1S
+		return ["component", "mask", "break", "x", "y", "z", "a", "xy", "xyz", ".", "part", "make", "construct"];
 	}
 }
 
@@ -440,22 +536,22 @@ class SmartVecNode1 extends NNode {
 		}
 
 		const iprev = inp.getTypes();
-		if(iprev.sort().join(",") !== inTypes.sort().join(",")){
+		if (iprev.sort().join(",") !== inTypes.sort().join(",")) {
 			inp.setTypes(false, ...inTypes);
 		}
 
 		const oprev = outp.getTypes();
-		if(oprev.sort().join(",") !== outTypes.sort().join(",")){
+		if (oprev.sort().join(",") !== outTypes.sort().join(",")) {
 			outp.setTypes(false, ...outTypes);
 		}
 	}
 
-	getReturnType(outpin){
+	getReturnType(outpin) {
 		const inp = this.inpins[this.inpinOrder[0]];
-		if(inp.linkNum){
+		if (inp.linkNum) {
 			const out = inp.getSingleLinked()
 			return out.getReturnType();
-		}else{
+		} else {
 			return null;
 		}
 	}
@@ -560,18 +656,18 @@ class SmartVecNode2 extends NNode {
 		}
 
 		const iprev = inp1.getTypes();
-		if(iprev.sort().join(",") !== inTypes.sort().join(",")){
+		if (iprev.sort().join(",") !== inTypes.sort().join(",")) {
 			inp1.setTypes(false, ...inTypes);
 			inp2.setTypes(false, ...inTypes);
 		}
 
 		const oprev = outp.getTypes();
-		if(oprev.sort().join(",") !== outTypes.sort().join(",")){
+		if (oprev.sort().join(",") !== outTypes.sort().join(",")) {
 			outp.setTypes(false, ...outTypes);
 		}
 	}
 
-	getReturnType(outpin){
+	getReturnType(outpin) {
 		return getHighestOrderVec([this.inpins[this.inpinOrder[0]].getSingleLinked().getReturnType(), this.inpins[this.inpinOrder[1]].getSingleLinked().getReturnType()]);
 	}
 }
@@ -680,12 +776,12 @@ class SmartVecNodeN extends NNode {
 		for (const pinn of this.inpinOrder) {
 			const ipin = this.inpins[pinn];
 			const prev = ipin.getTypes();
-			if(prev.sort().join(",") !== inTypes.sort().join(",")){
+			if (prev.sort().join(",") !== inTypes.sort().join(",")) {
 				ipin.setTypes(false, ...inTypes);
 			}
 		}
 		const prev = outp.getTypes();
-		if(prev.sort().join(",") !== outTypes.sort().join(",")){
+		if (prev.sort().join(",") !== outTypes.sort().join(",")) {
 			outp.setTypes(false, ...outTypes);
 		}
 	}
@@ -730,7 +826,7 @@ class SmartVecNodeN extends NNode {
 		return menu;
 	}
 
-	getReturnType(outpin){
+	getReturnType(outpin) {
 		return getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
 	}
 }
