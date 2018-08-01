@@ -536,8 +536,6 @@ class NNode {
 					}
 					const compiled = varType.compileName + " " + name + " = " + cpd + ";";
 
-					console.log(compiled);
-
 					data.varMap[pin] = {
 						"depth": depth,
 						"compiled": compiled,

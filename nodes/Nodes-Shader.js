@@ -572,7 +572,7 @@ class SmartVecNode2 extends NNode {
 	}
 
 	getReturnType(outpin){
-		return getHighestOrderVec([inp1.getSingleLinked().getReturnType(), inp2.getSingleLinked().getReturnType()]);
+		return getHighestOrderVec([this.inpins[this.inpinOrder[0]].getSingleLinked().getReturnType(), this.inpins[this.inpinOrder[1]].getSingleLinked().getReturnType()]);
 	}
 }
 
@@ -611,6 +611,10 @@ class SSubtractNode extends SmartVecNode2 {
 
 	static getOutTypes() {
 		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "diff";
 	}
 }
 
@@ -766,5 +770,9 @@ class SAdditionNode extends SmartVecNodeN {
 
 	static getOutTypes() {
 		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "sum";
 	}
 }

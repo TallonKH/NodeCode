@@ -31,6 +31,10 @@ class NPin {
 		return this.multiTyped ? this.types : [this.type];
 	}
 
+	toString(){
+		return this.pinid.toString();
+	}
+
 	setTypes(silent, ...types) {
 		const prev = {
 			"types": this.types,
