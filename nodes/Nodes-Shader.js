@@ -449,8 +449,16 @@ class SmartVecNode1 extends NNode {
 			// narrow outTypes down to types that can be cast from the input types
 			outTypes = getVecChildrenU(inpl.getTypes());
 		}
-		inp.setTypes(!side, ...inTypes);
-		outp.setTypes(side, ...outTypes);
+
+		const iprev = inp.getTypes();
+		if(iprev.sort().join(",") !== inTypes.sort().join(",")){
+			inp.setTypes(false, ...inTypes);
+		}
+
+		const oprev = outp.getTypes();
+		if(oprev.sort().join(",") !== outTypes.sort().join(",")){
+			out.setTypes(false, ...outTypes);
+		}
 	}
 }
 
@@ -551,9 +559,17 @@ class SmartVecNode2 extends NNode {
 			const t = getVecParentsU(outTypes);
 			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => t.indexOf(x) >= 0);
 		}
-		inp1.setTypes(pin === inp1, ...inTypes);
-		inp2.setTypes(pin === inp2, ...inTypes);
-		outp.setTypes(pin === outp, ...outTypes);
+
+		const iprev = inp1.getTypes();
+		if(iprev.sort().join(",") !== inTypes.sort().join(",")){
+			inp1.setTypes(false, ...inTypes);
+			inp2.setTypes(false, ...inTypes);
+		}
+
+		const oprev = outp.getTypes();
+		if(oprev.sort().join(",") !== outTypes.sort().join(",")){
+			outp.setTypes(false, ...outTypes);
+		}
 	}
 }
 
@@ -660,9 +676,15 @@ class SmartVecNodeN extends NNode {
 
 		for (const pinn of this.inpinOrder) {
 			const ipin = this.inpins[pinn];
-			ipin.setTypes(pin === ipin, ...inTypes);
+			const prev = ipin.getTypes();
+			if(prev.sort().join(",") !== inTypes.sort().join(",")){
+				ipin.setTypes(false, ...inTypes);
+			}
 		}
-		outp.setTypes(pin === outp, ...outTypes);
+		const prev = outp.getTypes();
+		if(prev.sort().join(",") !== outTypes.sort().join(",")){
+			outp.setTypes(false, ...outTypes);
+		}
 	}
 
 	load(data, loadids) {
