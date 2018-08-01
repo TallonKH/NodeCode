@@ -183,9 +183,9 @@ class NPin {
 			delete b.links[a.pinid];
 			a.linkNum--;
 			b.linkNum--;
+			delete this.node.board.links[a.pinid + b.pinid];
 			a.node.pinUnlinked(a, b);
 			b.node.pinUnlinked(b, a);
-			delete this.node.board.links[a.pinid + b.pinid];
 		} else {
 			console.log("Can't unlink pins " + a.name + " & " + b.name + " because they aren't linked!");
 			return false;

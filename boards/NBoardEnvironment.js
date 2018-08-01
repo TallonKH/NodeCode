@@ -37,7 +37,7 @@ class Main {
 			SubstringNode, AdditionNode, IncrementNode, CommentNode,
 			BranchNode, LogicalAndNode, CustomPinMenuNode, STypeTestNode,
 			SDisplayNode, SVector1Node, SVector2Node, SVector3Node, SVector4Node,
-			STexCoordNode, SRoundNode, SComponentNode, SSubtractNode
+			STexCoordNode, SRoundNode, SComponentNode, SSubtractNode, SAdditionNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};

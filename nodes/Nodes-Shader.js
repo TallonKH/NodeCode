@@ -297,7 +297,7 @@ class SDisplayNode extends NNode {
 	}
 
 	static getTags() {
-		return ["output", "preview"];
+		return ["output", "preview", "display"];
 	}
 }
 
@@ -420,10 +420,10 @@ class SmartVecNode1 extends NNode {
 	}
 
 	updateTypes(side) {
-		const inp = this.inpins["in"];
+		const inp = this.inpins[this.inpinOrder[0]];
 		const inpl = inp.linkNum ? inp.getSingleLinked() : null;
 
-		const outp = this.outpins["out"];
+		const outp = this.outpins[this.outpinOrder[0]];
 		const outpl = outp.linkNum ? Object.values(outp.links) : null;
 
 		let inTypes;
@@ -512,21 +512,21 @@ class SmartVecNode2 extends NNode {
 	}
 
 	updateTypes(pin) {
-		const inp1 = this.inpins["A"];
-		const inp2 = this.inpins["B"];
+		const inp1 = this.inpins[this.inpinOrder[0]];
+		const inp2 = this.inpins[this.inpinOrder[1]];
 
 		let inpl = [];
-		if(inp1.linkNum){
+		if (inp1.linkNum) {
 			inpl.push(inp1.getSingleLinked());
 		}
-		if(inp2.linkNum){
+		if (inp2.linkNum) {
 			inpl.push(inp2.getSingleLinked());
 		}
-		if(!inpl.length){
+		if (!inpl.length) {
 			inpl = null;
 		}
 
-		const outp = this.outpins["out"];
+		const outp = this.outpins[this.outpinOrder[0]];
 		const outpl = outp.linkNum ? Object.values(outp.links) : null;
 
 		let inTypes;
@@ -548,10 +548,7 @@ class SmartVecNode2 extends NNode {
 		} else {
 			// combo of prev 2 statements
 			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
-			console.log(outTypes);
 			const t = getVecParentsU(outTypes);
-			console.log(t);
-
 			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => t.indexOf(x) >= 0);
 		}
 		inp1.setTypes(pin === inp1, ...inTypes);
@@ -571,7 +568,7 @@ class SSubtractNode extends SmartVecNode2 {
 		this.noPinfo = true;
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
-		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("difference", NVector1, NVector2, NVector3, NVector4));
 		return this.containerDiv;
 	}
 
@@ -589,6 +586,155 @@ class SSubtractNode extends SmartVecNode2 {
 
 	static getTags() {
 		return ["subtract", "minus", "-", "difference"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+}
+
+class SmartVecNodeN extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.inTypes = [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		this.updateTypes(self);
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes(self);
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes(self);
+	}
+
+	updateTypes(pin) {
+		let inpl = [];
+		for (const pinn of this.inpinOrder) {
+			const ipin = this.inpins[pinn];
+
+			if (ipin.linkNum) {
+				inpl.push(ipin.getSingleLinked());
+			}
+		}
+		if (!inpl.length) {
+			inpl = null;
+		}
+
+		const outp = this.outpins[this.outpinOrder[0]];
+		const outpl = outp.linkNum ? Object.values(outp.links) : null;
+
+		let inTypes;
+		let outTypes;
+
+		if (inpl === null && outpl === null) {
+			inTypes = [NVector1, NVector2, NVector3, NVector4];
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (inpl === null) {
+			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
+			console.log(outpl);
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			console.log(inTypes);
+			// if only output is connected, outTypes can be anything
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (outpl === null) {
+			// narrow outTypes down to types that can be cast from the input types
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only input is connected, limit inTypes to types that can be cast from acceptable out types
+			inTypes = getVecParentsU(outTypes);
+		} else {
+			// combo of prev 2 statements
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			const t = getVecParentsU(outTypes);
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => t.indexOf(x) >= 0);
+		}
+
+		this.inTypes = inTypes;
+
+		for (const pinn of this.inpinOrder) {
+			const ipin = this.inpins[pinn];
+			ipin.setTypes(pin === ipin, ...inTypes);
+		}
+		outp.setTypes(pin === outp, ...outTypes);
+	}
+
+	load(data, loadids) {
+		for (let i = 2, l = data.extraIns + 2; i < l; i++) {
+			this.addInPin(new NPin(alphabet[this.inpinOrder.length], NVector1, NVector2, NVector3, NVector4));
+		}
+		super.load(data, loadids);
+	}
+
+	saveExtra(data) {
+		data.extraIns = this.inpinOrder.length - 2;
+	}
+
+	makeContextMenu(pos) {
+		const menu = super.makeContextMenu(pos);
+		const node = this;
+		const brd = this.board;
+		if (node.inpinOrder.length < 26) {
+			const op = new NCtxMenuOption("Add Input");
+			op.action = function(e) {
+				const pin = new NPin(alphabet[node.inpinOrder.length], ...node.inTypes);
+				node.addInPin(pin);
+				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length - 1));
+				return false;
+			}
+			menu.addOption(op);
+		}
+		if (node.inpinOrder.length > 2) {
+			const op = new NCtxMenuOption("Remove Input");
+			op.action = function(e) {
+				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
+				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));
+				node.removeInPin(pin);
+				node.updateTypes(null);
+				return false;
+			}
+			menu.addOption(op);
+		}
+
+		return menu;
+	}
+}
+
+class SAdditionNode extends SmartVecNodeN {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("+");
+		this.customWidth = 150;
+		// this.centerText.style.fontSize = "40px";
+		// this.centerText.style.transform = "translate(0px,-5px)";
+
+		this.noPinfo = true;
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("sum", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "(" + this.inpinOrder.map(n => this.getSCompile(this.inpins[n], varType, data, depth)).join(" + ") + ")";
+	}
+
+	static getName() {
+		return "S_Add";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["addition", "plus", "sum", "+"];
 	}
 
 	static getInTypes() {
