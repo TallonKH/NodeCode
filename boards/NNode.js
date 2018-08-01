@@ -463,13 +463,18 @@ class NNode {
 		return "var";
 	}
 
-	fullSCompile(pin, type) {
+	fullSCompile(pin) {
+		if(pin.linkNum !== 1){
+			console.log(pin.name + " has invalid number of inputs!");
+			return null;
+		}
 		const data = {
 			"varNameSet": new Set(),
 			"varMap": {}
 		};
 
 		let pre = "precision mediump float;\n\nvarying vec2 fragTexCoord;\n\nvoid main() {\n";
+		const type = pin.getSingleLinked().getReturnType();
 		let str = this.getSCompile(pin, type, data, 0);
 		switch (type.name) {
 			case "Vec1":
@@ -550,7 +555,7 @@ class NNode {
 		} else {
 			if (pin.linkNum) {
 				const link = pin.getSingleLinked();
-				const otherType = link.node.getReturnType(link);
+				const otherType = link.getReturnType();
 				if (!otherType) {
 					this.board.env.logt(link.name + ":" + link.node.name + " has no return type!");
 				} else {

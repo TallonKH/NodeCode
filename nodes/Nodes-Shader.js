@@ -278,9 +278,7 @@ class SDisplayNode extends NNode {
 		const inpin = this.inpins["_"];
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
-			if (!link.multiTyped) {
-				this.gl = setupWebGLRectangle(this.canvas, this.fullSCompile(inpin, link.type));
-			}
+			this.gl = setupWebGLRectangle(this.canvas, this.fullSCompile(inpin));
 		}
 	}
 
@@ -289,7 +287,7 @@ class SDisplayNode extends NNode {
 	}
 
 	static getInTypes() {
-		return [NVector1, NVector2, NVector3];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getCategory() {
@@ -333,19 +331,6 @@ class SComponentNode extends NNode {
 		return this.containerDiv;
 	}
 
-	recompileCanvas() {
-		if (this.gl) {
-			this.gl.delete();
-		}
-		const inpin = this.inpins["_"];
-		if (inpin.linkNum) {
-			const link = inpin.getSingleLinked();
-			if (!link.multiTyped) {
-				this.gl = setupWebGLRectangle(this.canvas, this.fullSCompile(inpin, link.type));
-			}
-		}
-	}
-
 	static getName() {
 		return "S_Components";
 	}
@@ -364,6 +349,10 @@ class SComponentNode extends NNode {
 
 	static getTags() {
 		return ["component", "mask", "break", "x", "y", "z", "a", "xy", "xyz", ".", "part"];
+	}
+
+	getReturnType(outpin){
+		// TODO F1X TH1S
 	}
 }
 
@@ -458,6 +447,16 @@ class SmartVecNode1 extends NNode {
 		const oprev = outp.getTypes();
 		if(oprev.sort().join(",") !== outTypes.sort().join(",")){
 			outp.setTypes(false, ...outTypes);
+		}
+	}
+
+	getReturnType(outpin){
+		const inp = this.inpins[this.inpinOrder[0]];
+		if(inp.linkNum){
+			const out = inp.getSingleLinked()
+			return out.getReturnType();
+		}else{
+			return null;
 		}
 	}
 }
@@ -571,6 +570,10 @@ class SmartVecNode2 extends NNode {
 			outp.setTypes(false, ...outTypes);
 		}
 	}
+
+	getReturnType(outpin){
+		return getHighestOrderVec([inp1.getSingleLinked().getReturnType(), inp2.getSingleLinked().getReturnType()]);
+	}
 }
 
 class SSubtractNode extends SmartVecNode2 {
@@ -580,11 +583,9 @@ class SSubtractNode extends SmartVecNode2 {
 		this.customWidth = 150;
 		// this.centerText.style.fontSize = "40px";
 		// this.centerText.style.transform = "translate(0px,-5px)";
-
-		this.noPinfo = true;
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
-		this.addOutPin(new NPin("difference", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("A-B", NVector1, NVector2, NVector3, NVector4));
 		return this.containerDiv;
 	}
 
@@ -655,9 +656,7 @@ class SmartVecNodeN extends NNode {
 			outTypes = [NVector1, NVector2, NVector3, NVector4];
 		} else if (inpl === null) {
 			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
-			console.log(outpl);
 			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
-			console.log(inTypes);
 			// if only output is connected, outTypes can be anything
 			outTypes = [NVector1, NVector2, NVector3, NVector4];
 		} else if (outpl === null) {
@@ -726,6 +725,10 @@ class SmartVecNodeN extends NNode {
 
 		return menu;
 	}
+
+	getReturnType(outpin){
+		return getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
+	}
 }
 
 class SAdditionNode extends SmartVecNodeN {
@@ -735,11 +738,9 @@ class SAdditionNode extends SmartVecNodeN {
 		this.customWidth = 150;
 		// this.centerText.style.fontSize = "40px";
 		// this.centerText.style.transform = "translate(0px,-5px)";
-
-		this.noPinfo = true;
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
-		this.addOutPin(new NPin("sum", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Sum", NVector1, NVector2, NVector3, NVector4));
 		return this.containerDiv;
 	}
 

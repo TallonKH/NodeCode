@@ -207,6 +207,10 @@ class NPin {
 		this.node.linkedPinChangedByRef(this, linked, from, to);
 	}
 
+	getReturnType(){
+		return this.node.getReturnType(this);
+	}
+
 	canPlugInto(otherPin) {
 		if (this.side == otherPin.side) {
 			return false;

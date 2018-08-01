@@ -152,6 +152,32 @@ getVecParentsI = function(types) {
 	return types.map(x => getVecParents(x)).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
 }
 
+getHighestOrderVec = function(types){
+	let highest = null;
+	for(const type of types){
+		switch(type.name){
+			case "Vec1":
+				if(highest === null){
+					highest = NVector1;
+				}
+				break;
+			case "Vec2":
+				if(highest === null || highest === NVector1){
+					highest = NVector2;
+				}
+				break;
+			case "Vec3":
+				if(highest !== NVector4){
+					highest = NVector3;
+				}
+				break;
+			case "Vec4":
+				return NVector4;
+		}
+	}
+	return highest;
+}
+
 const NObject = new NVarType("Object", function(nvar) {}, "#8c8c8c");
 const NComment = new NVarType("Comment", function(nvar) {}, "#bababa");
 NComment.setMultiInput(true);
