@@ -457,7 +457,7 @@ class SmartVecNode1 extends NNode {
 
 		const oprev = outp.getTypes();
 		if(oprev.sort().join(",") !== outTypes.sort().join(",")){
-			out.setTypes(false, ...outTypes);
+			outp.setTypes(false, ...outTypes);
 		}
 	}
 }
