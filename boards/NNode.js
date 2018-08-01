@@ -557,6 +557,9 @@ class NNode {
 				if (!otherType) {
 					this.board.env.logt(link.name + ":" + link.node.name + " has no return type!");
 				} else {
+					if(varType === null){
+						return link.node.getSCompile(link, link.getReturnType(), data, depth);
+					}
 					switch (varType.name) {
 						case "Vec1":
 							switch (otherType.name) {

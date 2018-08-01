@@ -477,7 +477,7 @@ class SRoundNode extends SmartVecNode1 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "floor(" + this.getSCompile(this.inpins["in"], varType, data, depth) + " + 0.5)";
+		return "floor(" + this.getSCompile(this.inpins["in"], null, data, depth) + " + 0.5)";
 	}
 
 	static getName() {
@@ -590,7 +590,7 @@ class SSubtractNode extends SmartVecNode2 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "(" + this.getSCompile(this.inpins["A"], varType, data, depth) + " - " + this.getSCompile(this.inpins["B"], varType, data, depth) + ")";
+		return "(" + this.getSCompile(this.inpins["A"], null, data, depth) + " - " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
 	}
 
 	static getName() {
@@ -749,7 +749,7 @@ class SAdditionNode extends SmartVecNodeN {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "(" + this.inpinOrder.map(n => this.getSCompile(this.inpins[n], varType, data, depth)).join(" + ") + ")";
+		return "(" + this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).join(" + ") + ")";
 	}
 
 	static getName() {
