@@ -304,12 +304,6 @@ class SDisplayNode extends NNode {
 class SComponentNode extends NNode {
 	constructor(data = null) {
 		super(data);
-		this.canvas;
-		this.gl;
-		this.selectInLocks = []
-		this.selectOutLocks = []
-		this.linkInLocks = [NVector4, NVector3, NVector2, NVector1];
-		this.linkOutLocks = [NVector1];
 	}
 
 	createNodeDiv() {
@@ -393,8 +387,7 @@ class SComponentNode extends NNode {
 				}
 
 				if (sw.adjustedVal != sw.prevVal) {
-					const max = Math.max(...switches.map(x => x.adjustedVal));
-					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - max));
+					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...switches.map(x => x.adjustedVal))));
 
 					if (inp.linkNum) {
 						const otherp = inp.getSingleLinked();
@@ -411,24 +404,39 @@ class SComponentNode extends NNode {
 		return this.containerDiv;
 	}
 
+	saveExtra(data) {
+		data.options = this.switches.map(x => x.value);
+		data.prevOpts = this.switches.map(x => x.prevVal);
+	}
+
+	load(data, loadids) {
+		let makedis;
+		let v = 3;
+		for (const i in data.options) {
+			const sw = this.switches[i];
+			sw.value = data.options[i];
+			sw.prevVal = data.prevOpts[i];
+			sw.adjustedVal = parseInt(sw.value);
+			if (i == 0) {
+				sw.adjustedVal++;
+			}
+
+			sw.disabled = makedis;
+
+			if (!makedis && sw.adjustedVal == 0) {
+				v = i - 1;
+				makedis = true;
+			}
+		}
+
+		this.inpins["in"].setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...this.switches.map(x => x.adjustedVal))));
+		this.outpins["out"].setTypes(false, [NVector1, NVector2, NVector3, NVector4][v]);
+
+		super.load(data, loadids);
+	}
+
 	scompile(pin, varType, data, depth) {
 		return this.getSCompile(this.inpins["in"], null, data, depth) + "." + this.switches.map(s => [null, "x", "y", "z", "w"][s.adjustedVal]).filter(x => x).join("");
-	}
-
-	linkedPinChangedType(self, linked, from, to) {
-		this.updateTypes();
-	}
-
-	pinLinked(self, other) {
-		this.updateTypes();
-	}
-
-	pinUnlinked(self, other) {
-		this.updateTypes();
-	}
-
-	updateTypes() {
-
 	}
 
 	static getName() {
@@ -449,6 +457,144 @@ class SComponentNode extends NNode {
 
 	static getTags() {
 		return ["component", "mask", "break", "x", "y", "z", "a", "xy", "xyz", ".", "part", "make", "construct"];
+	}
+}
+
+class SMakeVec2Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Vector2");
+		this.addCenter();
+
+		this.addInPin(new NPin("x", NVector1));
+		this.addInPin(new NPin("y", NVector1));
+		this.addOutPin(new NPin("(x,y)", NVector2));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "vec2(" +
+			this.getSCompile(this.inpins["x"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["y"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_MakeVec2";
+	}
+
+	static getInTypes() {
+		return [NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["vector2", "vec2", "make", "xy", "construct", "2"];
+	}
+}
+
+class SMakeVec3Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Vector3");
+		this.addCenter();
+
+		this.addInPin(new NPin("x", NVector1));
+		this.addInPin(new NPin("y", NVector1));
+		this.addInPin(new NPin("z", NVector1));
+		this.addOutPin(new NPin("(x,y,z)", NVector2));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "vec3(" +
+			this.getSCompile(this.inpins["x"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["y"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["z"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_MakeVec3";
+	}
+
+	static getInTypes() {
+		return [NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector3];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["vector3", "vec3", "make", "xyz", "construct", "3"];
+	}
+}
+
+class SMakeVec4Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Vector4");
+		this.addCenter();
+
+		this.addInPin(new NPin("x", NVector1));
+		this.addInPin(new NPin("y", NVector1));
+		this.addInPin(new NPin("z", NVector1));
+		this.addInPin(new NPin("w", NVector1));
+		this.addOutPin(new NPin("(x,y,z,w)", NVector2));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "vec4(" +
+			this.getSCompile(this.inpins["x"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["y"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["z"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["w"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_MakeVec4";
+	}
+
+	static getInTypes() {
+		return [NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector3];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["vector4", "vec4", "make", "xyzw", "construct", "4"];
 	}
 }
 
