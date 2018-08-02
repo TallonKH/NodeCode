@@ -661,3 +661,45 @@ class ActChangeDefVal extends NAction {
 		return "ChangeDefVal";
 	}
 }
+
+class ActChangeCompNode extends NAction {
+	constructor(board, node, sw, prevVal, newVal) {
+		console.log("=== Created ===");
+		console.log(prevVal);
+		console.log(newVal);
+		super(board);
+		this.board = board;
+		this.node = node;
+		this.sw = sw;
+		this.inp = node.inpins["in"];
+		if(this.inp.linkNum){
+			this.inpLink = this.inp.getSingleLinked();
+		}else{
+			delete this.inp;
+		}
+		this.outp = node.outpins["out"];
+		this.outpLinks = [].concat(Object.values(this.outp.links));
+		this.prevVal = prevVal;
+		this.newVal = newVal;
+	}
+
+	redo() {
+		console.log("=== Redone ===");
+		console.log("--->" + this.newVal);
+		this.sw.value = this.newVal;
+		this.sw.onchange(null, true);
+	}
+
+	undo() {
+		console.log("=== Undone ===");
+		console.log("--> " + this.prevVal);
+		this.sw.value = this.prevVal;
+		this.sw.onchange(null, true);
+		if(this.inpLink){
+			this.inp.linkTo(this.inpLink);
+		}
+		for(const p of this.outpLinks){
+			this.outp.linkTo(p);
+		}
+	}
+}

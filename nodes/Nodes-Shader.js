@@ -330,24 +330,27 @@ class SComponentNode extends NNode {
 			let sw;
 			if (i == 0) {
 				sw = makeSelectInput("x", "y", "z", "w");
-				sw.value = "0";
 				sw.adjustedVal = 1;
-				sw.prevVal = 1;
+				sw.prevAVal = 1;
 			} else {
 				sw = makeSelectInput("_", "x", "y", "z", "w");
-				sw.value = "0";
 				sw.adjustedVal = 0;
-				sw.prevVal = 0;
+				sw.prevAVal = 0;
 			}
+			sw.value = "0";
+			sw.prevVal = "0";
 			if (i > 1) {
 				sw.disabled = true;
 			}
 			switches.push(sw);
 			this.switchboard.append(sw);
 
-			sw.onchange = function(e) {
+			sw.onchange = function(e, silent=undefined) {
 				sw.adjustedVal = (i == 0) ? (parseInt(sw.value) + 1) : parseInt(sw.value);
-				if (sw.adjustedVal == 0 && sw.prevVal != 0) {
+				if(!silent){
+					node.board.addAction(new ActChangeCompNode(this.board, node, sw, sw.prevVal, sw.value));
+				}
+				if (sw.adjustedVal == 0 && sw.prevAVal != 0) {
 					for (let i2 = i + 1; i2 < 4; i2++) {
 						const other = switches[i2];
 						other.disabled = true;
@@ -364,13 +367,13 @@ class SComponentNode extends NNode {
 					}
 					node.board.redraw();
 				} else {
-					if (sw.prevVal == 0) {
+					if (sw.prevAVal == 0) {
 						let i2 = i + 1;
 						for (; i2 < 4; i2++) {
 							const other = switches[i2];
 							other.disabled = false;
-							other.value = other.prevVal.toString();
-							other.adjustedVal = other.prevVal;
+							other.value = other.prevAVal.toString();
+							other.adjustedVal = other.prevAVal;
 							if (other.value == "0") {
 								break;
 							}
@@ -386,7 +389,7 @@ class SComponentNode extends NNode {
 					}
 				}
 
-				if (sw.adjustedVal != sw.prevVal) {
+				if (sw.adjustedVal != sw.prevAVal) {
 					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...switches.map(x => x.adjustedVal))));
 
 					if (inp.linkNum) {
@@ -397,7 +400,8 @@ class SComponentNode extends NNode {
 						}
 					}
 				}
-				sw.prevVal = sw.adjustedVal;
+				sw.prevAVal = sw.adjustedVal;
+				sw.prevVal = sw.value;
 			}
 		}
 
@@ -406,7 +410,7 @@ class SComponentNode extends NNode {
 
 	saveExtra(data) {
 		data.options = this.switches.map(x => x.value);
-		data.prevOpts = this.switches.map(x => x.prevVal);
+		data.prevOpts = this.switches.map(x => x.prevAVal);
 	}
 
 	load(data, loadids) {
@@ -415,7 +419,7 @@ class SComponentNode extends NNode {
 		for (const i in data.options) {
 			const sw = this.switches[i];
 			sw.value = data.options[i];
-			sw.prevVal = data.prevOpts[i];
+			sw.prevAVal = data.prevOpts[i];
 			sw.adjustedVal = parseInt(sw.value);
 			if (i == 0) {
 				sw.adjustedVal++;
