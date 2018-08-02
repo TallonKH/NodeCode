@@ -1,3 +1,17 @@
+// TODO M4K3 SOM3 MOR3 NOD3S
+/*
+multiply/divide
+modulo
+lerp
+append
+floor/ceil
+sine/cos/tan/asine/acos/atan
+dot/cross
+min/max/clamp
+texture
+time
+*/
+
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -345,9 +359,9 @@ class SComponentNode extends NNode {
 			switches.push(sw);
 			this.switchboard.append(sw);
 
-			sw.onchange = function(e, silent=undefined) {
+			sw.onchange = function(e, silent = undefined) {
 				sw.adjustedVal = (i == 0) ? (parseInt(sw.value) + 1) : parseInt(sw.value);
-				if(!silent){
+				if (!silent) {
 					node.board.addAction(new ActChangeCompNode(this.board, node, sw, sw.prevVal, sw.value));
 				}
 				if (sw.adjustedVal == 0 && sw.prevAVal != 0) {
@@ -1013,7 +1027,7 @@ class SAdditionNode extends SmartVecNodeN {
 	}
 
 	static getTags() {
-		return ["addition", "plus", "sum", "+"];
+		return ["addition", "plus", "sum", "+", "||", "or"];
 	}
 
 	static getInTypes() {
@@ -1026,5 +1040,208 @@ class SAdditionNode extends SmartVecNodeN {
 
 	getOutputVarName(pin) {
 		return "sum";
+	}
+}
+
+class SAppendNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("⇒");
+		this.centerText.style.transform = "translate(0px, -14px)"
+		this.customWidth = 150;
+		this.noPinfo = true;
+		this.addHeader("Append");
+		this.in1 = new NPin("A", NVector1, NVector2, NVector3);
+		this.in2 = new NPin("B", NVector1, NVector2, NVector3);
+		this.in3 = new NPin("C", NVector1, NVector2);
+		this.in4 = new NPin("D", NVector1);
+		this.addInPin(this.in1);
+		this.addInPin(this.in2);
+		this.addInPin(this.in3);
+		this.addInPin(this.in4);
+		this.removePin(this.in3);
+		this.removePin(this.in4);
+		this.outp = new NPin("out", NVector2, NVector3, NVector4);
+		this.addOutPin(this.outp);
+
+		this.prevMin = 2;
+		this.prevMax = 4;
+
+		return this.containerDiv;
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		this.updateTypes(false);
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes(false);
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes(false);
+	}
+
+	updateTypes(force) {
+		const min = this.calcMinOrder();
+		const max = this.calcMaxOrder();
+		if (force || this.prevMin != min || this.prevMax != max) {
+			for (const inn of this.inpinOrder) {
+				const inp = this.inpins[inn];
+				const available = max + 1 - min + (inp.linkNum ? Math.min(...inp.getSingleLinked().getTypes().map(t => t.vecOrder)) : 1);
+				inp.setTypes(false, ...[NVector1, NVector2, NVector3].slice(0, available));
+			}
+			this.outp.setTypes(false, ...[NVector2, NVector3, NVector4].slice(min - 2, max));
+		}
+
+		this.prevMin = min;
+		this.prevMax = max;
+	}
+
+	calcMinOrder() {
+		let mi = 0;
+		for (const pinn of this.inpinOrder) {
+			const inp = this.inpins[pinn];
+			if (inp.linkNum) {
+				mi += Math.min(...inp.getSingleLinked().getTypes().map(t => t.vecOrder));
+			} else {
+				mi += 1;
+			}
+		}
+
+		return mi;
+	}
+
+	calcMaxOrder() {
+		let mo = 4;
+		for (const lid in this.outp.links) {
+			const link = this.outp.links[lid];
+			mo = Math.min(mo, Math.max(...link.getTypes().map(t => t.vecOrder)));
+		}
+
+		let mi = 0;
+		for (const pinn of this.inpinOrder) {
+			const inp = this.inpins[pinn];
+			if (inp.linkNum) {
+				mi += Math.max(...inp.getSingleLinked().getTypes().map(t => t.vecOrder));
+			} else {
+				mi += 4;
+			}
+		}
+
+		return Math.min(mo, mi) - 1;
+	}
+
+	load(data, loadids) {
+		super.load(data, loadids);
+	}
+
+	saveExtra(data) {}
+
+	setInCount(count) {
+		if (this.inpinOrder.length == count) {
+			return false;
+		}
+		switch (count) {
+			case 2:
+				this.centerText.innerHTML = "⇒";
+				this.centerText.style.transform = "translate(0px, -14px)"
+				if (this.inpinOrder.length > 2) {
+					this.removeInPin(this.in3);
+					if (this.inpinOrder.length == 4) {
+						this.removeInPin(this.in4);
+					}
+				}
+				this.updateTypes(false);
+				break;
+			case 3:
+				this.centerText.innerHTML = "⇛";
+				this.centerText.style.transform = "translate(0px, -6px)";
+				this.reAddInPin(this.in3);
+				if (this.inpinOrder.length == 4) {
+					this.removeInPin(this.in4);
+				}
+				this.updateTypes(false);
+				break;
+			case 4:
+				this.centerText.innerHTML = "⭆";
+				this.centerText.style.transform = "translate(0px, -1.5px)";
+				this.reAddInPin(this.in3);
+				this.reAddInPin(this.in4);
+				this.updateTypes(false);
+				break;
+		}
+	}
+
+	makeContextMenu(pos) {
+		const menu = super.makeContextMenu(pos);
+		const node = this;
+		const brd = this.board;
+		if (node.prevMin < node.prevMax + 1) {
+			const op = new NCtxMenuOption("Add Input");
+			op.action = function(e) {
+				if (node.inpinOrder.length == 2) {
+					// TODO 4DD CUSTOM 3V3NT
+					node.setInCount(3)
+				} else {
+					// TODO 4DD CUSTOM 3V3NT
+					node.setInCount(4);
+				}
+				return false;
+			}
+			menu.addOption(op);
+		}
+		if (node.inpinOrder.length > 2) {
+			const op = new NCtxMenuOption("Remove Input");
+			op.action = function(e) {
+				if (node.inpinOrder.length == 4) {
+					// TODO 4DD CUSTOM 3V3NT
+					node.setInCount(3)
+				} else {
+					// TODO 4DD CUSTOM 3V3NT
+					node.setInCount(2);
+				}
+				return false;
+			}
+			menu.addOption(op);
+		}
+
+		return menu;
+	}
+
+	getReturnType(outPin) {
+		let sum = 0;
+		for (const inn of this.inpinOrder) {
+			sum += this.inpins[inn].getReturnType().vecOrder;
+		}
+		return [NVector2, NVector3, NVector4][sum - 2];
+	}
+
+	scompile(pin, varType, data, depth) {
+		return varType.compileName + "(" + this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).join(", ") + ")";
+	}
+
+	static getName() {
+		return "S_Append";
+	}
+
+	static getTags() {
+		return ["append", "combine", "make", "construct", ","];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3];
+	}
+
+	static getOutTypes() {
+		return [NVector2, NVector3, NVector4];
+	}
+
+	static getCategory() {
+		return "Shader";
 	}
 }

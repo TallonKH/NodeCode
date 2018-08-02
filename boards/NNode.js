@@ -275,6 +275,9 @@ class NNode {
 	}
 
 	reAddInPin(pin, index) {
+		if(this.inpins[pin.name] != undefined){
+			return null;
+		}
 		this.inpins[pin.name] = pin;
 		this.inpinOrder.splice(index, 0, pin.name);
 		this.pinlist.push(pin);
@@ -322,6 +325,9 @@ class NNode {
 	}
 
 	reAddOutPin(pin, index) {
+		if(this.outpins[pin.name] != undefined){
+			return null;
+		}
 		this.outpins[pin.name] = pin;
 		this.outpinOrder.splice(index, 0, pin);
 		this.pinlist.push(pin);

@@ -223,7 +223,11 @@ class NPin {
 	}
 
 	getReturnType() {
-		return this.node.getReturnType(this);
+		if(this.side){
+			return this.node.getReturnType(this);
+		}else{
+			return this.getSingleLinked().getReturnType();
+		}
 	}
 
 	canPlugInto(otherPin) {

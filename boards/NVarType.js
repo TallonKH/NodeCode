@@ -356,6 +356,7 @@ const NVector1 = new NVarType("Vec1", function(nvar) {
 	nvar.float = 0.0;
 }, "#fc6d6d", NObject);
 NVector1.compileName = "float";
+NVector1.vecOrder = 1;
 NVector1.scompile = function(nvar) {
 	return fstr(nvar.float);
 };
@@ -401,6 +402,7 @@ const NVector2 = new NVarType("Vec2", function(nvar) {
 	nvar.y = 0.0;
 }, "#99eb7c", NObject);
 NVector2.compileName = "vec2";
+NVector2.vecOrder = 2;
 NVector2.scompile = function(nvar) {
 	return "vec2(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ")";
 };
@@ -483,6 +485,7 @@ const NVector3 = new NVarType("Vec3", function(nvar) {
 	nvar.z = 0.0;
 }, "#6f7df2", NObject);
 NVector3.compileName = "vec3";
+NVector3.vecOrder = 3;
 NVector3.scompile = function(nvar) {
 	return "vec3(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ")";
 };
@@ -599,6 +602,7 @@ const NVector4 = new NVarType("Vec4", function(nvar) {
 	nvar.a = 0.0;
 }, "#d26bf1", NObject);
 NVector4.compileName = "vec4";
+NVector4.vecOrder = 4;
 NVector4.scompile = function(nvar) {
 	return "vec4(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ", " + fstr(nvar.a) + ")";
 };
