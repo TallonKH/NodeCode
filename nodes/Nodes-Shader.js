@@ -1277,10 +1277,10 @@ class SAppendNode extends NNode {
 			const op = new NCtxMenuOption("Add Input");
 			op.action = function(e) {
 				if (node.inpinOrder.length == 2) {
-					// TODO 4DD CUSTOM 3V3NT
+					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 3));
 					node.setInCount(3)
 				} else {
-					// TODO 4DD CUSTOM 3V3NT
+					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 4));
 					node.setInCount(4);
 				}
 				return false;
@@ -1291,10 +1291,10 @@ class SAppendNode extends NNode {
 			const op = new NCtxMenuOption("Remove Input");
 			op.action = function(e) {
 				if (node.inpinOrder.length == 4) {
-					// TODO 4DD CUSTOM 3V3NT
+					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 3));
 					node.setInCount(3)
 				} else {
-					// TODO 4DD CUSTOM 3V3NT
+					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 2));
 					node.setInCount(2);
 				}
 				return false;
