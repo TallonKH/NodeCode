@@ -345,9 +345,9 @@ class NNode {
 	}
 
 	updateDims() {
-		if(typeof this.customHeight == "number"){
+		if (typeof this.customHeight == "number") {
 			this.nodeDiv.style.height = this.customHeight + "px";
-		}else{
+		} else {
 			//HEIGHT
 			// pins
 			const hp = Math.max(this.inpinOrder.length, this.outpinOrder.length) * 24;
@@ -368,9 +368,9 @@ class NNode {
 			this.nodeDiv.style.height = h + "px";
 		}
 
-		if(typeof this.customWidth == "number"){
+		if (typeof this.customWidth == "number") {
 			this.nodeDiv.style.width = this.customWidth + "px";
-		}else{
+		} else {
 			//WIDTH
 			let w = 0;
 			// center
@@ -464,18 +464,18 @@ class NNode {
 	}
 
 	fullSCompile(pin) {
-		if(pin.linkNum !== 1){
+		if (pin.linkNum !== 1) {
 			console.log(pin.name + " has invalid number of inputs!");
 			return null;
 		}
 		const data = {
 			"varNameSet": new Set(),
-			"varMap": {}
+			"varMap": {},
 		};
 
 		let pre = "precision mediump float;\n\nvarying vec2 fragTexCoord;\n\nvoid main() {\n";
 		const type = pin.getSingleLinked().getReturnType();
-		let str = this.getSCompile(pin, type, data, 0);
+		let str = this.getSCompile(pin, type, data, [0]);
 		switch (type.name) {
 			case "Vec1":
 				str = "vec4(vec3(" + str + "), 1.0)";
@@ -487,16 +487,14 @@ class NNode {
 				str = "vec4(" + str + ", 1.0)";
 				break;
 			case "Vec4":
-				if(numbers.has(str[0])){
+				if (numbers.has(str[0])) {
 					str = "vec4(" + str + ")";
 				}
 				break;
 		}
 		let end = ";\n}"
 		const vars = Object.entries(data.varMap);
-		vars.sort(function(a, b) {
-			a[1].depth - b[1].depth
-		});
+		vars.sort((a, b) => a[1].depth - b[1].depth);
 		for (const v of vars) {
 			pre = pre + "\t" + v[1].compiled + "\n";
 		}
@@ -504,7 +502,7 @@ class NNode {
 		return pre + "\tgl_FragColor = " + str + end;
 	}
 
-	getReturnType(outpin){
+	getReturnType(outpin) {
 		return outpin.type;
 	}
 
@@ -518,33 +516,33 @@ class NNode {
 				// if var has not already been 'declared,' generate a unique name
 				if (v) {
 					name = v.name;
-				}else{
+				} else {
 					name = this.getOutputVarName(pin);
 					let num = 0;
 					while (data.varNameSet.has(name + num.toString())) {
 						num++;
 					}
 					name = name + num.toString();
+					data.varNameSet.add(name);
 
-					let depth2 = data.varMap[pin];
-					depth2 = depth2 ? depth2.depth : 0;
-					depth = Math.max(depth, depth2);
+					const dt = data.varMap[pin];
+					const depth2 = (dt === undefined) ? 0 : dt.depth;
+					depth[0] = Math.max(depth[0], depth2);
 
 					let cpd = this.scompile(pin, varType, data, depth);
-					if(numbers.has(cpd[0])){
+					if (numbers.has(cpd[0])) {
 						cpd = varType.compileName + "(" + cpd + ")";
 					}
 					const compiled = varType.compileName + " " + name + " = " + cpd + ";";
 
 					data.varMap[pin] = {
-						"depth": depth,
+						"depth": depth[0],
 						"compiled": compiled,
 						"name": name
 					};
-					data.varNameSet.add(name);
 
 					// keep track of 'depth' to know which variables need to be declared before others
-					depth++;
+					depth[0]++;
 				}
 				return name;
 			} else {
@@ -557,7 +555,7 @@ class NNode {
 				if (!otherType) {
 					this.board.env.logt(link.name + ":" + link.node.name + " has no return type!");
 				} else {
-					if(varType === null){
+					if (varType === null) {
 						return link.node.getSCompile(link, link.getReturnType(), data, depth);
 					}
 					switch (varType.name) {
