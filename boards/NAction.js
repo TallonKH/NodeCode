@@ -664,9 +664,6 @@ class ActChangeDefVal extends NAction {
 
 class ActChangeCompNode extends NAction {
 	constructor(board, node, sw, prevVal, newVal) {
-		console.log("=== Created ===");
-		console.log(prevVal);
-		console.log(newVal);
 		super(board);
 		this.board = board;
 		this.node = node;
@@ -684,15 +681,11 @@ class ActChangeCompNode extends NAction {
 	}
 
 	redo() {
-		console.log("=== Redone ===");
-		console.log("--->" + this.newVal);
 		this.sw.value = this.newVal;
 		this.sw.onchange(null, true);
 	}
 
 	undo() {
-		console.log("=== Undone ===");
-		console.log("--> " + this.prevVal);
 		this.sw.value = this.prevVal;
 		this.sw.onchange(null, true);
 		if(this.inpLink){

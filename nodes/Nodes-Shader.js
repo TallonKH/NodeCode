@@ -1,17 +1,3 @@
-// TODO M4K3 SOM3 MOR3 NOD3S
-/*
-multiply/divide
-modulo
-lerp
-append
-floor/ceil
-sine/cos/tan/asine/acos/atan
-dot/cross
-min/max/clamp
-texture
-time
-*/
-
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -25,11 +11,33 @@ class STypeTestNode extends NNode {
 		this.addInPin(new NPin("Vec 2 In", NVector2));
 		this.addInPin(new NPin("Vec 3 In", NVector3));
 		this.addInPin(new NPin("Vec 4 In", NVector4));
+		// this.addInPin(new NPin("Vec 1,2 In", NVector1,NVector2));
+		// this.addInPin(new NPin("Vec 1,3 In", NVector1,NVector3));
+		// this.addInPin(new NPin("Vec 1,4 In", NVector1,NVector4));
+		// this.addInPin(new NPin("Vec 2,3 In", NVector2,NVector3));
+		// this.addInPin(new NPin("Vec 2,4 In", NVector2,NVector4));
+		// this.addInPin(new NPin("Vec 3,4 In", NVector3,NVector4));
+		// this.addInPin(new NPin("Vec 1,2,3 In", NVector1,NVector2,NVector3));
+		// this.addInPin(new NPin("Vec 1,2,4 In", NVector1,NVector2,NVector4));
+		// this.addInPin(new NPin("Vec 1,3,4 In", NVector1,NVector3,NVector4));
+		// this.addInPin(new NPin("Vec 2,3,4 In", NVector2,NVector3,NVector4));
+		// this.addInPin(new NPin("Vec 1,2,3,4 In", NVector1,NVector2,NVector3,NVector4));
 
 		this.addOutPin(new NPin("Vec 1 Out", NVector1));
 		this.addOutPin(new NPin("Vec 2 Out", NVector2));
 		this.addOutPin(new NPin("Vec 3 Out", NVector3));
 		this.addOutPin(new NPin("Vec 4 Out", NVector4));
+		// this.addOutPin(new NPin("Vec 1,2 Out", NVector1,NVector2));
+		// this.addOutPin(new NPin("Vec 1,3 Out", NVector1,NVector3));
+		// this.addOutPin(new NPin("Vec 1,4 Out", NVector1,NVector4));
+		// this.addOutPin(new NPin("Vec 2,3 Out", NVector2,NVector3));
+		// this.addOutPin(new NPin("Vec 2,4 Out", NVector2,NVector4));
+		// this.addOutPin(new NPin("Vec 3,4 Out", NVector3,NVector4));
+		// this.addOutPin(new NPin("Vec 1,2,3 Out", NVector1,NVector2,NVector3));
+		// this.addOutPin(new NPin("Vec 1,2,4 Out", NVector1,NVector2,NVector4));
+		// this.addOutPin(new NPin("Vec 1,3,4 Out", NVector1,NVector3,NVector4));
+		// this.addOutPin(new NPin("Vec 2,3,4 Out", NVector2,NVector3,NVector4));
+		// this.addOutPin(new NPin("Vec 1,2,3,4 Out", NVector1,NVector2,NVector3,NVector4));
 
 		return this.containerDiv;
 	}
@@ -882,6 +890,48 @@ class SSubtractNode extends SmartVecNode2 {
 	}
 }
 
+class SDivideNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("/");
+		this.customWidth = 150;
+		// this.centerText.style.fontSize = "40px";
+		// this.centerText.style.transform = "translate(0px,-5px)";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("A/B", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "(" + this.getSCompile(this.inpins["A"], null, data, depth) + " / " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Divide";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["divided by", "division", "/", "dividend", "divisor", "quotient"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "quotient";
+	}
+}
+
 class SmartVecNodeN extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -1040,6 +1090,48 @@ class SAdditionNode extends SmartVecNodeN {
 
 	getOutputVarName(pin) {
 		return "sum";
+	}
+}
+
+class SMultiplyNode extends SmartVecNodeN {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("x");
+		this.customWidth = 150;
+		// this.centerText.style.fontSize = "40px";
+		// this.centerText.style.transform = "translate(0px,-5px)";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Product", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "(" + this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).join(" * ") + ")";
+	}
+
+	static getName() {
+		return "S_Multiply";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["multiply", "multiplication", "product", "*", "x", "&&", "and"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "prod";
 	}
 }
 

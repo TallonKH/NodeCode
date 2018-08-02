@@ -35,10 +35,11 @@ class Main {
 		this.nodeTypeList = [
 			StringNode, IntegerNode, DoubleNode, DisplayNode, PrintNode,
 			SubstringNode, AdditionNode, IncrementNode, CommentNode,
-			BranchNode, LogicalAndNode, CustomPinMenuNode, STypeTestNode,
-			SDisplayNode, SVector1Node, SVector2Node, SVector3Node, SVector4Node,
-			STexCoordNode, SRoundNode, SComponentNode, SSubtractNode, SAdditionNode,
-			SMakeVec2Node, SMakeVec3Node, SMakeVec4Node, SAppendNode
+			BranchNode, LogicalAndNode, CustomPinMenuNode,
+			STypeTestNode, SDisplayNode, SVector1Node, SVector2Node, SVector3Node,
+			SVector4Node, STexCoordNode, SRoundNode, SComponentNode, SSubtractNode,
+			SAdditionNode, SMultiplyNode, SDivideNode, SMakeVec2Node, SMakeVec3Node,
+			SMakeVec4Node, SAppendNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
