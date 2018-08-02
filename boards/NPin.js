@@ -25,17 +25,26 @@ class NPin {
 		this.editDiv;
 		this.links = {}; // pinid : pin
 		this.linkNum = 0;
+		this.setUp = false;
 	}
 
-	getTypes(){
+	getTypes() {
 		return this.multiTyped ? this.types : [this.type];
 	}
 
-	toString(){
+	toString() {
 		return this.pinid.toString();
 	}
 
 	setTypes(silent, ...types) {
+		if(this.setUp){
+			console.log(types);
+			console.log(this.getTypes());
+			if (types.sort().join("") == this.getTypes().sort().join("")) {
+				return this;
+			}
+		}
+
 		const prev = {
 			"types": this.types,
 			"type": this.type,
@@ -64,9 +73,9 @@ class NPin {
 			this.color = avgHex(...types.map(x => x.color));
 		}
 
-		if(this.multiTyped){
+		if (this.multiTyped) {
 			this.multiConnective = this.side;
-		}else{
+		} else {
 			this.multiConnective = this.side ? this.type.multiOutput : this.type.multiInput;
 		}
 
@@ -111,12 +120,12 @@ class NPin {
 		return this;
 	}
 
-	setDefaultVal(v, defdef=null) {
+	setDefaultVal(v, defdef = null) {
 		Object.assign(this.defaultVal, v);
-		if(defdef) { // should also set the default default value?
+		if (defdef) { // should also set the default default value?
 			Object.assign(this.defaultDefaultVal, v);
 		}
-		if(this.editDiv){
+		if (this.editDiv) {
 			this.type.changeVal(this.editDiv, v);
 		}
 		return this;
@@ -135,7 +144,7 @@ class NPin {
 		return Object.values(this.links)[0];
 	}
 
-	linkTo(otherPin) {
+	linkTo(otherPin, silent = false) {
 		let a = this;
 		let b = otherPin;
 
@@ -150,7 +159,7 @@ class NPin {
 			}
 		}
 
-		if(a.pinid in b.links){
+		if (a.pinid in b.links) {
 			console.log("link already exists!");
 			return false;
 		}
@@ -170,15 +179,17 @@ class NPin {
 		this.node.board.links[a.pinid + b.pinid] = [a, b];
 
 		// alert nodes
-		a.node.pinLinked(a, b);
-		b.node.pinLinked(b, a);
+		if (!silent) {
+			a.node.pinLinked(a, b);
+			b.node.pinLinked(b, a);
+		}
 
 		this.node.board.redraw();
 
 		return true;
 	}
 
-	unlink(otherPin) {
+	unlink(otherPin, silent = false) {
 		let a = this;
 		let b = otherPin;
 
@@ -188,8 +199,10 @@ class NPin {
 			a.linkNum--;
 			b.linkNum--;
 			delete this.node.board.links[a.pinid + b.pinid];
-			a.node.pinUnlinked(a, b);
-			b.node.pinUnlinked(b, a);
+			if (!silent) {
+				a.node.pinUnlinked(a, b);
+				b.node.pinUnlinked(b, a);
+			}
 		} else {
 			console.log("Can't unlink pins " + a.name + " & " + b.name + " because they aren't linked!");
 			return false;
@@ -211,7 +224,7 @@ class NPin {
 		this.node.linkedPinChangedByRef(this, linked, from, to);
 	}
 
-	getReturnType(){
+	getReturnType() {
 		return this.node.getReturnType(this);
 	}
 
@@ -268,18 +281,18 @@ class NPin {
 		}
 	}
 
-	areOutTypesCompatible(...inTypes){
-		if(this.multiTyped){
-			for(const type of this.types){
-				for(const inType of inTypes){
-					if(type.isA(inType)){
+	areOutTypesCompatible(...inTypes) {
+		if (this.multiTyped) {
+			for (const type of this.types) {
+				for (const inType of inTypes) {
+					if (type.isA(inType)) {
 						return true;
 					}
 				}
 			}
-		}else{
-			for(const inType of inTypes){
-				if(this.type.isA(inType)){
+		} else {
+			for (const inType of inTypes) {
+				if (this.type.isA(inType)) {
 					return true;
 				}
 			}
@@ -339,7 +352,7 @@ class NPin {
 		let op;
 
 		op = new NCtxMenuOption("Details");
-		op.action = function(p){
+		op.action = function(p) {
 			brd.applyMenu(pin.makeDetailsMenu(pos));
 			return true;
 		}
@@ -347,7 +360,7 @@ class NPin {
 
 		if (this.linkNum) {
 			op = new NCtxMenuOption("Unlink All");
-			op.action = function(p){
+			op.action = function(p) {
 				brd.addAction(new ActUnlinkPin(brd, pin));
 				pin.unlinkAll();
 			}
@@ -356,7 +369,7 @@ class NPin {
 			for (const pinid in this.links) {
 				const linked = this.links[pinid];
 				op = new NCtxMenuOption("Unlink From " + linked.node.constructor.getName() + ":" + linked.name + " (" + linked.pinid + ")");
-				op.action = function(p){
+				op.action = function(p) {
 					brd.addAction(new ActRemoveLink(brd, pin, linked));
 					pin.unlink(linked);
 				}

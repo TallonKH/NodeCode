@@ -199,6 +199,7 @@ class NNode {
 			pinfoDiv.append(pedit);
 			pin.editDiv = pedit;
 		}
+		pin.setUp = true;
 	}
 
 	addOutPin(pin) {
@@ -253,6 +254,7 @@ class NNode {
 			pinfo.setAttribute("data-pinid", pin.pinid);
 			this.opcNameDiv.append(pinfo);
 		}
+		pin.setUp = true;
 	}
 
 	removeInPin(pin) {

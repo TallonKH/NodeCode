@@ -356,12 +356,12 @@ class SComponentNode extends NNode {
 					}
 
 					outp.setTypes(false, varTypes["Vec" + i.toString()]);
-					for (const linkid in outp.links) {
-						const otherp = outp.links[linkid];
-						if (!outp.canPlugInto(otherp)) {
-							outp.unlink(otherp);
-						}
-					}
+					// for (const linkid in outp.links) {
+					// 	const otherp = outp.links[linkid];
+					// 	if (!outp.canPlugInto(otherp)) {
+					// 		outp.unlink(otherp);
+					// 	}
+					// }
 					node.board.redraw();
 				} else {
 					if (sw.prevVal == 0) {
@@ -376,12 +376,12 @@ class SComponentNode extends NNode {
 							}
 						}
 						outp.setTypes(false, varTypes["Vec" + i2.toString()]);
-						for (const linkid in outp.links) {
-							const otherp = outp.links[linkid];
-							if (!outp.canPlugInto(otherp)) {
-								outp.unlink(otherp);
-							}
-						}
+						// for (const linkid in outp.links) {
+						// 	const otherp = outp.links[linkid];
+						// 	if (!outp.canPlugInto(otherp)) {
+						// 		outp.unlink(otherp);
+						// 	}
+						// }
 						node.board.redraw();
 					}
 				}
@@ -390,11 +390,11 @@ class SComponentNode extends NNode {
 					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...switches.map(x => x.adjustedVal))));
 
 					if (inp.linkNum) {
-						const otherp = inp.getSingleLinked();
-						if (!otherp.canPlugInto(inp)) {
-							inp.unlink(otherp);
-							node.board.redraw();
-						}
+						// const otherp = inp.getSingleLinked();
+						// if (!otherp.canPlugInto(inp)) {
+						// 	inp.unlink(otherp);
+						// 	node.board.redraw();
+						// }
 					}
 				}
 				sw.prevVal = sw.adjustedVal;
@@ -639,18 +639,20 @@ class SmartVecNode1 extends NNode {
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
-		this.updateTypes(self.side);
+		self.unlink(linked, true);
+		this.updateTypes();
+		self.linkTo(linked);
 	}
 
 	pinLinked(self, other) {
-		this.updateTypes(self.side);
+		this.updateTypes();
 	}
 
 	pinUnlinked(self, other) {
-		this.updateTypes(self.side);
+		this.updateTypes();
 	}
 
-	updateTypes(side) {
+	updateTypes() {
 		const inp = this.inpins[this.inpinOrder[0]];
 		const inpl = inp.linkNum ? inp.getSingleLinked() : null;
 
@@ -749,18 +751,20 @@ class SmartVecNode2 extends NNode {
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
-		this.updateTypes(self);
+		self.unlink(linked, true);
+		this.updateTypes();
+		self.linkTo(linked);
 	}
 
 	pinLinked(self, other) {
-		this.updateTypes(self);
+		this.updateTypes();
 	}
 
 	pinUnlinked(self, other) {
-		this.updateTypes(self);
+		this.updateTypes();
 	}
 
-	updateTypes(pin) {
+	updateTypes() {
 		const inp1 = this.inpins[this.inpinOrder[0]];
 		const inp2 = this.inpins[this.inpinOrder[1]];
 
@@ -867,18 +871,20 @@ class SmartVecNodeN extends NNode {
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
-		this.updateTypes(self);
+		self.unlink(linked, true);
+		this.updateTypes();
+		self.linkTo(linked);
 	}
 
 	pinLinked(self, other) {
-		this.updateTypes(self);
+		this.updateTypes();
 	}
 
 	pinUnlinked(self, other) {
-		this.updateTypes(self);
+		this.updateTypes();
 	}
 
-	updateTypes(pin) {
+	updateTypes() {
 		let inpl = [];
 		for (const pinn of this.inpinOrder) {
 			const ipin = this.inpins[pinn];

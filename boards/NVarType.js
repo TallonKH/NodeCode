@@ -29,6 +29,10 @@ class NVarType {
 		};
 	}
 
+	toString(){
+		return this.name;
+	}
+
 	setMultiInput(b) {
 		this.multiInput = b;
 	}
