@@ -38,8 +38,6 @@ class NPin {
 
 	setTypes(silent, ...types) {
 		if(this.setUp){
-			console.log(types);
-			console.log(this.getTypes());
 			if (types.sort().join("") == this.getTypes().sort().join("")) {
 				return this;
 			}

@@ -356,12 +356,12 @@ class SComponentNode extends NNode {
 					}
 
 					outp.setTypes(false, varTypes["Vec" + i.toString()]);
-					// for (const linkid in outp.links) {
-					// 	const otherp = outp.links[linkid];
-					// 	if (!outp.canPlugInto(otherp)) {
-					// 		outp.unlink(otherp);
-					// 	}
-					// }
+					for (const linkid in outp.links) {
+						const otherp = outp.links[linkid];
+						if (!outp.canPlugInto(otherp)) {
+							outp.unlink(otherp);
+						}
+					}
 					node.board.redraw();
 				} else {
 					if (sw.prevVal == 0) {
@@ -376,12 +376,12 @@ class SComponentNode extends NNode {
 							}
 						}
 						outp.setTypes(false, varTypes["Vec" + i2.toString()]);
-						// for (const linkid in outp.links) {
-						// 	const otherp = outp.links[linkid];
-						// 	if (!outp.canPlugInto(otherp)) {
-						// 		outp.unlink(otherp);
-						// 	}
-						// }
+						for (const linkid in outp.links) {
+							const otherp = outp.links[linkid];
+							if (!outp.canPlugInto(otherp)) {
+								outp.unlink(otherp);
+							}
+						}
 						node.board.redraw();
 					}
 				}
@@ -390,11 +390,11 @@ class SComponentNode extends NNode {
 					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...switches.map(x => x.adjustedVal))));
 
 					if (inp.linkNum) {
-						// const otherp = inp.getSingleLinked();
-						// if (!otherp.canPlugInto(inp)) {
-						// 	inp.unlink(otherp);
-						// 	node.board.redraw();
-						// }
+						const otherp = inp.getSingleLinked();
+						if (!otherp.canPlugInto(inp)) {
+							inp.unlink(otherp);
+							node.board.redraw();
+						}
 					}
 				}
 				sw.prevVal = sw.adjustedVal;
