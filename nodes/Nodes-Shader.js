@@ -653,6 +653,7 @@ class STexCoordNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
+		data.preVars["texCoord"] = "varying vec2 fragTexCoord;";
 		return "fragTexCoord";
 	}
 

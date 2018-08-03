@@ -479,35 +479,53 @@ class NNode {
 		const data = {
 			"varNameSet": new Set(),
 			"varMap": {},
+			"functions": {},
+			"preVars": {}
 		};
 
-		let pre = "precision mediump float;\n\nvarying vec2 fragTexCoord;\n\nvoid main() {\n";
+
+
+		let mainPre = "void main() {\n";
 		const type = pin.getSingleLinked().getReturnType();
-		let str = this.getSCompile(pin, type, data, [0]);
+		let mainMid = this.getSCompile(pin, type, data, [0]);
+
 		switch (type.name) {
 			case "Vec1":
-				str = "vec4(vec3(" + str + "), 1.0)";
+				mainMid = "vec4(vec3(" + mainMid + "), 1.0)";
 				break;
 			case "Vec2":
-				str = "vec4(" + str + ", 0.0, 1.0)";
+				mainMid = "vec4(" + mainMid + ", 0.0, 1.0)";
 				break;
 			case "Vec3":
-				str = "vec4(" + str + ", 1.0)";
+				mainMid = "vec4(" + mainMid + ", 1.0)";
 				break;
 			case "Vec4":
-				if (numbers.has(str[0])) {
-					str = "vec4(" + str + ")";
+				if (numbers.has(mainMid[0])) {
+					mainMid = "vec4(" + mainMid + ")";
 				}
 				break;
 		}
-		let end = ";\n}"
+
+		let preMain = "precision mediump float;\n\n";
+
+		for(const pvn in data.preVars){
+			preMain += data.preVars[pvn] + "\n";
+		}
+		preMain += "\n";
+		
+		for(const fnn in data.functions){
+			preMain += data.functions[fnn] + "\n\n";
+		}
+
 		const vars = Object.entries(data.varMap);
 		vars.sort((a, b) => a[1].depth - b[1].depth);
 		for (const v of vars) {
-			pre = pre + "\t" + v[1].compiled + "\n";
+			mainPre = mainPre + "\t" + v[1].compiled + "\n";
 		}
-		console.log(pre + "\tgl_FragColor = " + str + end);
-		return pre + "\tgl_FragColor = " + str + end;
+
+		const out = preMain + mainPre + "\tgl_FragColor = " + mainMid + ";\n}";
+		console.log(out);
+		return out;
 	}
 
 	getReturnType(outpin) {
