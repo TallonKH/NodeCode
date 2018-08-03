@@ -37,9 +37,14 @@ class Main {
 			SubstringNode, AdditionNode, IncrementNode, CommentNode,
 			BranchNode, LogicalAndNode, CustomPinMenuNode,
 			STypeTestNode, SDisplayNode, SVector1Node, SVector2Node, SVector3Node,
-			SVector4Node, STexCoordNode, SRoundNode, SComponentNode, SSubtractNode,
+			SVector4Node, STexCoordNode, SRoundNode, SFloorNode, SCeilNode, SFractNode,
+			SComponentNode, SSubtractNode, SModuloNode, SExponentNode, SSineNode,
+			SCosineNode, STangentNode, SMinNode, SMaxNode, SRadiansNode, SDegreesNode,
+			SASineNode, SACosineNode, SATangentNode, SLnNode, SSqrtNode, SISqrtNode,
+			SExp2Node, SEExpNode, SLogNode, SLog2Node, SSignNode, SAbsValNode, SNegateNode,
 			SAdditionNode, SMultiplyNode, SDivideNode, SMakeVec2Node, SMakeVec3Node,
-			SMakeVec4Node, SAppendNode
+			SMakeVec4Node, SAppendNode, SOneMinusNode, SInverseNode, SNormalizeNode,
+			SLengthNode, SPiNode, STauNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};

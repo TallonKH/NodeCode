@@ -1,3 +1,13 @@
+//TODO
+// clamp
+// dot
+// mix
+// step
+// smoothstep
+// distance
+// cross
+// reflect
+
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -104,7 +114,7 @@ class SVector1Node extends NNode {
 	}
 
 	static getTags() {
-		return ["1d", "vec1", "vector1", "float1", "grayscale", "greyscale", "constant", "number"];
+		return ["1", "1d", "vec1", "vector1", "double", "int", "float1", "grayscale", "greyscale", "constant", "number"];
 	}
 }
 
@@ -154,7 +164,7 @@ class SVector2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["2d", "vec2", "vector2", "float2", "coordinate", "position", "location", "uv"];
+		return ["2", "2d", "vec2", "vector2", "float2", "coordinate", "position", "location", "uv"];
 	}
 }
 
@@ -205,7 +215,7 @@ class SVector3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["3d", "vec3", "vector3", "float3", "color", "colour", "position", "location"];
+		return ["3", "3d", "vec3", "vector3", "float3", "color", "colour", "position", "location"];
 	}
 }
 
@@ -257,7 +267,7 @@ class SVector4Node extends NNode {
 	}
 
 	static getTags() {
-		return ["4d", "vec4", "float4", "color", "colour"];
+		return ["4", "4d", "vec4", "float4", "color", "colour"];
 	}
 }
 
@@ -526,7 +536,7 @@ class SMakeVec2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector2", "vec2", "make", "xy", "construct", "2"];
+		return ["vector2", "vec2", "make", "xy", "construct"];
 	}
 }
 
@@ -572,7 +582,7 @@ class SMakeVec3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector3", "vec3", "make", "xyz", "construct", "3"];
+		return ["vector3", "vec3", "make", "xyz", "construct"];
 	}
 }
 
@@ -620,7 +630,7 @@ class SMakeVec4Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector4", "vec4", "make", "xyzw", "construct", "4"];
+		return ["vector4", "vec4", "make", "xyzw", "construct"];
 	}
 }
 
@@ -656,6 +666,115 @@ class STexCoordNode extends NNode {
 
 	static getTags() {
 		return ["texture coordinate", "texcoord", "uv"];
+	}
+}
+
+class SPiNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("π");
+		this.customWidth = 75;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addOutPin(new NPin("pi", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "3.1415926536";
+	}
+
+	static getName() {
+		return "S_Pi";
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["3.1415926536", "pi", "π"];
+	}
+}
+
+class STauNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("τ");
+		this.customWidth = 75;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addOutPin(new NPin("tau", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "3.1415926536";
+	}
+
+	static getName() {
+		return "S_Tau";
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["6.2831853072", "tau", "τ", "2pi", "2π"];
+	}
+}
+
+class SLengthNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("|v|");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("_", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "length(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Length";
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["||", "length", "len", "magnitude", "size", "scale", "abs"];
 	}
 }
 
@@ -759,7 +878,7 @@ class SRoundNode extends SmartVecNode1 {
 	}
 
 	static getTags() {
-		return ["round", "texcoord", "uv"];
+		return ["round"];
 	}
 
 	static getInTypes() {
@@ -768,6 +887,961 @@ class SRoundNode extends SmartVecNode1 {
 
 	static getOutTypes() {
 		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "round";
+	}
+}
+
+class SCeilNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Ceil");
+		this.addCenter("⌈ ⌉");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.centerText.style.transform = "translate(0px,-5px)";
+
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "ceil(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Ceil";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["ceiling"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "ceil";
+	}
+}
+
+class SFloorNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Floor");
+		this.addCenter("⌊ ⌋");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.centerText.style.transform = "translate(0px,-5px)";
+
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "floor(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Floor";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["floor"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "floor";
+	}
+}
+
+class SFractNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("%1");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "fract(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Fract";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["fraction", "%1"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "fract";
+	}
+}
+
+class SSineNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("sin");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in (radians)", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "sin(" + this.getSCompile(this.inpins["in (radians)"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Sine";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["sin", "sine", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "sine";
+	}
+}
+
+class SCosineNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("cos");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in (radians)", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "cos(" + this.getSCompile(this.inpins["in (radians)"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Cosine";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["cos", "cosine", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "cosine";
+	}
+}
+
+class STangentNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("tan");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in (radians)", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "tan(" + this.getSCompile(this.inpins["in (radians)"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Tangent";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["tan", "tangent", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "tangent";
+	}
+}
+
+class SASineNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("asin");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in (radians)", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "asin(" + this.getSCompile(this.inpins["in (radians)"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_ASine";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["asin", "asine", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "asine";
+	}
+}
+
+class SACosineNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("acos");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in (radians)", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "acos(" + this.getSCompile(this.inpins["in (radians)"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_ACosine";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["acos", "acosine", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "acosine";
+	}
+}
+
+class SATangentNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("atan");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in (radians)", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "atan(" + this.getSCompile(this.inpins["in (radians)"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_ATangent";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["atan", "atangent", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "atangent";
+	}
+}
+
+class SRadiansNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("θ<sup>R<sup>");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "radians(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Radians";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["rads", "radians", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "rads";
+	}
+}
+
+class SDegreesNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("θ°");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "degrees(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Degrees";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["degrees", "°", "trig"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "rads";
+	}
+}
+
+class SLnNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("ln");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "log(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Ln";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["loge", "ln", "natural", "euler's"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "log";
+	}
+}
+
+class SSignNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("+/-");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "sign(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Sign";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["sign", "+-"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "sgn";
+	}
+}
+
+class SAbsValNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("|-|");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "abs(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_AbsVal";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["||", "abs", "absolute", "absval"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "absv";
+	}
+}
+
+class SNegateNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("(-1)");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "-" + this.getSCompile(this.inpins["in"], null, data, depth);
+	}
+
+	static getName() {
+		return "S_Negate";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["-", "negate", "*-1"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "neg";
+	}
+}
+
+class SNormalizeNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("v̂");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "-" + this.getSCompile(this.inpins["in"], null, data, depth);
+	}
+
+	static getName() {
+		return "S_Normalize";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["normalize"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "unitv";
+	}
+}
+
+class SOneMinusNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("1-");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "1.0 - " + this.getSCompile(this.inpins["in"], null, data, depth);
+	}
+
+	static getName() {
+		return "S_OneMinus";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["1-", "one minus"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "opp";
+	}
+}
+
+class SInverseNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("1/");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "1.0 / " + this.getSCompile(this.inpins["in"], null, data, depth);
+	}
+
+	static getName() {
+		return "S_Inverse";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["1/", "one minus", "^-1"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "inv";
+	}
+}
+
+class SLog2Node extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("log<sub>2<sub>");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "log2(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Log₂";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["log2"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "log";
+	}
+}
+
+class SEExpNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("e<sup>n<sup>");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "exp(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_eⁿ";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["e^n", "natural", "euler's"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "log";
+	}
+}
+
+class SSqrtNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("√");
+		this.customWidth = 150;
+		this.centerText.style.transform = "translate(0px,7.5px)";
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "sqrt(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Sqrt";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["sqrt", "root", "square root"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "root";
+	}
+}
+
+class SISqrtNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("1/√");
+		this.customWidth = 150;
+		this.centerText.style.transform = "translate(0px,7.5px)";
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "inversesqrt(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_ISqrt";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["inverse sqrt", "inverse root", "inverse square root"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "root";
+	}
+}
+
+class SExp2Node extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("2<sup>n<sup>");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "exp2(" + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Exp2";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["exp2", "2^n"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "twop";
 	}
 }
 
@@ -853,8 +1927,7 @@ class SSubtractNode extends SmartVecNode2 {
 		super.createNodeDiv();
 		this.addCenter("-");
 		this.customWidth = 150;
-		// this.centerText.style.fontSize = "40px";
-		// this.centerText.style.transform = "translate(0px,-5px)";
+		this.centerText.style.fontSize = "40px";
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
 		this.addOutPin(new NPin("A-B", NVector1, NVector2, NVector3, NVector4));
@@ -895,8 +1968,7 @@ class SDivideNode extends SmartVecNode2 {
 		super.createNodeDiv();
 		this.addCenter("/");
 		this.customWidth = 150;
-		// this.centerText.style.fontSize = "40px";
-		// this.centerText.style.transform = "translate(0px,-5px)";
+		this.centerText.style.fontSize = "40px";
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
 		this.addOutPin(new NPin("A/B", NVector1, NVector2, NVector3, NVector4));
@@ -929,6 +2001,129 @@ class SDivideNode extends SmartVecNode2 {
 
 	getOutputVarName(pin) {
 		return "quotient";
+	}
+}
+
+class SModuloNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("%");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("A%B", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "mod(" + this.getSCompile(this.inpins["A"], null, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Modulo";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["modulo", "%", "remainder"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "remainder";
+	}
+}
+
+class SExponentNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("^");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("n", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("A^B", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "pow(" + this.getSCompile(this.inpins["A"], null, data, depth) + ", " + this.getSCompile(this.inpins["B"], this.inpins["A"].getReturnType(), data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Exponent";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["power", "^", "exponent"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "exp";
+	}
+}
+
+class SLogNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("log");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Base", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("log", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "log2(" + this.getSCompile(this.inpins["A"], null, data, depth) + ") / log2(" + this.getSCompile(this.inpins["Base"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Logarithm";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["log", "logarithm"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "log";
 	}
 }
 
@@ -1056,8 +2251,7 @@ class SAdditionNode extends SmartVecNodeN {
 		super.createNodeDiv();
 		this.addCenter("+");
 		this.customWidth = 150;
-		// this.centerText.style.fontSize = "40px";
-		// this.centerText.style.transform = "translate(0px,-5px)";
+		this.centerText.style.fontSize = "40px";
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
 		this.addOutPin(new NPin("Sum", NVector1, NVector2, NVector3, NVector4));
@@ -1098,8 +2292,7 @@ class SMultiplyNode extends SmartVecNodeN {
 		super.createNodeDiv();
 		this.addCenter("x");
 		this.customWidth = 150;
-		// this.centerText.style.fontSize = "40px";
-		// this.centerText.style.transform = "translate(0px,-5px)";
+		this.centerText.style.fontSize = "40px";
 		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
 		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
 		this.addOutPin(new NPin("Product", NVector1, NVector2, NVector3, NVector4));
@@ -1132,6 +2325,88 @@ class SMultiplyNode extends SmartVecNodeN {
 
 	getOutputVarName(pin) {
 		return "prod";
+	}
+}
+
+class SMinNode extends SmartVecNodeN {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("min");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Smallest", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).reduce((a, b) => "min(" + a + ", " + b + ")");
+	}
+
+	static getName() {
+		return "S_Min";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["min", "minimum", "smallest", "lowest"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "smallest";
+	}
+}
+
+class SMaxNode extends SmartVecNodeN {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("max");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Largest", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).reduce((a, b) => "max(" + a + ", " + b + ")");
+	}
+
+	static getName() {
+		return "S_Max";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["max", "maximum", "largest", "highest"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "largest";
 	}
 }
 
