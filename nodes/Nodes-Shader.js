@@ -746,6 +746,57 @@ class STauNode extends NNode {
 	}
 }
 
+class SRandNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("⚅");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2));
+		this.addOutPin(new NPin("rand", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const inp = this.inpins["in"];
+		switch(inp.getReturnType().vecOrder){
+			case 1:
+				data.functions["rand1"] = "float rand1(float n){\n\treturn fract(sin(n)  * 1369.6124 + cos(n) * 43758.5453123);\n}";
+				return "rand1(" + this.getSCompile(inp, NVector1, data, depth) + ")";
+			case 2:
+				data.functions["rand2"] = "float rand2(vec2 p){\n\treturn fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x))));\n}";
+				return "rand2(" + this.getSCompile(inp, NVector2, data, depth) + ")";
+			case 3:
+				data.functions["rand3"] = "float rand3(vec3 n){\n\treturn ???;\n}";
+				return "rand3(" + this.getSCompile(inp, NVector3, data, depth) + ")";
+			case 4:
+				data.functions["rand4"] = "float rand4(vec4 n){\n\treturn ???;)\n}";
+				return "rand4(" + this.getSCompile(inp, NVector4, data, depth) + ")";
+		}
+	}
+
+	static getName() {
+		return "S_Random";
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["?", "rand", "random", "hash"];
+	}
+}
+
 class SLengthNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -1923,7 +1974,7 @@ class SmartVecNode2 extends NNode {
 	}
 
 	getReturnType(outpin) {
-		return getHighestOrderVec([this.inpins[this.inpinOrder[0]].getSingleLinked().getReturnType(), this.inpins[this.inpinOrder[1]].getSingleLinked().getReturnType()]);
+		return getHighestOrderVec([this.inpins[this.inpinOrder[0]].getReturnType(), this.inpins[this.inpinOrder[1]].getReturnType()]);
 	}
 }
 
@@ -2006,9 +2057,9 @@ class SmartVecNode3 extends NNode {
 
 	getReturnType(outpin) {
 		return getHighestOrderVec([
-			this.inpins[this.inpinOrder[0]].getSingleLinked().getReturnType(),
-			this.inpins[this.inpinOrder[1]].getSingleLinked().getReturnType(),
-			this.inpins[this.inpinOrder[2]].getSingleLinked().getReturnType()
+			this.inpins[this.inpinOrder[0]].getReturnType(),
+			this.inpins[this.inpinOrder[1]].getReturnType(),
+			this.inpins[this.inpinOrder[2]].getReturnType()
 		]);
 	}
 }
@@ -2028,7 +2079,7 @@ class SMixNode extends SmartVecNode3 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		const order = getHighestOrderVec([this.inpins["A"].getSingleLinked().getReturnType(),this.inpins["B"].getSingleLinked().getReturnType()]);
+		const order = getHighestOrderVec([this.inpins["A"].getReturnType(),this.inpins["B"].getReturnType()]);
 		return "mix(" +
 			this.getSCompile(this.inpins["A"], order, data, depth) + ", " +
 			this.getSCompile(this.inpins["B"], order, data, depth) + ", " +
@@ -2155,7 +2206,7 @@ class SModuloNode extends SmartVecNode2 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		const order = getHighestOrderVec([this.inpins["A"].getSingleLinked().getReturnType(), this.inpins["B"].getSingleLinked().getReturnType()]);
+		const order = getHighestOrderVec([this.inpins["A"].getReturnType(), this.inpins["B"].getReturnType()]);
 		return "mod(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
 	}
 
@@ -2424,7 +2475,7 @@ class SmartVecNodeN extends NNode {
 	}
 
 	getReturnType(outpin) {
-		return getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
+		return getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getReturnType()));
 	}
 }
 
@@ -2523,7 +2574,7 @@ class SMinNode extends SmartVecNodeN {
 	}
 
 	scompile(pin, varType, data, depth) {
-		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
+		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getReturnType()));
 		let out = "min(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
 		for(let i=2, l=this.inpinOrder.length; i<l; i++){
 			const ipin = this.inpins[this.inpinOrder[i]];
@@ -2570,7 +2621,7 @@ class SMaxNode extends SmartVecNodeN {
 	}
 
 	scompile(pin, varType, data, depth) {
-		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
+		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getReturnType()));
 		let out = "max(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
 		for(let i=2, l=this.inpinOrder.length; i<l; i++){
 			const ipin = this.inpins[this.inpinOrder[i]];
