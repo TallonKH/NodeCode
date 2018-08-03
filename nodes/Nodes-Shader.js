@@ -1,7 +1,6 @@
 //TODO
 // clamp
 // dot
-// mix
 // step
 // smoothstep
 // distance
@@ -1927,6 +1926,139 @@ class SmartVecNode2 extends NNode {
 	}
 }
 
+class SmartVecNode3 extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		self.unlink(linked, true);
+		this.updateTypes();
+		self.linkTo(linked);
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes();
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes();
+	}
+
+	updateTypes() {
+		const inp1 = this.inpins[this.inpinOrder[0]];
+		const inp2 = this.inpins[this.inpinOrder[1]];
+		const inp3 = this.inpins[this.inpinOrder[2]];
+
+		let inpl = [];
+		if (inp1.linkNum) {
+			inpl.push(inp1.getSingleLinked());
+		}
+		if (inp2.linkNum) {
+			inpl.push(inp2.getSingleLinked());
+		}
+		if (inp3.linkNum) {
+			inpl.push(inp3.getSingleLinked());
+		}
+		if (!inpl.length) {
+			inpl = null;
+		}
+
+		const outp = this.outpins[this.outpinOrder[0]];
+		const outpl = outp.linkNum ? Object.values(outp.links) : null;
+
+		let inTypes;
+		let outTypes;
+
+		if (inpl === null && outpl === null) {
+			inTypes = [NVector1, NVector2, NVector3, NVector4];
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (inpl === null) {
+			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only output is connected, outTypes can be anything
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (outpl === null) {
+			// narrow outTypes down to types that can be cast from the input types
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only input is connected, limit inTypes to types that can be cast from acceptable out types
+			inTypes = getVecParentsU(outTypes);
+		} else {
+			// combo of prev 2 statements
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			const t = getVecParentsU(outTypes);
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => t.indexOf(x) >= 0);
+		}
+
+		const iprev = inp1.getTypes();
+		if (iprev.sort().join(",") !== inTypes.sort().join(",")) {
+			inp1.setTypes(false, ...inTypes);
+			inp2.setTypes(false, ...inTypes);
+			inp3.setTypes(false, ...inTypes);
+		}
+
+		const oprev = outp.getTypes();
+		if (oprev.sort().join(",") !== outTypes.sort().join(",")) {
+			outp.setTypes(false, ...outTypes);
+		}
+	}
+
+	getReturnType(outpin) {
+		return getHighestOrderVec([
+			this.inpins[this.inpinOrder[0]].getSingleLinked().getReturnType(),
+			this.inpins[this.inpinOrder[1]].getSingleLinked().getReturnType(),
+			this.inpins[this.inpinOrder[2]].getSingleLinked().getReturnType()
+		]);
+	}
+}
+
+class SMixNode extends SmartVecNode3 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Mix");
+		this.addCenter("~");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("A", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("B", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("~", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("mixed", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const order = getHighestOrderVec([this.inpins["A"].getSingleLinked().getReturnType(),this.inpins["B"].getSingleLinked().getReturnType()]);
+		return "mix(" +
+			this.getSCompile(this.inpins["A"], order, data, depth) + ", " +
+			this.getSCompile(this.inpins["B"], order, data, depth) + ", " +
+			this.getSCompile(this.inpins["~"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Mix";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["mix", "lerp", "interpolate", "linear interpolate"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "diff";
+	}
+}
+
 class SSubtractNode extends SmartVecNode2 {
 	createNodeDiv() {
 		super.createNodeDiv();
@@ -2022,7 +2154,8 @@ class SModuloNode extends SmartVecNode2 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "mod(" + this.getSCompile(this.inpins["A"], null, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
+		const order = getHighestOrderVec([this.inpins["A"].getSingleLinked().getReturnType(), this.inpins["B"].getSingleLinked().getReturnType()]);
+		return "mod(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
 	}
 
 	static getName() {
@@ -2389,7 +2522,13 @@ class SMinNode extends SmartVecNodeN {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).reduce((a, b) => "min(" + a + ", " + b + ")");
+		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
+		let out = "min(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
+		for(let i=2, l=this.inpinOrder.length; i<l; i++){
+			const ipin = this.inpins[this.inpinOrder[i]];
+			out = "min(" + out + ", " + this.getSCompile(ipin, null, data, depth) + ")";
+		}
+		return out;
 	}
 
 	static getName() {
@@ -2430,7 +2569,13 @@ class SMaxNode extends SmartVecNodeN {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return this.inpinOrder.map(n => this.getSCompile(this.inpins[n], null, data, depth)).reduce((a, b) => "max(" + a + ", " + b + ")");
+		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getSingleLinked().getReturnType()));
+		let out = "max(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
+		for(let i=2, l=this.inpinOrder.length; i<l; i++){
+			const ipin = this.inpins[this.inpinOrder[i]];
+			out = "max(" + out + ", " + this.getSCompile(ipin, null, data, depth) + ")";
+		}
+		return out;
 	}
 
 	static getName() {
