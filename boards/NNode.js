@@ -514,10 +514,10 @@ class NNode {
 		return outpin.type;
 	}
 
-	getSCompile(pin, varType, data, depth) {
+	getSCompile(pin, varType, data, depth, forceVar = false) {
 		if (pin.side) {
 			// if output has multiple connections, do not repeat calculation - insert variable instead
-			if (pin.linkNum > 1) {
+			if ((pin.linkNum > 1 || forceVar || this.alwaysVar) && !this.neverVar) {
 				// check if variable has already been 'declared'
 				let v = data.varMap[pin];
 				let name;
@@ -564,13 +564,13 @@ class NNode {
 					this.board.env.logt(link.name + ":" + link.node.name + " has no return type!");
 				} else {
 					if (varType === null) {
-						return link.node.getSCompile(link, link.getReturnType(), data, depth);
+						return link.node.getSCompile(link, link.getReturnType(), data, depth, forceVar);
 					}
 					switch (varType.name) {
 						case "Vec1":
 							switch (otherType.name) {
 								case "Vec1":
-									return link.node.getSCompile(link, NVector1, data, depth);
+									return link.node.getSCompile(link, NVector1, data, depth, forceVar);
 								case "Vec2":
 									this.board.env.logt("Cannot convert Vec2 to Vec1 at " + pin.name + ":" + this.type);
 									return null;
@@ -584,9 +584,9 @@ class NNode {
 						case "Vec2":
 							switch (otherType.name) {
 								case "Vec1":
-									return "vec2(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
+									return "vec2(" + link.node.getSCompile(link, NVector1, data, depth, forceVar) + ")";
 								case "Vec2":
-									return link.node.getSCompile(link, NVector2, data, depth);
+									return link.node.getSCompile(link, NVector2, data, depth, forceVar);
 								case "Vec3":
 									this.board.env.logt("Cannot convert Vec3 to Vec2 at " + pin.name + ":" + this.type);
 									return null;
@@ -597,12 +597,12 @@ class NNode {
 						case "Vec3":
 							switch (otherType.name) {
 								case "Vec1":
-									return "vec3(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
+									return "vec3(" + link.node.getSCompile(link, NVector1, data, depth, forceVar) + ")";
 								case "Vec2":
 									this.board.env.logt("Cannot convert Vec2 to Vec3 at " + pin.name + ":" + this.type);
 									return null;
 								case "Vec3":
-									return link.node.getSCompile(link, NVector3, data, depth);
+									return link.node.getSCompile(link, NVector3, data, depth, forceVar);
 								case "Vec4":
 									this.board.env.logt("Cannot convert Vec4 to Vec3 at " + pin.name + ":" + this.type);
 									return null;
@@ -610,7 +610,7 @@ class NNode {
 						case "Vec4":
 							switch (otherType.name) {
 								case "Vec1":
-									return "vec4(" + link.node.getSCompile(link, NVector1, data, depth) + ")";
+									return "vec4(" + link.node.getSCompile(link, NVector1, data, depth, forceVar) + ")";
 								case "Vec2":
 									this.board.env.logt("Cannot convert Vec2 to Vec4 at " + pin.name + ":" + this.type);
 									return null;
@@ -618,7 +618,7 @@ class NNode {
 									this.board.env.logt("Cannot convert Vec4 to Vec4 at " + pin.name + ":" + this.type);
 									return null;
 								case "Vec4":
-									return link.node.getSCompile(link, NVector4, data, depth);
+									return link.node.getSCompile(link, NVector4, data, depth, forceVar);
 							}
 					}
 				}

@@ -8,6 +8,10 @@
 // cross
 // reflect
 
+// rand
+// noise
+// posterize
+
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -643,6 +647,7 @@ class STexCoordNode extends NNode {
 		super.createNodeDiv();
 		this.addHeader("Texture Coordinate");
 		this.addCenter();
+		this.neverVar = true;
 		this.noPinfo = true;
 		this.addOutPin(new NPin("_", NVector2));
 		return this.containerDiv;
@@ -2058,7 +2063,7 @@ class SExponentNode extends SmartVecNode2 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "pow(" + this.getSCompile(this.inpins["A"], null, data, depth) + ", " + this.getSCompile(this.inpins["B"], this.inpins["A"].getReturnType(), data, depth) + ")";
+		return "pow(" + this.getSCompile(this.inpins["A"], null, data, depth) + ", " + this.getSCompile(this.inpins["n"], this.inpins["A"].getReturnType(), data, depth) + ")";
 	}
 
 	static getName() {
@@ -2083,6 +2088,49 @@ class SExponentNode extends SmartVecNode2 {
 
 	getOutputVarName(pin) {
 		return "exp";
+	}
+}
+
+class SPosterizeNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Posterize");
+		this.addCenter();
+		this.customWidth = 150;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("layers", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const layers = this.getSCompile(this.inpins["layers"], null, data, depth, true);
+
+		return "floor(" + this.getSCompile(this.inpins["in"], null, data, depth) + " * " + layers + ") / " + layers;
+	}
+
+	static getName() {
+		return "S_Posterize";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["posterize"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "post";
 	}
 }
 
