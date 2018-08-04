@@ -7,9 +7,8 @@
 // cross
 // reflect
 
-// rand
+// rand (v3,v4)
 // noise
-// posterize
 
 class STypeTestNode extends NNode {
 	constructor(data = null) {
@@ -346,7 +345,7 @@ class SComponentNode extends NNode {
 
 		this.noPinfo = true;
 		this.customWidth = 210;
-		this.customHeight = 50;
+		this.customHeight = 75;
 		this.addCenter();
 
 		const node = this;
@@ -495,7 +494,169 @@ class SComponentNode extends NNode {
 	}
 
 	static getTags() {
-		return ["component", "mask", "break", "x", "y", "z", "a", "xy", "xyz", ".", "part", "make", "construct"];
+		return ["component", "mask", "break", ".x", ".y", ".z", ".a", ".xy", ".xyz", ".", "part", "make", "construct"];
+	}
+}
+
+class SBreakVec2Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Break Vec2");
+		this.addCenter();
+		this.neverVar = true;
+		this.addInPin(new NPin("vec2", NVector2));
+		this.addOutPin(new NPin("x", NVector1));
+		this.addOutPin(new NPin("y", NVector1));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const ix = this.outpins["x"];
+		const iy = this.outpins["y"];
+		const shouldVar = ix.linkNum + iy.linkNum > 1;
+		const v = this.getSCompile(this.inpins["vec2"], null, data, depth, shouldVar);
+		if (pin === ix) {
+			return v + ".x";
+		} else {
+			return v + ".y";
+		}
+	}
+
+	static getName() {
+		return "S_BreakVec2";
+	}
+
+	static getInTypes() {
+		return [NVector2];
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["break", ".x", ".y", "split"];
+	}
+}
+
+class SBreakVec3Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Break Vec3");
+		this.addCenter();
+		this.neverVar = true;
+		this.addInPin(new NPin("vec3", NVector3));
+		this.addOutPin(new NPin("x", NVector1));
+		this.addOutPin(new NPin("y", NVector1));
+		this.addOutPin(new NPin("z", NVector1));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const ix = this.outpins["x"];
+		const iy = this.outpins["y"];
+		const iz = this.outpins["z"];
+		const shouldVar = ix.linkNum + iy.linkNum + iz.linkNum > 1;
+		const v = this.getSCompile(this.inpins["vec3"], null, data, depth, shouldVar);
+		if (pin === ix) {
+			return v + ".x";
+		} else if (pin === iy) {
+			return v + ".y";
+		} else {
+			return v + ".z";
+		}
+	}
+
+	static getName() {
+		return "S_BreakVec3";
+	}
+
+	static getInTypes() {
+		return [NVector3];
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["break", ".x", ".y", ".z", "split"];
+	}
+}
+
+class SBreakVec4Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Break Vec4");
+		this.addCenter();
+		this.neverVar = true;
+		this.addInPin(new NPin("vec4", NVector4));
+		this.addOutPin(new NPin("x", NVector1));
+		this.addOutPin(new NPin("y", NVector1));
+		this.addOutPin(new NPin("z", NVector1));
+		this.addOutPin(new NPin("w", NVector1));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const ix = this.outpins["x"];
+		const iy = this.outpins["y"];
+		const iz = this.outpins["z"];
+		const iw = this.outpins["w"];
+		const shouldVar = ix.linkNum + iy.linkNum + iz.linkNum + iw.linkNum > 1;
+		const v = this.getSCompile(this.inpins["vec4"], null, data, depth, shouldVar);
+		if (pin === ix) {
+			return v + ".x";
+		} else if (pin === iy) {
+			return v + ".y";
+		} else if (pin === iz) {
+			return v + ".z";
+		} else {
+			return v + ".w";
+		}
+	}
+
+	static getName() {
+		return "S_BreakVec4";
+	}
+
+	static getInTypes() {
+		return [NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["break", ".x", ".y", ".z", ".w", "split"];
 	}
 }
 
@@ -506,7 +667,7 @@ class SMakeVec2Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector2");
+		this.addHeader("Make Vec2");
 		this.addCenter();
 
 		this.addInPin(new NPin("x", NVector1));
@@ -550,13 +711,13 @@ class SMakeVec3Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector3");
+		this.addHeader("Make Vec3");
 		this.addCenter();
 
 		this.addInPin(new NPin("x", NVector1));
 		this.addInPin(new NPin("y", NVector1));
 		this.addInPin(new NPin("z", NVector1));
-		this.addOutPin(new NPin("(x,y,z)", NVector2));
+		this.addOutPin(new NPin("(x,y,z)", NVector3));
 
 		return this.containerDiv;
 	}
@@ -596,14 +757,14 @@ class SMakeVec4Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector4");
+		this.addHeader("Make Vec4");
 		this.addCenter();
 
 		this.addInPin(new NPin("x", NVector1));
 		this.addInPin(new NPin("y", NVector1));
 		this.addInPin(new NPin("z", NVector1));
 		this.addInPin(new NPin("w", NVector1));
-		this.addOutPin(new NPin("(x,y,z,w)", NVector2));
+		this.addOutPin(new NPin("(x,y,z,w)", NVector4));
 
 		return this.containerDiv;
 	}
@@ -764,7 +925,7 @@ class SRandNode extends NNode {
 
 	scompile(pin, varType, data, depth) {
 		const inp = this.inpins["in"];
-		switch(inp.getReturnType().vecOrder){
+		switch (inp.getReturnType().vecOrder) {
 			case 1:
 				data.functions["rand1"] = "float rand1(float n){\n\treturn fract(sin(n)  * 1369.6124 + cos(n) * 43758.5453123);\n}";
 				return "rand1(" + this.getSCompile(inp, NVector1, data, depth) + ")";
@@ -784,8 +945,12 @@ class SRandNode extends NNode {
 		return "S_Random";
 	}
 
+	static getInTypes() {
+		return [NVector1, NVector2];
+	}
+
 	static getOutTypes() {
-		return [NVector2];
+		return [NVector1];
 	}
 
 	static getCategory() {
@@ -2079,7 +2244,7 @@ class SMixNode extends SmartVecNode3 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		const order = getHighestOrderVec([this.inpins["A"].getReturnType(),this.inpins["B"].getReturnType()]);
+		const order = getHighestOrderVec([this.inpins["A"].getReturnType(), this.inpins["B"].getReturnType()]);
 		return "mix(" +
 			this.getSCompile(this.inpins["A"], order, data, depth) + ", " +
 			this.getSCompile(this.inpins["B"], order, data, depth) + ", " +
@@ -2576,7 +2741,7 @@ class SMinNode extends SmartVecNodeN {
 	scompile(pin, varType, data, depth) {
 		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getReturnType()));
 		let out = "min(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
-		for(let i=2, l=this.inpinOrder.length; i<l; i++){
+		for (let i = 2, l = this.inpinOrder.length; i < l; i++) {
 			const ipin = this.inpins[this.inpinOrder[i]];
 			out = "min(" + out + ", " + this.getSCompile(ipin, null, data, depth) + ")";
 		}
@@ -2623,7 +2788,7 @@ class SMaxNode extends SmartVecNodeN {
 	scompile(pin, varType, data, depth) {
 		const order = getHighestOrderVec(this.inpinOrder.map(n => this.inpins[n].getReturnType()));
 		let out = "max(" + this.getSCompile(this.inpins["A"], order, data, depth) + ", " + this.getSCompile(this.inpins["B"], null, data, depth) + ")";
-		for(let i=2, l=this.inpinOrder.length; i<l; i++){
+		for (let i = 2, l = this.inpinOrder.length; i < l; i++) {
 			const ipin = this.inpins[this.inpinOrder[i]];
 			out = "max(" + out + ", " + this.getSCompile(ipin, null, data, depth) + ")";
 		}
