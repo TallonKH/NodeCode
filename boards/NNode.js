@@ -512,7 +512,7 @@ class NNode {
 			preMain += data.preVars[pvn] + "\n";
 		}
 		preMain += "\n";
-		
+
 		for(const fnn in data.functions){
 			preMain += data.functions[fnn] + "\n\n";
 		}
@@ -645,7 +645,7 @@ class NNode {
 					this.board.env.logt("Failed to compile shader - unlinked pin " + pin.name + ":" + this.type + " has no default value!");
 					return null;
 				} else {
-					switch (varType.name) {
+					switch ((varType || pin.type).name) {
 						case "Vec1":
 							switch (pin.type.name) {
 								case "Vec1":
