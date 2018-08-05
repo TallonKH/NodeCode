@@ -275,7 +275,7 @@ class NNode {
 	}
 
 	reAddInPin(pin, index) {
-		if(this.inpins[pin.name] != undefined){
+		if (this.inpins[pin.name] != undefined) {
 			return null;
 		}
 		this.inpins[pin.name] = pin;
@@ -325,7 +325,7 @@ class NNode {
 	}
 
 	reAddOutPin(pin, index) {
-		if(this.outpins[pin.name] != undefined){
+		if (this.outpins[pin.name] != undefined) {
 			return null;
 		}
 		this.outpins[pin.name] = pin;
@@ -480,7 +480,8 @@ class NNode {
 			"varNameSet": new Set(),
 			"varMap": {},
 			"functions": {},
-			"preVars": {}
+			"varying": {},
+			"uniforms": {}
 		};
 
 
@@ -508,12 +509,16 @@ class NNode {
 
 		let preMain = "precision mediump float;\n\n";
 
-		for(const pvn in data.preVars){
-			preMain += data.preVars[pvn] + "\n";
+		for (const pvn in data.varying) {
+			preMain += data.varying[pvn] + "\n";
 		}
-		preMain += "\n";
+		for (const pvn in data.uniforms) {
+			const unf = data.uniforms[pvn];
+			preMain += "uniform " + unf.type + " " + unf.name + ";\n";
+		}
 
-		for(const fnn in data.functions){
+		preMain += "\n";
+		for (const fnn in data.functions) {
 			preMain += data.functions[fnn] + "\n\n";
 		}
 
@@ -525,7 +530,11 @@ class NNode {
 
 		const out = preMain + mainPre + "\tgl_FragColor = " + mainMid + ";\n}";
 		console.log(out);
-		return out;
+
+		return {
+			"text": out,
+			"uniforms": data.uniforms
+		};
 	}
 
 	getReturnType(outpin) {

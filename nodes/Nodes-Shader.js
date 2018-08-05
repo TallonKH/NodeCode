@@ -310,12 +310,34 @@ class SDisplayNode extends NNode {
 	recompileCanvas() {
 		if (this.gl) {
 			this.gl.delete();
+			delete this.board.activeGLContexts[this.pinid]
 		}
 		const inpin = this.inpins["_"];
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
-			this.gl = setupWebGLRectangle(this.canvas, this.fullSCompile(inpin));
+			const fullCompile = this.fullSCompile(inpin);
+			console.log(fullCompile);
+			this.gl = setupWebGLRectangle(this.canvas, fullCompile.text);
+
+			const uniforms = {};
+			for (const unfn in fullCompile.uniforms) {
+				const unf = fullCompile.uniforms[unfn];
+				uniforms[unfn] = Object.assign({}, unf);
+				uniforms[unfn].location = this.gl.context.getUniformLocation(this.gl.program, unfn);
+				console.log(uniforms[unfn].location);
+			}
+
+			this.board.activeGLContexts[this.pinid] = Object.assign({
+				"uniforms": uniforms
+			}, this.gl);
 		}
+
+	}
+
+	remove() {
+		this.gl.delete();
+		delete this.board.activeGLContext[this.gl];
+		super.remove();
 	}
 
 	static getName() {
@@ -356,6 +378,7 @@ class SComponentNode extends NNode {
 
 		this.switchboard = document.createElement("div");
 		this.switchboard.className = "nodeval compselect";
+		this.switchboard.style.marginTop = "12px";
 		this.centerDiv.append(this.switchboard);
 
 		const switches = [];
@@ -814,7 +837,7 @@ class STexCoordNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
-		data.preVars["texCoord"] = "varying vec2 fragTexCoord;";
+		data.varying["fragTexCoord"] = "varying vec2 fragTexCoord;";
 		return "fragTexCoord";
 	}
 
@@ -832,6 +855,46 @@ class STexCoordNode extends NNode {
 
 	static getTags() {
 		return ["texture coordinate", "texcoord", "uv"];
+	}
+}
+
+class STimeNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Time");
+		this.addCenter();
+		this.neverVar = true;
+		this.noPinfo = true;
+		this.addOutPin(new NPin("_", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		data.uniforms["time"] = {
+			"type": "float",
+			"name": "time"
+		}
+		return "time";
+	}
+
+	static getName() {
+		return "S_Time";
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["time", "uniform"];
 	}
 }
 

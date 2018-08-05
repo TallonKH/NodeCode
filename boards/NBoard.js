@@ -48,6 +48,8 @@ class NBoard {
 		this.rectDims = new NPoint(0, 0);
 		this.cvOffset = new NPoint(0, 0);
 
+		this.activeGLContexts = {};
+
 		// mouse stuff
 		this.leftMDown = false;
 		this.rightMDown = false;
@@ -66,6 +68,8 @@ class NBoard {
 		this.frameMouseDelta = new NPoint();
 		this.currentMouseDelta = new NPoint();
 		this.lastMouseMoveEvent = null;
+
+		setInterval(this.shaderClock.bind(this), 16);
 	}
 
 	evntToPt(event) {
@@ -1395,5 +1399,22 @@ class NBoard {
 		}
 		node.containerDiv.remove();
 		delete this.nodes[node.nodeid];
+	}
+
+	shaderClock(){
+		for(const pinif in this.activeGLContexts){
+			const info = this.activeGLContexts[pinif];
+			const timel = info.uniforms["time"];
+			let changed = false;
+			if(timel){
+				changed = true;
+				const time = (currentTimeMillis() / 1000.0) % 8192;
+				const x = info.context.uniform1f(timel.location, time);
+			}
+
+			if(changed){
+				info.redraw();
+			}
+		}
 	}
 }
