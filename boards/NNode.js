@@ -930,7 +930,7 @@ class NNode {
 				for (const pinid in node.inpins) {
 					const pin = node.inpins[pinid];
 					for (const link in pin.links) {
-						// 4DD 4N 4CT1ON H3R3
+						// TODO 4DD 4N 4CT1ON H3R3
 						// 4LSO M4K3 1T R3CURS1V3
 						pin.links[link].node.select();
 					}
@@ -945,7 +945,7 @@ class NNode {
 				for (const pinid in node.outpins) {
 					const pin = node.outpins[pinid];
 					for (const link in pin.links) {
-						// 4DD 4N 4CT1ON H3R3
+						// TODO 4DD 4N 4CT1ON H3R3
 						// 4LSO M4K3 1T R3CURS1V3
 						pin.links[link].node.select();
 					}
@@ -959,7 +959,7 @@ class NNode {
 			op.action = function(e) {
 				for (const pin of node.pinlist) {
 					for (const link in pin.links) {
-						// 4DD 4N 4CT1ON H3R3
+						// TODO 4DD 4N 4CT1ON H3R3
 						// 4LSO M4K3 1T R3CURS1V3
 						pin.links[link].node.select();
 					}

@@ -810,6 +810,36 @@ class NBoard {
 				break;
 		}
 		switch (event.which) {
+			case 9: // TAB
+				if(this.selectedNodeCount == 1){
+					const node = Object.values(this.selectedNodes)[0];
+					if(this.env.shiftDown){
+						for(const ipinid of node.inpinOrder){
+							const ipin = node.inpins[ipinid];
+							if(ipin.linkNum){
+								const otherNode = Object.values(ipin.links)[0].node;
+								this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, [otherNode])));
+								this.deselectAllNodes();
+								this.selectNode(otherNode);
+								this.goToNodes([otherNode]);
+								break;
+							}
+						}
+					}else{
+						for(const opinid of node.outpinOrder){
+							const opin = node.outpins[opinid];
+							if(opin.linkNum){
+								const otherNode = Object.values(opin.links)[0].node;
+								this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, [otherNode])));
+								this.deselectAllNodes();
+								this.selectNode(otherNode);
+								this.goToNodes([otherNode]);
+								break;
+							}
+						}
+					}
+				}
+				break;
 			case 27: // ESC
 				if (this.cutting) {
 					this.cutting = false;
