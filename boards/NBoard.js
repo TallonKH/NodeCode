@@ -998,8 +998,15 @@ class NBoard {
 	}
 
 	calcLinkPoints(pinA, pinB) {
-		const l1 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
-		const l2 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);;
+		let l1;
+		let l2;
+		if(pinA.side){
+			l1 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);;
+			l2 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
+		}else{
+			l1 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
+			l2 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);;
+		}
 
 		const yDist = Math.abs(l1.y - l2.y);
 		const xDist = Math.abs(l1.x - l2.x);
@@ -1404,7 +1411,6 @@ class NBoard {
 
 	shaderClock(){
 		for(const nodeid in this.activeGLContexts){
-			console.log(nodeid);
 			const info = this.activeGLContexts[nodeid];
 			const timel = info.uniforms["time"];
 			let changed = false;

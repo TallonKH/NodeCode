@@ -324,7 +324,6 @@ class SDisplayNode extends NNode {
 				const unf = fullCompile.uniforms[unfn];
 				uniforms[unfn] = Object.assign({}, unf);
 				uniforms[unfn].location = this.gl.context.getUniformLocation(this.gl.program, unfn);
-				console.log(uniforms[unfn].location);
 			}
 
 			this.board.activeGLContexts[this.nodeid] = Object.assign({
