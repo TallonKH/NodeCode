@@ -333,8 +333,10 @@ class SDisplayNode extends NNode {
 	}
 
 	removed() {
-		this.gl.delete();
-		delete this.board.activeGLContexts[this.nodeid];
+		if(this.gl){
+			this.gl.delete();
+			delete this.board.activeGLContexts[this.nodeid];
+		}
 	}
 
 	static getName() {
