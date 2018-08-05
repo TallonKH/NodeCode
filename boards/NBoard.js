@@ -769,7 +769,7 @@ class NBoard {
 		if (event.ctrlKey) {
 			const prevZoom = this.zoom;
 			this.zoomCounter += event.deltaY;
-			this.zoomCounter = Math.min(171, Math.max(-219, this.zoomCounter));
+			this.zoomCounter = Math.min(200, Math.max(-219, this.zoomCounter));
 			this.zoom = Math.pow(1.0075, -this.zoomCounter);
 			this.displayOffset = this.displayOffset.subtractp(this.evntToPtBrd(event).subtractp(this.displayOffset).divide1(prevZoom).multiply1(this.zoom - prevZoom))
 		} else {
