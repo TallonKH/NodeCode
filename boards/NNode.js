@@ -982,8 +982,8 @@ class NNode {
 	}
 
 	getNextNode(){
-		for (const opinid of node.outpinOrder) {
-			const opin = node.outpins[opinid];
+		for (const opinid of this.outpinOrder) {
+			const opin = this.outpins[opinid];
 			if (opin.linkNum) {
 				return Object.values(opin.links)[0].node;
 			}
@@ -992,8 +992,8 @@ class NNode {
 	}
 
 	getPrevNode(){
-		for (const ipinid of node.inpinOrder) {
-			const ipin = node.inpins[ipinid];
+		for (const ipinid of this.inpinOrder) {
+			const ipin = this.inpins[ipinid];
 			if (ipin.linkNum) {
 				return Object.values(ipin.links)[0].node;
 			}
