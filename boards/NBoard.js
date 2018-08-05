@@ -811,32 +811,19 @@ class NBoard {
 		}
 		switch (event.which) {
 			case 9: // TAB
-				if(this.selectedNodeCount == 1){
+				if (this.selectedNodeCount == 1) {
 					const node = Object.values(this.selectedNodes)[0];
-					if(this.env.shiftDown){
-						for(const ipinid of node.inpinOrder){
-							const ipin = node.inpins[ipinid];
-							if(ipin.linkNum){
-								const otherNode = Object.values(ipin.links)[0].node;
-								this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, [otherNode])));
-								this.deselectAllNodes();
-								this.selectNode(otherNode);
-								this.goToNodes([otherNode]);
-								break;
-							}
-						}
-					}else{
-						for(const opinid of node.outpinOrder){
-							const opin = node.outpins[opinid];
-							if(opin.linkNum){
-								const otherNode = Object.values(opin.links)[0].node;
-								this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, [otherNode])));
-								this.deselectAllNodes();
-								this.selectNode(otherNode);
-								this.goToNodes([otherNode]);
-								break;
-							}
-						}
+					let otherNode;
+					if (this.env.shiftDown) {
+						otherNode = node.getPrevNode();
+					} else {
+						otherNode = node.getNextNode();
+					}
+					if (otherNode) {
+						this.addAction(new NMacro(new ActDeselectAll(this), new ActSelect(this, [otherNode])));
+						this.deselectAllNodes();
+						this.selectNode(otherNode);
+						this.goToNodes([otherNode]);
 					}
 				}
 				break;
@@ -847,27 +834,51 @@ class NBoard {
 				}
 				this.closeMenu();
 				break;
-			case 37:
-				{ // LEFT ARROW
-					const delta = new NPoint(-this.env.moveDistance, 0);
-					this.addAction(new ActNudgeLeft(this));
-					for (const nn in this.selectedNodes) {
-						this.nodes[nn].move(delta);
+			case 37: // LEFT ARROW
+				if (this.selectedNodeCount) {
+					if (this.env.shiftDown) {
+						if (this.env.ctrlDown || this.env.metaDown) {
+							const nodes = Object.values(this.selectedNodes).reduce((a, b) => b.getUpstreamNodes(a), new Set());
+							this.addAction(new ActSelect(this, nodes));
+							nodes.forEach(n => this.selectNode(n));
+						} else {
+							const nodes = Object.values(this.selectedNodes).reduce((a, b) => b.getPrevNodes(a), new Set());
+							this.addAction(new ActSelect(this, nodes));
+							nodes.forEach(n => this.selectNode(n));
+						}
+					} else {
+						const delta = new NPoint(-this.env.moveDistance, 0);
+						this.addAction(new ActNudgeLeft(this));
+						for (const nn in this.selectedNodes) {
+							this.nodes[nn].move(delta);
+						}
 					}
-					break;
 				}
+				break;
 			case 80:
 				console.log(this.actionStack);
 				break;
-			case 39:
-				{ // RIGHT ARROW
-					const delta = new NPoint(this.env.moveDistance, 0);
-					this.addAction(new ActNudgeRight(this));
-					for (const nn in this.selectedNodes) {
-						this.nodes[nn].move(delta);
+			case 39: // RIGHT ARROW
+				if (this.selectedNodeCount) {
+					if (this.env.shiftDown) {
+						if (this.env.ctrlDown || this.env.metaDown) {
+							const nodes = Object.values(this.selectedNodes).reduce((a, b) => b.getDownstreamNodes(a), new Set());
+							this.addAction(new ActSelect(this, nodes));
+							nodes.forEach(n => this.selectNode(n));
+						} else {
+							const nodes = Object.values(this.selectedNodes).reduce((a, b) => b.getNextNodes(a), new Set());
+							this.addAction(new ActSelect(this, nodes));
+							nodes.forEach(n => this.selectNode(n));
+						}
+					} else {
+						const delta = new NPoint(this.env.moveDistance, 0);
+						this.addAction(new ActNudgeRight(this));
+						for (const nn in this.selectedNodes) {
+							this.nodes[nn].move(delta);
+						}
 					}
-					break;
 				}
+				break;
 			case 38: // UP ARROW
 				{
 					const delta = new NPoint(0, -this.env.moveDistance);

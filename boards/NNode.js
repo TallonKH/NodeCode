@@ -981,6 +981,52 @@ class NNode {
 		return null;
 	}
 
+	getNextNode(){
+		for (const opinid of node.outpinOrder) {
+			const opin = node.outpins[opinid];
+			if (opin.linkNum) {
+				return Object.values(opin.links)[0].node;
+			}
+		}
+		return null;
+	}
+
+	getPrevNode(){
+		for (const ipinid of node.inpinOrder) {
+			const ipin = node.inpins[ipinid];
+			if (ipin.linkNum) {
+				return Object.values(ipin.links)[0].node;
+			}
+		}
+		return null;
+	}
+
+	getNextNodes(gotten=new Set()){
+		for(const outn of this.outpinOrder){
+			const links = this.outpins[outn].links;
+			for(const linkid in links){
+				const other = links[linkid].node;
+				if(!gotten.has(other)){
+					gotten.add(other);
+				}
+			}
+		}
+		return gotten;
+	}
+
+	getPrevNodes(gotten=new Set()){
+		for(const inn of this.inpinOrder){
+			const links = this.inpins[inn].links;
+			for(const linkid in links){
+				const other = links[linkid].node;
+				if(!gotten.has(other)){
+					gotten.add(other);
+				}
+			}
+		}
+		return gotten;
+	}
+
 	getDownstreamNodes(gotten=new Set()){
 		for(const outn of this.outpinOrder){
 			const links = this.outpins[outn].links;
