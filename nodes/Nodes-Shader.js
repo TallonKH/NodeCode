@@ -327,17 +327,16 @@ class SDisplayNode extends NNode {
 				console.log(uniforms[unfn].location);
 			}
 
-			this.board.activeGLContexts[this.pinid] = Object.assign({
+			this.board.activeGLContexts[this.nodeid] = Object.assign({
 				"uniforms": uniforms
 			}, this.gl);
 		}
 
 	}
 
-	remove() {
+	removed() {
 		this.gl.delete();
-		delete this.board.activeGLContext[this.gl];
-		super.remove();
+		delete this.board.activeGLContexts[this.nodeid];
 	}
 
 	static getName() {
@@ -867,6 +866,7 @@ class STimeNode extends NNode {
 		super.createNodeDiv();
 		this.addHeader("Time");
 		this.addCenter();
+		this.customWidth = 75;
 		this.neverVar = true;
 		this.noPinfo = true;
 		this.addOutPin(new NPin("_", NVector1));

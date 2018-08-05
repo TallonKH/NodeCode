@@ -69,6 +69,8 @@ class NNode {
 		this.board.removeNode(this);
 	}
 
+	removed() {}
+
 	select() {
 		return this.board.selectNode(this);
 	}

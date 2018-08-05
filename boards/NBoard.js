@@ -1388,6 +1388,7 @@ class NBoard {
 
 	removeNode(node) {
 		node.unlinkAllPins();
+		node.removed();
 		this.deselectNode(node);
 		for (const pinid in node.inpins) {
 			const pin = node.inpins[pinid];
@@ -1402,8 +1403,9 @@ class NBoard {
 	}
 
 	shaderClock(){
-		for(const pinif in this.activeGLContexts){
-			const info = this.activeGLContexts[pinif];
+		for(const nodeid in this.activeGLContexts){
+			console.log(nodeid);
+			const info = this.activeGLContexts[nodeid];
 			const timel = info.uniforms["time"];
 			let changed = false;
 			if(timel){
