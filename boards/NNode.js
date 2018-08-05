@@ -927,14 +927,9 @@ class NNode {
 		if (hasInLinks) {
 			op = new NCtxMenuOption("Select Upstream Nodes");
 			op.action = function(e) {
-				for (const pinid in node.inpins) {
-					const pin = node.inpins[pinid];
-					for (const link in pin.links) {
-						// TODO 4DD 4N 4CT1ON H3R3
-						// 4LSO M4K3 1T R3CURS1V3
-						pin.links[link].node.select();
-					}
-				}
+				const nodes = node.getUpstreamNodes();
+				brd.addAction(new ActSelect(brd, nodes));
+				nodes.forEach(n => brd.selectNode(n));
 			}
 			menu.addOption(op);
 		}
@@ -942,14 +937,9 @@ class NNode {
 		if (hasOutLinks) {
 			op = new NCtxMenuOption("Select Downstream Nodes");
 			op.action = function(e) {
-				for (const pinid in node.outpins) {
-					const pin = node.outpins[pinid];
-					for (const link in pin.links) {
-						// TODO 4DD 4N 4CT1ON H3R3
-						// 4LSO M4K3 1T R3CURS1V3
-						pin.links[link].node.select();
-					}
-				}
+				const nodes = node.getDownstreamNodes();
+				brd.addAction(new ActSelect(brd, nodes));
+				nodes.forEach(n => brd.selectNode(n));
 			}
 			menu.addOption(op);
 		}
@@ -957,13 +947,9 @@ class NNode {
 		if (hasInLinks && hasOutLinks) {
 			op = new NCtxMenuOption("Select Linked Nodes");
 			op.action = function(e) {
-				for (const pin of node.pinlist) {
-					for (const link in pin.links) {
-						// TODO 4DD 4N 4CT1ON H3R3
-						// 4LSO M4K3 1T R3CURS1V3
-						pin.links[link].node.select();
-					}
-				}
+				const nodes = node.getLinkedNodes();
+				brd.addAction(new ActSelect(brd, nodes));
+				nodes.forEach(n => brd.selectNode(n));
 			}
 			menu.addOption(op);
 		}
@@ -993,6 +979,48 @@ class NNode {
 
 	onAttemptedDropLink(other) {
 		return null;
+	}
+
+	getDownstreamNodes(gotten=new Set()){
+		for(const outn of this.outpinOrder){
+			const links = this.outpins[outn].links;
+			for(const linkid in links){
+				const other = links[linkid].node;
+				if(!gotten.has(other)){
+					gotten.add(other);
+					other.getDownstreamNodes(gotten);
+				}
+			}
+		}
+		return gotten;
+	}
+
+	getUpstreamNodes(gotten=new Set()){
+		for(const inn of this.inpinOrder){
+			const links = this.inpins[inn].links;
+			for(const linkid in links){
+				const other = links[linkid].node;
+				if(!gotten.has(other)){
+					gotten.add(other);
+					other.getUpstreamNodes(gotten);
+				}
+			}
+		}
+		return gotten;
+	}
+
+	getLinkedNodes(gotten=new Set()){
+		for(const pin of this.pinlist){
+			const links = pin.links;
+			for(const linkid in links){
+				const other = links[linkid].node;
+				if(!gotten.has(other)){
+					gotten.add(other);
+					other.getLinkedNodes(gotten);
+				}
+			}
+		}
+		return gotten;
 	}
 }
 

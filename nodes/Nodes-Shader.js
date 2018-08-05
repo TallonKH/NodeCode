@@ -316,7 +316,6 @@ class SDisplayNode extends NNode {
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
 			const fullCompile = this.fullSCompile(inpin);
-			console.log(fullCompile);
 			this.gl = setupWebGLRectangle(this.canvas, fullCompile.text);
 
 			const uniforms = {};
