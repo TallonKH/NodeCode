@@ -78,7 +78,9 @@ class Main {
 		if (this.savedBoards[name]) {
 			const data = JSON.parse(localStorage.getItem("brd_" + name));
 			if (data) {
-				return this.newBoard(data);
+				const board = this.newBoard(data);
+				board.redraw();
+				return board;
 			}
 		}
 		console.log("Board " + name + " not found in storage");

@@ -5,12 +5,14 @@ class NBoard {
 			this.name = data;
 			this.uid = (~~(Math.random() * 8388607));
 			this.zoom = 1;
+			this.zoomCounter = -1.0417;
 			this.displayOffset = new NPoint(0, 0);
 		} else {
 			console.log("Created board " + data.name);
 			this.name = data.name;
 			this.uid = data.id;
 			this.zoom = data.zoom;
+			this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);;
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 			this.activeCategories = new Set(data.cats);
 		}
@@ -68,6 +70,10 @@ class NBoard {
 		this.frameMouseDelta = new NPoint();
 		this.currentMouseDelta = new NPoint();
 		this.lastMouseMoveEvent = null;
+		this.prevMouseDownTime = 0;
+		this.mouseDownTime = 0;
+		this.prevMouseUpTime = 0;
+		this.mouseUpTime = 0;
 
 		setInterval(this.shaderClock.bind(this), 16);
 	}
@@ -402,6 +408,8 @@ class NBoard {
 	}
 
 	mouseDown(event) {
+		this.prevMouseDownTime = this.mouseDownTime;
+		this.mouseDownTime = currentTimeMillis();
 		this.lastMouseButton = event.which;
 		this.clickStart = this.evntToPt(event);
 		this.clickStartTarget = event.target;
@@ -434,14 +442,28 @@ class NBoard {
 	}
 
 	mouseUp(event) {
+		const prevClickDelta = this.clickDelta;
 		const button = event.which;
-		// Left mouse button
+		this.prevMouseUpTime = this.mouseUpTime;
+		this.mouseUpTime = currentTimeMillis();
 		this.clickEnd = this.evntToPt(event);
 		this.clickDelta = this.clickEnd.subtractp(this.clickStart);
 		this.clickEndTarget = event.target;
 
 		// stop ticking for screen edge panning
 		clearInterval(this.dragPanID);
+
+		if (!this.lastDoubleClicked && this.mouseUpTime - this.prevMouseDownTime < 300 && prevClickDelta.lengthSquared() < 5 && this.clickDelta.lengthSquared() < 5) {
+			// double click
+			this.lastDoubleClicked = true;
+			if (this.clickEndTarget.classList.contains("nodepart")) {
+				const node = this.getDivNode(this.clickEndTarget);
+				this.goToNodes([node]);
+			}
+		} else {
+			// normal click
+			this.lastDoubleClicked = false;
+		}
 
 		switch (button) {
 			case 1: // LEFT MOUSE
@@ -1000,10 +1022,10 @@ class NBoard {
 	calcLinkPoints(pinA, pinB) {
 		let l1;
 		let l2;
-		if(pinA.side){
+		if (pinA.side) {
 			l1 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);;
 			l2 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
-		}else{
+		} else {
 			l1 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
 			l2 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);;
 		}
@@ -1409,20 +1431,29 @@ class NBoard {
 		delete this.nodes[node.nodeid];
 	}
 
-	shaderClock(){
-		for(const nodeid in this.activeGLContexts){
+	shaderClock() {
+		for (const nodeid in this.activeGLContexts) {
 			const info = this.activeGLContexts[nodeid];
 			const timel = info.uniforms["time"];
 			let changed = false;
-			if(timel){
+			if (timel) {
 				changed = true;
 				const time = (currentTimeMillis() / 1000.0) % 8192;
 				const x = info.context.uniform1f(timel.location, time);
 			}
 
-			if(changed){
+			if (changed) {
 				info.redraw();
 			}
 		}
+	}
+
+	goToNodes(nodes) {
+		const screenDims = new NPoint(this.boardDiv.clientWidth, this.boardDiv.clientHeight);
+		const bounds = getGroupBounds(nodes);
+		this.zoom = Math.max(screenDims.dividep(bounds.max.subtractp(bounds.min)).min() * 0.9, 0.224);
+		this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);
+		this.displayOffset = getGroupCenter(nodes).multiply1(-this.zoom).addp(screenDims.divide1(2));
+		this.redraw();
 	}
 }

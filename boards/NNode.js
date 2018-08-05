@@ -1051,11 +1051,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 	op = new NCtxMenuOption("Go to");
 	op.action = function(e) {
-		const screenDims = new NPoint(brd.boardDiv.clientWidth, brd.boardDiv.clientHeight);
-		const bounds = getGroupBounds(nodes);
-		brd.zoom = Math.max(screenDims.dividep(bounds.max.subtractp(bounds.min)).min() * 0.9, 0.224);
-		brd.displayOffset = getGroupCenter(nodes).multiply1(-brd.zoom).addp(screenDims.divide1(2));
-		brd.redraw();
+		brd.goToNodes(nodes)
 	}
 	menu.addOption(op);
 
