@@ -43,7 +43,7 @@ $(function() {
 
 	const newBoard_shader = document.createElement("li");
 	newBoard_shader.className = "ui-state-default tile new";
-	newBoard_shader.innerHTML = "Shader (n/a)";
+	newBoard_shader.innerHTML = "Shader";
 	newBoard_shader.style.backgroundColor = "#9338fa";
 	newBoard_shader.style.color = "#d3ccff";
 	newBoard_shader.style.borderColor = "#5c0a88";

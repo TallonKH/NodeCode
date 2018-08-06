@@ -2064,7 +2064,7 @@ class SISqrtNode extends SmartVecNode1 {
 	}
 
 	static getName() {
-		return "S_ISqrt";
+		return "S_Inverse Sqrt";
 	}
 
 	static getCategory() {

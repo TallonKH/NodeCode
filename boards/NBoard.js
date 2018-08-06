@@ -350,7 +350,9 @@ class NBoard {
 						continue;
 					}
 				}
-				const op = new NCtxMenuOption(type.getName());
+				let mname = type.getName();
+
+				const op = new NCtxMenuOption(mname.substring(mname.indexOf("_") + 1));
 				let otherPin = null;
 				if (pinFilter) {
 					op.action = function(p) {
