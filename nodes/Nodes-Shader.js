@@ -2339,6 +2339,95 @@ class SMixNode extends SmartVecNode3 {
 	}
 }
 
+class SStepNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Step");
+		this.addCenter();
+		this.customWidth = 150;
+		this.addInPin(new NPin("Edge", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Val", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const order = getHighestOrderVec([this.inpins["Edge"].getReturnType(), this.inpins["Val"].getReturnType()]);
+		return "step(" + this.getSCompile(this.inpins["Edge"], order, data, depth) + ", " + this.getSCompile(this.inpins["Val"], order, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Step";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["step", "compare"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "stp";
+	}
+}
+
+class SSmoothStepNode extends SmartVecNode3 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Smoothstep");
+		this.addCenter("~");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("Edge 1", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Edge 2", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Val", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("stepped", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const order = getHighestOrderVec([this.inpins["Edge 1"].getReturnType(), this.inpins["Edge 2"].getReturnType(), this.inpins["Val"].getReturnType()]);
+		return "smoothstep(" +
+			this.getSCompile(this.inpins["Edge 1"], order, data, depth) + ", " +
+			this.getSCompile(this.inpins["Edge 2"], order, data, depth) + ", " +
+			this.getSCompile(this.inpins["Val"], order, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Smoothstep";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["smoothstep", "herp", "interpolate", "hermite", "polynomial"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "sstp";
+	}
+}
+
 class SSubtractNode extends SmartVecNode2 {
 	createNodeDiv() {
 		super.createNodeDiv();
