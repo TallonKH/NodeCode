@@ -237,7 +237,7 @@ createCollapseDiv = function(title, maxHeight = undefined) {
 	const maxHeightTransitionNone = function(){
 		// if statement fixes collapsing appearing open when closed if spammed
 		if(collapsing.hasAttribute("open")){
-			collapsing.style.maxHeight = "none";
+			collapsing.style.maxHeight = collapsing.clpsMaxHeight || "none";
 		}
 	}
 	collapser.onclick = function(e) {

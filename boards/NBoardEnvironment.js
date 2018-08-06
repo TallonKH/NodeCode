@@ -61,6 +61,7 @@ class Main {
 
 		this.fileList;
 		this.fileListMap = {};
+		this.newFileButton;
 	}
 
 	saveBoardToStorage(board) {
@@ -112,6 +113,7 @@ class Main {
 		if (typeof data == "object") {
 			brd.loadNodes(data);
 		}
+
 		this.refreshFileList();
 		return brd;
 	}
@@ -125,13 +127,22 @@ class Main {
 		let item;
 
 		{
-			item = createCollapseDiv("Files", 50);
+			item = createCollapseDiv("Files");
 			main.leftMenuDiv.append(item.container);
 
 			const contents = item.collapsing;
 
 			main.fileList = document.createElement("ul");
 			main.fileList.className = "filelist";
+
+			const newFileItem = createCollapseDiv("New");
+			this.newFileButton = newFileItem.container;
+			newFileItem.collapsing.className += " newfilelist";
+
+			newFileItem.collapsing.append(this.createNewFileListItem("Code"));
+			newFileItem.collapsing.append(this.createNewFileListItem("Regex"));
+			newFileItem.collapsing.append(this.createNewFileListItem("Shader"));
+			newFileItem.collapsing.append(this.createNewFileListItem("Debug"));
 			this.refreshFileList();
 			contents.append(main.fileList);
 		}
@@ -189,7 +200,7 @@ class Main {
 	refreshFileList() {
 		const brdns = Object.keys(JSON.parse(localStorage.getItem("boards")));
 		const brdnset = new Set(brdns);
-
+		this.newFileButton.remove();
 		for (const brdn in this.fileListMap) {
 			this.fileListMap[brdn].remove();
 			if (!brdnset.has(brdn)) {
@@ -217,6 +228,7 @@ class Main {
 			}
 
 			this.fileList.append(item);
+			this.fileList.append(this.newFileButton);
 		}
 	}
 
@@ -232,6 +244,18 @@ class Main {
 				}
 			}
 			main.loadBoardFromStorage(boardn);
+			return false;
+		}
+		return item;
+	}
+
+	createNewFileListItem(preset) {
+		const item = document.createElement("li");
+		item.innerHTML = preset;
+		item.className = "filebutton";
+
+		item.onclick = function(e) {
+			main.newBoard("Untitled_" + preset).activeCategories = new Set(main.presets[preset]);
 			return false;
 		}
 		return item;
