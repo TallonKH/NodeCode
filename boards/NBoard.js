@@ -1426,6 +1426,10 @@ class NBoard {
 
 	loadNode(nodata) {
 		const type = this.env.nodeTypeDict[nodata.type];
+		if(!type){
+			console.log("Unable to load node of type " + nodata.type);
+			return null;
+		}
 		const cat = type.getCategory();
 		if (this.activeCategories.has(cat)) {
 			const node = this.createNode(type, nodata);

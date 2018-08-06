@@ -44,8 +44,9 @@ class Main {
 			SExp2Node, SEExpNode, SLogNode, SLog2Node, SSignNode, SAbsValNode, SNegateNode,
 			SAdditionNode, SMultiplyNode, SDivideNode, SMakeVec2Node, SMakeVec3Node,
 			SMakeVec4Node, SAppendNode, SOneMinusNode, SInverseNode, SNormalizeNode,
-			SLengthNode, SPiNode, STauNode, SPosterizeNode, SMixNode, SStepNode, SSmoothStepNode, SRandNode,
-			SBreakVec2Node, SBreakVec3Node, SBreakVec4Node, STimeNode
+			SLengthNode, SPiNode, STauNode, SPosterizeNode, SMixNode, SStepNode, SSmoothStepNode,
+			SRandNode, SBreakVec2Node, SBreakVec3Node, SBreakVec4Node, STimeNode, SRerouteNode,
+			SClampNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};

@@ -1963,6 +1963,47 @@ class SLog2Node extends SmartVecNode1 {
 	}
 }
 
+class SRerouteNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter();
+		this.customWidth = 75;
+		this.noPinfo = true;
+		this.neverVar = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return this.getSCompile(this.inpins["in"], null, data, depth, true);
+	}
+
+	static getName() {
+		return "S_Reroute";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["reroute", "redirect"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "log";
+	}
+}
+
 class SEExpNode extends SmartVecNode1 {
 	createNodeDiv() {
 		super.createNodeDiv();
@@ -2307,11 +2348,11 @@ class SMixNode extends SmartVecNode3 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		const order = getHighestOrderVec([this.inpins["A"].getReturnType(), this.inpins["B"].getReturnType()]);
+		const order = getHighestOrderVec([this.inpins["A"].getReturnType(), this.inpins["B"].getReturnType(), this.inpins["~"].getReturnType()]);
 		return "mix(" +
 			this.getSCompile(this.inpins["A"], order, data, depth) + ", " +
 			this.getSCompile(this.inpins["B"], order, data, depth) + ", " +
-			this.getSCompile(this.inpins["~"], null, data, depth) + ")";
+			this.getSCompile(this.inpins["~"], order, data, depth) + ")";
 	}
 
 	static getName() {
@@ -2324,6 +2365,53 @@ class SMixNode extends SmartVecNode3 {
 
 	static getTags() {
 		return ["mix", "lerp", "interpolate", "linear interpolate"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "diff";
+	}
+}
+
+class SClampNode extends SmartVecNode3 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Clamp");
+		this.addCenter("[ , ]");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("Val", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Min", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Max", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Clamped", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const order = getHighestOrderVec([this.inpins["Val"].getReturnType(), this.inpins["Min"].getReturnType(), this.inpins["Max"].getReturnType()]);
+		return "clamp(" +
+			this.getSCompile(this.inpins["Val"], order, data, depth) + ", " +
+			this.getSCompile(this.inpins["Min"], order, data, depth) + ", " +
+			this.getSCompile(this.inpins["Max"], order, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Clamp";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["clamp", "constrain", "restrict", "minmax"];
 	}
 
 	static getInTypes() {
