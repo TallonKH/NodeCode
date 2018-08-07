@@ -724,6 +724,114 @@ class SMakeVec2Node extends NNode {
 	}
 }
 
+class SHSVNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("RGB to HSV");
+		this.addCenter();
+		this.customWidth = 200;
+		this.customHeight = 75;
+		this.addInPin(new NPin("RGB", NVector3));
+		this.addOutPin(new NPin("HSV", NVector3));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		data.functions["hsv"] = `
+		vec3 hsv(vec3 c){
+	    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+			vec4 p = c.g < c.b ? vec4(c.bg, K.wz) : vec4(c.gb, K.xy);
+    	vec4 q = c.r < p.x ? vec4(p.xyw, c.r) : vec4(c.r, p.yzx);
+
+	    float d = q.x - min(q.w, q.y);
+	    float e = 1.0e-10;
+	    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+		}`
+		return "hsv(" + this.getSCompile(this.inpins["RGB"], NVector3, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_HSV";
+	}
+
+	static getInTypes() {
+		return [NVector3];
+	}
+
+	static getOutTypes() {
+		return [NVector3];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["hsv", "hsb", "hue", "saturation", "value"];
+	}
+
+	getOutputVarName(pin) {
+		return "color";
+	}
+}
+
+class SRGBNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("HSV to RGB");
+		this.addCenter();
+		this.customWidth = 200;
+		this.customHeight = 75;
+		this.addInPin(new NPin("HSV", NVector3));
+		this.addOutPin(new NPin("RGB", NVector3));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		data.functions["rgb"] = `
+		vec3 rgb(vec3 c){
+	    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+	    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+	    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+		}`
+		return "rgb(" + this.getSCompile(this.inpins["HSV"], NVector3, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_RGB";
+	}
+
+	static getInTypes() {
+		return [NVector3];
+	}
+
+	static getOutTypes() {
+		return [NVector3];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["rgb", "red", "green", "blue"];
+	}
+
+	getOutputVarName(pin) {
+		return "color";
+	}
+}
+
 class SMakeVec3Node extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -1020,6 +1128,10 @@ class SRandNode extends NNode {
 
 	static getTags() {
 		return ["?", "rand", "random", "hash"];
+	}
+
+	getOutputVarName(pin) {
+		return "rnd";
 	}
 }
 
@@ -2573,7 +2685,7 @@ class SRefractNode extends SmartVecNode2 {
 		return "refract(" +
 			this.getSCompile(this.inpins["Vec"], order, data, depth) + ", " +
 			this.getSCompile(this.inpins["Normal"], order, data, depth) +
-			this.getSCompile(this.inpins["Ratio of IORs"], NVector1, data, depth) +")";
+			this.getSCompile(this.inpins["Ratio of IORs"], NVector1, data, depth) + ")";
 	}
 
 	static getName() {

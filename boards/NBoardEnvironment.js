@@ -46,7 +46,8 @@ class Main {
 			SMakeVec4Node, SAppendNode, SOneMinusNode, SInverseNode, SNormalizeNode,
 			SLengthNode, SPiNode, STauNode, SPosterizeNode, SMixNode, SStepNode, SSmoothStepNode,
 			SRandNode, SBreakVec2Node, SBreakVec3Node, SBreakVec4Node, STimeNode, SRerouteNode,
-			SClampNode, SDistanceNode, SDotProductNode, SCrossProductNode, SReflectNode, SRefractNode
+			SClampNode, SDistanceNode, SDotProductNode, SCrossProductNode, SReflectNode, SRefractNode,
+			SHSVNode, SRGBNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
