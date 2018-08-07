@@ -363,7 +363,7 @@ class NBoard {
 						if (pinFilter.side) {
 							for (const pinn of node.inpinOrder) {
 								otherPin = node.inpins[pinn];
-								if (otherPin.linkTo(pinFilter)) {
+								if (pinFilter.canPlugInto(otherPin)) {
 									break;
 								} else {
 									otherPin = null;
@@ -372,7 +372,7 @@ class NBoard {
 						} else {
 							for (const pinn of node.outpinOrder) {
 								otherPin = node.outpins[pinn];
-								if (otherPin.linkTo(pinFilter)) {
+								if (otherPin.canPlugInto(pinFilter)) {
 									break;
 								} else {
 									otherPin = null;
@@ -383,6 +383,7 @@ class NBoard {
 						node.setPosition(p);
 						if (otherPin) {
 							brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
+							otherPin.linkTo(pinFilter);
 						} else {
 							brd.addAction(new ActAddNode(brd, node));
 						}
