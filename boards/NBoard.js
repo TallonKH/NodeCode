@@ -357,6 +357,9 @@ class NBoard {
 				if (pinFilter) {
 					op.action = function(p) {
 						const node = brd.createNode(type);
+						if(node.autoFocusedInput){
+							node.autoFocusedInput.focus();
+						}
 						if (pinFilter.side) {
 							for (const pinn of node.inpinOrder) {
 								otherPin = node.inpins[pinn];
@@ -387,6 +390,9 @@ class NBoard {
 				} else {
 					op.action = function(p) {
 						const node = brd.createNode(type);
+						if(node.autoFocusedInput){
+							node.autoFocusedInput.focus();
+						}
 						node.setPosition(p);
 						brd.addAction(new ActAddNode(brd, node));
 					}

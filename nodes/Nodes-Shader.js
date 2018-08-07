@@ -79,6 +79,7 @@ class SVector1Node extends NNode {
 		this.inputDiv.className = "nodeval vec1";
 		this.centerDiv.append(this.inputDiv);
 		this.noPinfo = true;
+		this.autoFocusedInput = this.inputDiv;
 		this.addOutPin(new NPin("Value", NVector1));
 		return this.containerDiv;
 	}
@@ -127,6 +128,7 @@ class SVector2Node extends NNode {
 		this.inputDiv = NVector2.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec2";
 		this.centerDiv.append(this.inputDiv);
+		this.autoFocusedInput = $(this.inputDiv).find(".vec2x").get(0);
 		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NVector2));
 		return this.containerDiv;
@@ -177,6 +179,7 @@ class SVector3Node extends NNode {
 		this.inputDiv = NVector3.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec3";
 		this.centerDiv.append(this.inputDiv);
+		this.autoFocusedInput = $(this.inputDiv).find(".vec3x").get(0);
 		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NVector3));
 		return this.containerDiv;
@@ -227,6 +230,7 @@ class SVector4Node extends NNode {
 		this.addCenter();
 		this.inputDiv = NVector4.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec4";
+		this.autoFocusedInput = $(this.inputDiv).find(".vec4x").get(0);
 		this.centerDiv.append(this.inputDiv);
 		this.noPinfo = true;
 		this.addOutPin(new NPin("Value", NVector4));
