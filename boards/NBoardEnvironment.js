@@ -140,10 +140,10 @@ class Main {
 			this.newFileButton = newFileItem.container;
 			newFileItem.collapsing.className += " newfilelist";
 
-			newFileItem.collapsing.append(this.createNewFileListItem("Code"));
-			newFileItem.collapsing.append(this.createNewFileListItem("Regex"));
-			newFileItem.collapsing.append(this.createNewFileListItem("Shader"));
-			newFileItem.collapsing.append(this.createNewFileListItem("Debug"));
+			newFileItem.collapsing.append(this.createNewFileListItem("code"));
+			newFileItem.collapsing.append(this.createNewFileListItem("regex"));
+			newFileItem.collapsing.append(this.createNewFileListItem("shader"));
+			newFileItem.collapsing.append(this.createNewFileListItem("debug"));
 			this.refreshFileList();
 			contents.append(main.fileList);
 		}
@@ -256,6 +256,7 @@ class Main {
 		item.className = "filebutton";
 
 		item.onclick = function(e) {
+			localStorage.setItem("initialPreset", preset);
 			main.newBoard("Untitled_" + preset).activeCategories = new Set(main.presets[preset]);
 			return false;
 		}
