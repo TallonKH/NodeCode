@@ -208,9 +208,9 @@ class NPin {
 		this.node.board.redraw();
 	}
 
-	unlinkAll() {
+	unlinkAll(silent=false) {
 		for (const pin of Object.values(this.links)) {
-			this.unlink(pin);
+			this.unlink(pin,silent);
 		}
 	}
 

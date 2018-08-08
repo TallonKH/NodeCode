@@ -17,33 +17,33 @@ class STypeTestNode extends NNode {
 		this.addInPin(new NPin("Vec 2 In", NVector2));
 		this.addInPin(new NPin("Vec 3 In", NVector3));
 		this.addInPin(new NPin("Vec 4 In", NVector4));
-		// this.addInPin(new NPin("Vec 1,2 In", NVector1,NVector2));
-		// this.addInPin(new NPin("Vec 1,3 In", NVector1,NVector3));
-		// this.addInPin(new NPin("Vec 1,4 In", NVector1,NVector4));
-		// this.addInPin(new NPin("Vec 2,3 In", NVector2,NVector3));
-		// this.addInPin(new NPin("Vec 2,4 In", NVector2,NVector4));
-		// this.addInPin(new NPin("Vec 3,4 In", NVector3,NVector4));
-		// this.addInPin(new NPin("Vec 1,2,3 In", NVector1,NVector2,NVector3));
-		// this.addInPin(new NPin("Vec 1,2,4 In", NVector1,NVector2,NVector4));
-		// this.addInPin(new NPin("Vec 1,3,4 In", NVector1,NVector3,NVector4));
-		// this.addInPin(new NPin("Vec 2,3,4 In", NVector2,NVector3,NVector4));
-		// this.addInPin(new NPin("Vec 1,2,3,4 In", NVector1,NVector2,NVector3,NVector4));
+		this.addInPin(new NPin("Vec 1,2 In", NVector1, NVector2));
+		this.addInPin(new NPin("Vec 1,3 In", NVector1, NVector3));
+		this.addInPin(new NPin("Vec 1,4 In", NVector1, NVector4));
+		this.addInPin(new NPin("Vec 2,3 In", NVector2, NVector3));
+		this.addInPin(new NPin("Vec 2,4 In", NVector2, NVector4));
+		this.addInPin(new NPin("Vec 3,4 In", NVector3, NVector4));
+		this.addInPin(new NPin("Vec 1,2,3 In", NVector1, NVector2, NVector3));
+		this.addInPin(new NPin("Vec 1,2,4 In", NVector1, NVector2, NVector4));
+		this.addInPin(new NPin("Vec 1,3,4 In", NVector1, NVector3, NVector4));
+		this.addInPin(new NPin("Vec 2,3,4 In", NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Vec 1,2,3,4 In", NVector1, NVector2, NVector3, NVector4));
 
 		this.addOutPin(new NPin("Vec 1 Out", NVector1));
 		this.addOutPin(new NPin("Vec 2 Out", NVector2));
 		this.addOutPin(new NPin("Vec 3 Out", NVector3));
 		this.addOutPin(new NPin("Vec 4 Out", NVector4));
-		// this.addOutPin(new NPin("Vec 1,2 Out", NVector1,NVector2));
-		// this.addOutPin(new NPin("Vec 1,3 Out", NVector1,NVector3));
-		// this.addOutPin(new NPin("Vec 1,4 Out", NVector1,NVector4));
-		// this.addOutPin(new NPin("Vec 2,3 Out", NVector2,NVector3));
-		// this.addOutPin(new NPin("Vec 2,4 Out", NVector2,NVector4));
-		// this.addOutPin(new NPin("Vec 3,4 Out", NVector3,NVector4));
-		// this.addOutPin(new NPin("Vec 1,2,3 Out", NVector1,NVector2,NVector3));
-		// this.addOutPin(new NPin("Vec 1,2,4 Out", NVector1,NVector2,NVector4));
-		// this.addOutPin(new NPin("Vec 1,3,4 Out", NVector1,NVector3,NVector4));
-		// this.addOutPin(new NPin("Vec 2,3,4 Out", NVector2,NVector3,NVector4));
-		// this.addOutPin(new NPin("Vec 1,2,3,4 Out", NVector1,NVector2,NVector3,NVector4));
+		this.addOutPin(new NPin("Vec 1,2 Out", NVector1, NVector2));
+		this.addOutPin(new NPin("Vec 1,3 Out", NVector1, NVector3));
+		this.addOutPin(new NPin("Vec 1,4 Out", NVector1, NVector4));
+		this.addOutPin(new NPin("Vec 2,3 Out", NVector2, NVector3));
+		this.addOutPin(new NPin("Vec 2,4 Out", NVector2, NVector4));
+		this.addOutPin(new NPin("Vec 3,4 Out", NVector3, NVector4));
+		this.addOutPin(new NPin("Vec 1,2,3 Out", NVector1, NVector2, NVector3));
+		this.addOutPin(new NPin("Vec 1,2,4 Out", NVector1, NVector2, NVector4));
+		this.addOutPin(new NPin("Vec 1,3,4 Out", NVector1, NVector3, NVector4));
+		this.addOutPin(new NPin("Vec 2,3,4 Out", NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Vec 1,2,3,4 Out", NVector1, NVector2, NVector3, NVector4));
 
 		return this.containerDiv;
 	}
@@ -3457,72 +3457,94 @@ class SAppendNode extends NNode {
 		this.outp = new NPin("out", NVector2, NVector3, NVector4);
 		this.addOutPin(this.outp);
 
-		this.prevMin = 2;
-		this.prevMax = 4;
+		this.prevInTypes = {};
+		this.prevOutTypes;
 
 		return this.containerDiv;
 	}
 
 	linkedPinChangedType(self, linked, from, to) {
-		this.updateTypes(false);
+		this.updateTypes(self);
 	}
 
 	pinLinked(self, other) {
-		this.updateTypes(false);
+		this.updateTypes(self);
 	}
 
 	pinUnlinked(self, other) {
-		this.updateTypes(false);
+		const links = {};
+		for (const pin of this.pinlist) {
+			links[pin.pinid] = Object.values(pin.links);
+			pin.unlinkAll();
+		}
+		this.updateTypes(self);
+		for (const pin of this.pinlist) {
+			for (const link of links[pin.pinid]) {
+				pin.linkTo(link);
+			}
+		}
 	}
 
-	updateTypes(force) {
-		const min = this.calcMinOrder();
-		const max = this.calcMaxOrder();
-		if (force || this.prevMin != min || this.prevMax != max) {
-			for (const inn of this.inpinOrder) {
-				const inp = this.inpins[inn];
-				const available = max + 1 - min + (inp.linkNum ? Math.min(...inp.getSingleLinked().getTypes().map(t => t.vecOrder)) : 1);
-				inp.setTypes(false, ...[NVector1, NVector2, NVector3].slice(0, available));
-			}
-			this.outp.setTypes(false, ...[NVector2, NVector3, NVector4].slice(min - 2, max));
+	updateTypes(self) {
+		const outputHigh = this.outp.linkNum ? getLowestOrderVec(Object.values(this.outp.links).map(x => getHighestOrderVec(x.getTypes()))).vecOrder : 4;
+		const outputLow = this.outp.linkNum ? getHighestOrderVec(Object.values(this.outp.links).map(x => getLowestOrderVec(x.getTypes(), 2))).vecOrder : 4;
+
+		let minIn = 1;
+
+		let maxIn = 1 + outputHigh - this.inpinOrder.length;
+		let minOut;
+
+		let inputLow = 0;
+		let inputHigh = 0;
+		for (const inn of this.inpinOrder) {
+			const inp = this.inpins[inn];
+			inp.linkMin = (inp.linkNum) ? (getLowestOrderVec(inp.getSingleLinked().getTypes()).vecOrder) : (1);
+			inp.linkMax = (inp.linkNum) ? (getHighestOrderVec(inp.getSingleLinked().getTypes()).vecOrder) : (3);
+			inputLow += inp.linkMin;
+			inputHigh += inp.linkMax;
+		}
+		minOut = inputLow;
+
+		if (this.outp.linkNum) {
+			minOut = Math.max(outputLow, minOut);
 		}
 
-		this.prevMin = min;
-		this.prevMax = max;
-	}
-
-	calcMinOrder() {
-		let mi = 0;
-		for (const pinn of this.inpinOrder) {
-			const inp = this.inpins[pinn];
+		let maxOut = Math.min(outputHigh, inputHigh);
+		let linkedCount = 0;
+		for (const inn of this.inpinOrder) {
+			const inp = this.inpins[inn];
 			if (inp.linkNum) {
-				mi += Math.min(...inp.getSingleLinked().getTypes().map(t => t.vecOrder));
-			} else {
-				mi += 1;
+				linkedCount++;
 			}
 		}
-
-		return mi;
-	}
-
-	calcMaxOrder() {
-		let mo = 4;
+		for (const inn of this.inpinOrder) {
+			let inTypes;
+			const inp = this.inpins[inn];
+			if (linkedCount == 0) {
+				inTypes = [NVector1, NVector2, NVector3].slice(0, maxIn);
+			} else {
+				const minAvailable = Math.max(minOut - inputHigh + inp.linkMax, 1);
+				const maxAvailable = maxOut - inputLow + inp.linkMin;
+				inTypes = [NVector1, NVector2, NVector3].slice(minAvailable - 1, maxAvailable);
+			}
+			if (inp.linkNum) {
+				inTypes = inp.getSingleLinked().getTypes().filter(x => inTypes.indexOf(x) >= 0);
+			}
+			const stringed = inTypes.join(":");
+			if (this.prevInTypes[inn] != stringed) {
+				inp.setTypes(false, ...inTypes);
+				this.prevInTypes[inn] = stringed;
+			}
+		}
+		let outTypes = [NVector2, NVector3, NVector4].slice(minOut - 2, maxOut - 1);
 		for (const lid in this.outp.links) {
-			const link = this.outp.links[lid];
-			mo = Math.min(mo, Math.max(...link.getTypes().map(t => t.vecOrder)));
+			outTypes = this.outp.links[lid].getTypes().filter(x => outTypes.indexOf(x) >= 0);
 		}
-
-		let mi = 0;
-		for (const pinn of this.inpinOrder) {
-			const inp = this.inpins[pinn];
-			if (inp.linkNum) {
-				mi += Math.max(...inp.getSingleLinked().getTypes().map(t => t.vecOrder));
-			} else {
-				mi += 4;
-			}
+		const stringed = outTypes.join(":");
+		if (this.prevOutTypes != stringed) {
+			this.outp.setTypes(false, ...outTypes);
+			this.prevOutTypes = stringed
 		}
-
-		return Math.min(mo, mi) - 1;
 	}
 
 	load(data, loadids) {

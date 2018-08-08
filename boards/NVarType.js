@@ -29,7 +29,7 @@ class NVarType {
 		};
 	}
 
-	toString(){
+	toString() {
 		return this.name;
 	}
 
@@ -149,37 +149,64 @@ getVecParentsU = function(types) {
 }
 
 getVecChildrenI = function(types) {
-	return types.map(x => getVecChildren(x)).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+	return types.map(x => getVecChildren(x)).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
 }
 
 getVecParentsI = function(types) {
-	return types.map(x => getVecParents(x)).reduce((a,b) => a.filter(x => b.indexOf(x) >= 0));
+	return types.map(x => getVecParents(x)).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
 }
 
-getHighestOrderVec = function(types){
+getHighestOrderVec = function(types) {
 	let highest = null;
-	for(const type of types){
-		switch(type.name){
+	for (const type of types) {
+		switch (type.name) {
 			case "Vec1":
-				if(highest === null){
+				if (highest === null) {
 					highest = NVector1;
 				}
 				break;
 			case "Vec2":
-				if(highest === null || highest === NVector1){
+				if (highest === null || highest === NVector1) {
 					highest = NVector2;
 				}
 				break;
 			case "Vec3":
-				if(highest !== NVector4){
-					highest = NVector3;
-				}
+				highest = NVector3;
 				break;
 			case "Vec4":
 				return NVector4;
 		}
 	}
 	return highest;
+}
+
+getLowestOrderVec = function(types, minimum = 0) {
+	let lowest = null;
+	for (const type of types) {
+		switch (type.name) {
+			case "Vec1":
+				if (minimum <= 1) {
+					return NVector1;
+				}
+				break;
+			case "Vec2":
+				if (minimum <= 2) {
+					lowest = NVector2;
+				}
+				break;
+			case "Vec3":
+				if (minimum <= 3 && lowest === NVector4 || lowest === null) {
+					lowest = NVector3;
+				}
+				break;
+			case "Vec4":
+				if (lowest === null && minimum <= 4) {
+					lowest = NVector4;
+				}
+				break;
+		}
+	}
+	return lowest;
 }
 
 const NObject = new NVarType("Object", function(nvar) {}, "#8c8c8c");
