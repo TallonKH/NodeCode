@@ -131,7 +131,7 @@ float snoise4(vec4 v){
   vec4 j1 = permute4(permute4(permute4(permute4(i.w + vec4(i1.w, i2.w, i3.w, 1.0 )) + i.z + vec4(i1.z, i2.z, i3.z, 1.0 )) + i.y + vec4(i1.y, i2.y, i3.y, 1.0 )) + i.x + vec4(i1.x, i2.x, i3.x, 1.0 ));
   vec4 ip = vec4(1.0/294.0, 1.0/49.0, 1.0/7.0, 0.0) ;
 
-  vec4 p0 = grad4(j0,   ip);
+  vec4 p0 = grad4(j0, ip);
   vec4 p1 = grad4(j1.x, ip);
   vec4 p2 = grad4(j1.y, ip);
   vec4 p3 = grad4(j1.z, ip);

@@ -1533,6 +1533,49 @@ class SCeilNode extends SmartVecNode1 {
 	}
 }
 
+class SP1D2Node extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("(n+1)/2");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "20px";
+		this.centerText.style.transform = "translate(0px,-5px)";
+
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "(1.0 + " + this.getSCompile(this.inpins["in"], null, data, depth) + ") * 0.5";
+	}
+
+	static getName() {
+		return "S_PlusOneDividedByTwo";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["+1/2", "constant bias scale", "10"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "var";
+	}
+}
+
 class SFloorNode extends SmartVecNode1 {
 	createNodeDiv() {
 		super.createNodeDiv();
@@ -2206,7 +2249,7 @@ class SOneMinusNode extends SmartVecNode1 {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "1.0 - " + this.getSCompile(this.inpins["in"], null, data, depth);
+		return "(1.0 - " + this.getSCompile(this.inpins["in"], null, data, depth) + ")";
 	}
 
 	static getName() {
