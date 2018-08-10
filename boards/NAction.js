@@ -702,23 +702,23 @@ class ActChangeCompNode extends NAction {
 }
 
 
-class ActChangeSAppendInputNum extends NAction {
-	constructor(board, node, from, to) {
-		super(board);
-		this.node = node;
-		this.from = from;
-		this.to = to;
-	}
-
-	redo() {
-		this.node.setInCount(this.to);
-	}
-
-	undo() {
-		this.node.setInCount(this.from);
-	}
-
-	getType() {
-		return "ChangeSAppendInputNum";
-	}
-}
+// class ActChangeSAppendInputNum extends NAction {
+// 	constructor(board, node, from, to) {
+// 		super(board);
+// 		this.node = node;
+// 		this.from = from;
+// 		this.to = to;
+// 	}
+//
+// 	redo() {
+// 		this.node.setInCount(this.to);
+// 	}
+//
+// 	undo() {
+// 		this.node.setInCount(this.from);
+// 	}
+//
+// 	getType() {
+// 		return "ChangeSAppendInputNum";
+// 	}
+// }

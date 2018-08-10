@@ -514,7 +514,7 @@ class SComponentNode extends NNode {
 	}
 
 	static getTags() {
-		return ["component", "mask", "break", ".x", ".y", ".z", ".a", ".xy", ".xyz", ".", "part", "make", "construct"];
+		return ["component", "mask", ".x", ".y", ".z", ".a", ".xy", ".xyz", "."];
 	}
 }
 
@@ -564,7 +564,7 @@ class SBreakVec2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["break", ".x", ".y", "split"];
+		return ["break", ".x", ".y", "split", "break vec2"];
 	}
 }
 
@@ -618,7 +618,7 @@ class SBreakVec3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["break", ".x", ".y", ".z", "split"];
+		return ["break", ".x", ".y", ".z", "split", "break vec3"];
 	}
 }
 
@@ -676,7 +676,7 @@ class SBreakVec4Node extends NNode {
 	}
 
 	static getTags() {
-		return ["break", ".x", ".y", ".z", ".w", "split"];
+		return ["break", ".x", ".y", ".z", ".w", "split", "split vec4"];
 	}
 }
 
@@ -720,7 +720,7 @@ class SMakeVec2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector2", "vec2", "make", "xy", "construct"];
+		return ["vector2", "vec2", "make", "xy", "construct", "make vec2"];
 	}
 }
 
@@ -874,7 +874,7 @@ class SMakeVec3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector3", "vec3", "make", "xyz", "construct"];
+		return ["vector3", "vec3", "make", "xyz", "construct", "make vec3"];
 	}
 }
 
@@ -922,7 +922,7 @@ class SMakeVec4Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector4", "vec4", "make", "xyzw", "construct"];
+		return ["vector4", "vec4", "make", "xyzw", "construct", "make vec3"];
 	}
 }
 
@@ -1028,7 +1028,7 @@ class SPiNode extends NNode {
 	}
 
 	static getOutTypes() {
-		return [NVector2];
+		return [NVector1];
 	}
 
 	static getCategory() {
@@ -1037,6 +1037,114 @@ class SPiNode extends NNode {
 
 	static getTags() {
 		return ["3.1415926536", "pi", "π"];
+	}
+}
+
+class SZeroNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("0");
+		this.customWidth = 75;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addOutPin(new NPin("zero", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "0.0";
+	}
+
+	static getName() {
+		return "S_Zero";
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["0", "zero"];
+	}
+}
+
+class SOneNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("1");
+		this.customWidth = 75;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addOutPin(new NPin("one", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "1.0";
+	}
+
+	static getName() {
+		return "S_One";
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["1", "one"];
+	}
+}
+
+class STwoNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter("2");
+		this.customWidth = 75;
+		this.centerText.style.fontSize = "40px";
+		this.noPinfo = true;
+		this.addOutPin(new NPin("two", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "2.0";
+	}
+
+	static getName() {
+		return "S_Two";
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["2", "two"];
 	}
 }
 
@@ -1083,6 +1191,7 @@ class SRandNode extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
+		this.addHeader("Random Float");
 		this.addCenter("⚅");
 		this.customWidth = 150;
 		this.centerText.style.fontSize = "40px";
@@ -1096,17 +1205,19 @@ class SRandNode extends NNode {
 		const inp = this.inpins["in"];
 		switch (inp.getReturnType().vecOrder) {
 			case 1:
-				data.functions["rand1"] = "float rand1(float n){\n\treturn fract(sin(n)  * 1369.6124 + cos(n) * 43758.5453123);\n}";
+				data.functions["rand1"] = {
+					"code": rand1
+				};
 				return "rand1(" + this.getSCompile(inp, NVector1, data, depth) + ")";
 			case 2:
-				data.functions["rand2"] = "float rand2(vec2 p){\n\treturn fract(1e4 * sin(17.0 * p.x + p.y * 0.1) * (0.1 + abs(sin(p.y * 13.0 + p.x))));\n}";
+				data.functions["rand2"] = {
+					"code": rand2
+				};
 				return "rand2(" + this.getSCompile(inp, NVector2, data, depth) + ")";
 			case 3:
-				data.functions["rand3"] = "float rand3(vec3 n){\n\treturn ???;\n}";
-				return "rand3(" + this.getSCompile(inp, NVector3, data, depth) + ")";
+				break;
 			case 4:
-				data.functions["rand4"] = "float rand4(vec4 n){\n\treturn ???;)\n}";
-				return "rand4(" + this.getSCompile(inp, NVector4, data, depth) + ")";
+				break;
 		}
 	}
 
@@ -1132,6 +1243,96 @@ class SRandNode extends NNode {
 
 	getOutputVarName(pin) {
 		return "rnd";
+	}
+}
+
+class SSimplexNoiseNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Simplex Noise");
+		this.addCenter();
+		this.customWidth = 150;
+		this.customHeight = 50;
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("rand", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const inp = this.inpins["in"];
+		switch (inp.getReturnType().vecOrder) {
+			case 2:
+				data.functions["permute3"] = {
+					"code": permute3
+				};
+				data.functions["snoise2"] = {
+					"code": snoise2,
+					"prereqs": ["permute3"]
+				};
+				return "snoise2(" + this.getSCompile(inp, NVector2, data, depth) + ")";
+			case 3:
+				data.functions["taylorInvSqrt4"] = {
+					"code": taylorInvSqrt4
+				};
+				data.functions["permute4"] = {
+					"code": permute4
+				};
+				data.functions["snoise3"] = {
+					"code": snoise3,
+					"prereqs": ["permute4", "taylorInvSqrt4"]
+				};
+				return "snoise3(" + this.getSCompile(inp, NVector3, data, depth) + ")";
+			case 4:
+				data.functions["permute1"] = {
+					"code": permute1
+				};
+				data.functions["permute4"] = {
+					"code": permute4
+				};
+				data.functions["grad4"] = {
+					"code": grad4
+				};
+				data.functions["taylorInvSqrt1"] = {
+					"code": taylorInvSqrt1
+				};
+				data.functions["taylorInvSqrt4"] = {
+					"code": taylorInvSqrt4
+				};
+				data.functions["snoise4"] = {
+					"code": snoise4,
+					"prereqs": ["grad4", "permute1", "permute4", "taylorInvSqrt1", "taylorInvSqrt4"]
+				};
+				return "snoise4(" + this.getSCompile(inp, NVector4, data, depth) + ")";
+		}
+	}
+
+	static getName() {
+		return "S_SimplexNoise";
+	}
+
+	static getInTypes() {
+		return [NVector2, NVector3];
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["simplex", "noise", "perlin", "gradient"];
+	}
+
+	getOutputVarName(pin) {
+		return "noice";
 	}
 }
 
@@ -3588,41 +3789,41 @@ class SAppendNode extends NNode {
 		}
 	}
 
-	makeContextMenu(pos) {
-		const menu = super.makeContextMenu(pos);
-		const node = this;
-		const brd = this.board;
-		if (node.prevMin < node.prevMax + 1) {
-			const op = new NCtxMenuOption("Add Input");
-			op.action = function(e) {
-				if (node.inpinOrder.length == 2) {
-					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 3));
-					node.setInCount(3)
-				} else {
-					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 4));
-					node.setInCount(4);
-				}
-				return false;
-			}
-			menu.addOption(op);
-		}
-		if (node.inpinOrder.length > 2) {
-			const op = new NCtxMenuOption("Remove Input");
-			op.action = function(e) {
-				if (node.inpinOrder.length == 4) {
-					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 3));
-					node.setInCount(3)
-				} else {
-					brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 2));
-					node.setInCount(2);
-				}
-				return false;
-			}
-			menu.addOption(op);
-		}
-
-		return menu;
-	}
+	// makeContextMenu(pos) {
+	// 	const menu = super.makeContextMenu(pos);
+	// 	const node = this;
+	// 	const brd = this.board;
+	// 	if (node.prevMin < node.prevMax + 1) {
+	// 		const op = new NCtxMenuOption("Add Input");
+	// 		op.action = function(e) {
+	// 			if (node.inpinOrder.length == 2) {
+	// 				brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 3));
+	// 				node.setInCount(3)
+	// 			} else {
+	// 				brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 4));
+	// 				node.setInCount(4);
+	// 			}
+	// 			return false;
+	// 		}
+	// 		menu.addOption(op);
+	// 	}
+	// 	if (node.inpinOrder.length > 2) {
+	// 		const op = new NCtxMenuOption("Remove Input");
+	// 		op.action = function(e) {
+	// 			if (node.inpinOrder.length == 4) {
+	// 				brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 3));
+	// 				node.setInCount(3)
+	// 			} else {
+	// 				brd.addAction(new ActChangeSAppendInputNum(brd, node, node.inpinOrder.length, 2));
+	// 				node.setInCount(2);
+	// 			}
+	// 			return false;
+	// 		}
+	// 		menu.addOption(op);
+	// 	}
+	//
+	// 	return menu;
+	// }
 
 	getReturnType(outPin) {
 		let sum = 0;

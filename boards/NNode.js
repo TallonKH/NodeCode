@@ -510,7 +510,6 @@ class NNode {
 		}
 
 		let preMain = "precision mediump float;\n\n";
-
 		for (const pvn in data.varying) {
 			preMain += data.varying[pvn] + "\n";
 		}
@@ -520,8 +519,9 @@ class NNode {
 		}
 
 		preMain += "\n";
+		const addedFuncs = new Set([]);
 		for (const fnn in data.functions) {
-			preMain += data.functions[fnn] + "\n\n";
+			preMain += compileSFunc(addedFuncs, data.functions, fnn);
 		}
 
 		const vars = Object.entries(data.varMap);
@@ -981,7 +981,7 @@ class NNode {
 		return null;
 	}
 
-	getNextNode(){
+	getNextNode() {
 		for (const opinid of this.outpinOrder) {
 			const opin = this.outpins[opinid];
 			if (opin.linkNum) {
@@ -991,7 +991,7 @@ class NNode {
 		return null;
 	}
 
-	getPrevNode(){
+	getPrevNode() {
 		for (const ipinid of this.inpinOrder) {
 			const ipin = this.inpins[ipinid];
 			if (ipin.linkNum) {
@@ -1001,12 +1001,12 @@ class NNode {
 		return null;
 	}
 
-	getNextNodes(gotten=new Set()){
-		for(const outn of this.outpinOrder){
+	getNextNodes(gotten = new Set()) {
+		for (const outn of this.outpinOrder) {
 			const links = this.outpins[outn].links;
-			for(const linkid in links){
+			for (const linkid in links) {
 				const other = links[linkid].node;
-				if(!gotten.has(other)){
+				if (!gotten.has(other)) {
 					gotten.add(other);
 				}
 			}
@@ -1014,12 +1014,12 @@ class NNode {
 		return gotten;
 	}
 
-	getPrevNodes(gotten=new Set()){
-		for(const inn of this.inpinOrder){
+	getPrevNodes(gotten = new Set()) {
+		for (const inn of this.inpinOrder) {
 			const links = this.inpins[inn].links;
-			for(const linkid in links){
+			for (const linkid in links) {
 				const other = links[linkid].node;
-				if(!gotten.has(other)){
+				if (!gotten.has(other)) {
 					gotten.add(other);
 				}
 			}
@@ -1027,12 +1027,12 @@ class NNode {
 		return gotten;
 	}
 
-	getDownstreamNodes(gotten=new Set()){
-		for(const outn of this.outpinOrder){
+	getDownstreamNodes(gotten = new Set()) {
+		for (const outn of this.outpinOrder) {
 			const links = this.outpins[outn].links;
-			for(const linkid in links){
+			for (const linkid in links) {
 				const other = links[linkid].node;
-				if(!gotten.has(other)){
+				if (!gotten.has(other)) {
 					gotten.add(other);
 					other.getDownstreamNodes(gotten);
 				}
@@ -1041,12 +1041,12 @@ class NNode {
 		return gotten;
 	}
 
-	getUpstreamNodes(gotten=new Set()){
-		for(const inn of this.inpinOrder){
+	getUpstreamNodes(gotten = new Set()) {
+		for (const inn of this.inpinOrder) {
 			const links = this.inpins[inn].links;
-			for(const linkid in links){
+			for (const linkid in links) {
 				const other = links[linkid].node;
-				if(!gotten.has(other)){
+				if (!gotten.has(other)) {
 					gotten.add(other);
 					other.getUpstreamNodes(gotten);
 				}
@@ -1055,12 +1055,12 @@ class NNode {
 		return gotten;
 	}
 
-	getLinkedNodes(gotten=new Set()){
-		for(const pin of this.pinlist){
+	getLinkedNodes(gotten = new Set()) {
+		for (const pin of this.pinlist) {
 			const links = pin.links;
-			for(const linkid in links){
+			for (const linkid in links) {
 				const other = links[linkid].node;
-				if(!gotten.has(other)){
+				if (!gotten.has(other)) {
 					gotten.add(other);
 					other.getLinkedNodes(gotten);
 				}
@@ -1201,4 +1201,18 @@ makeMultiNodeDetailsMenu = function(brd, event, nodes) {
 	menu.addOption(new NCtxMenuOption("<div class=mih>Center:</div> " + bounds.min.addp(bounds.max).divide1(2)));
 
 	return menu;
+}
+
+compileSFunc = function(existing, funcs, fnn) {
+	console.log(fnn);
+	let out = ""
+	if (!existing.has(fnn)) {
+		const func = funcs[fnn];
+		for (const pre of func.prereqs || []) {
+			out += compileSFunc(existing, funcs, pre);
+		}
+		existing.add(fnn);
+		return out + func.code + "\n"
+	}
+	return "";
 }
