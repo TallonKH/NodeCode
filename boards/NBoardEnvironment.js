@@ -200,7 +200,7 @@ class Main {
 	}
 
 	refreshFileList() {
-		const brdns = Object.keys(JSON.parse(localStorage.getItem("boards")));
+		const brdns = Object.keys(JSON.parse(localStorage.getItem("boards") || "{}"));
 		const brdnset = new Set(brdns);
 		this.newFileButton.remove();
 		for (const brdn in this.fileListMap) {

@@ -1,9 +1,3 @@
-//TODO 4DD SOM3 NOD3S
-// reflect
-
-// rand (v3,v4)
-// noise
-
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
