@@ -8,7 +8,6 @@ class Main {
 		this.leftMenuDiv;
 		this.rightMenuDiv;
 		this.boards = [];
-		this.boardCount = 0;
 		this.activeBoard = null;
 		this.shiftDown = false;
 		this.altDown = false;
@@ -111,13 +110,39 @@ class Main {
 				brd.nodes[nd].updatePosition();
 			}
 		}, 10);
-		this.boardCount++;
 		if (typeof data == "object") {
 			brd.loadNodes(data);
 		}
 
+		brd.redraw();
+		brd.fixSize();
+
 		this.refreshFileList();
 		return brd;
+	}
+
+	closeBoard(board) {
+		this.boards.splice(board.tabIndex, 1);
+		for (let i = board.tabIndex; i < this.boards.length; i++) {
+			const brd = this.boards[i];
+			brd.tabIndex--;
+			brd.tabId = "maintab-" + brd.tabIndex;
+			brd.tabDivLink.setAttribute("href", "#" + brd.tabId);
+			brd.paneDiv.id = brd.tabId;
+		}
+		if (this.activeBoard == board) {
+			this.activeBoard = null;
+		}
+		const jtabs = $(this.mainTabDiv);
+		const active = jtabs.tabs("option", "active");
+		board.paneDiv.remove();
+		board.tabDiv.remove();
+		jtabs.tabs("destroy").tabs();
+		jtabs.tabs("option", "active", active);
+		this.activeBoard = this.boards[Math.min(board.tabIndex, this.boards.length - 1)];
+		if (!this.boards.length) {
+			window.open('../homepage/main.html', "_self");
+		}
 	}
 
 	processCommand(cmd) {
@@ -165,7 +190,7 @@ class Main {
 				switch (e.which) {
 					case 13: // ENTER
 						if (inp.value.length) {
-							main.logt("> " + inp.value);
+							main.t("> " + inp.value);
 							main.processCommand(inp.value);
 							inp.value = "";
 						}
@@ -180,7 +205,7 @@ class Main {
 		}
 	}
 
-	logt(text, src = null) {
+	t(text, src = null) {
 		const scrtopPre = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
 
 		const d = document.createElement("div");
@@ -299,7 +324,10 @@ $(function() {
 	// set active board on tab switch
 	$(main.mainTabDiv).tabs({
 		activate: function(event, ui) {
-			main.activeBoard = main.boards[ui.newTab.index()];
+			const href = ui.newTab.context.href;
+			let a = href.substring(href.indexOf("#maintab-") + 9);
+			console.log(": " + a);
+			main.activeBoard = main.boards[parseInt(a)];
 			main.activeBoard.redraw();
 			main.activeBoard.fixSize();
 		}

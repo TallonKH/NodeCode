@@ -16,11 +16,11 @@ class NBoard {
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 			this.activeCategories = new Set(data.cats);
 		}
-		this.tabId = "maintab-" + env.boardCount;
+		this.tabIndex = env.boards.length;
+		this.tabId = "maintab-" + env.boards.length;
 		this.saved = ~~env.savedBoards[this.name];
 		this.named = this.saved;
 		this.env = env;
-		env.boardCount += 1;
 		this.zoomCounter = 0;
 		this.paneDiv = null;
 		this.boardDiv = null;
@@ -357,7 +357,7 @@ class NBoard {
 				if (pinFilter) {
 					op.action = function(p) {
 						const node = brd.createNode(type);
-						if(node.autoFocusedInput){
+						if (node.autoFocusedInput) {
 							node.autoFocusedInput.focus();
 						}
 						if (pinFilter.side) {
@@ -391,7 +391,7 @@ class NBoard {
 				} else {
 					op.action = function(p) {
 						const node = brd.createNode(type);
-						if(node.autoFocusedInput){
+						if (node.autoFocusedInput) {
 							node.autoFocusedInput.focus();
 						}
 						node.setPosition(p);
@@ -793,6 +793,10 @@ class NBoard {
 		return true;
 	}
 
+	close() {
+		this.env.closeBoard(this);
+	}
+
 	mouseWheel(event) {
 		if (this.activeCtxMenu) {
 			return true;
@@ -864,8 +868,10 @@ class NBoard {
 					}
 				}
 				break;
-			case 80:
-				console.log(this.actionStack);
+			case 87: // W
+				if (this.env.ctrlDown) {
+					this.close();
+				}
 				break;
 			case 39: // RIGHT ARROW
 				if (this.selectedNodeCount) {
@@ -1054,7 +1060,6 @@ class NBoard {
 				const pinB = link[1];
 
 				const pts = this.calcLinkPoints(pinA, pinB);
-				const ctx = this.canvasDiv.getContext("2d");
 				for (let i = 0, l = pts.length - 1; i < l; i++) {
 					if (NPoint.segIntersect(pts[i], pts[i + 1], start, end)) {
 						linksCut.push([pinA.pinid, pinB.pinid]);
@@ -1202,8 +1207,8 @@ class NBoard {
 
 		this.tabDiv = document.createElement("li");
 		this.tabDiv.className = "tab";
-
 		this.tabDivLink = document.createElement("a");
+		this.tabDivLink.boardRef = this;
 		this.tabDivLink.innerHTML = this.name + (this.saved ? "" : "*");
 		this.tabDivLink.setAttribute("href", "#" + this.tabId);
 
@@ -1433,7 +1438,7 @@ class NBoard {
 
 	loadNode(nodata) {
 		const type = this.env.nodeTypeDict[nodata.type];
-		if(!type){
+		if (!type) {
 			console.log("Unable to load node of type " + nodata.type);
 			return null;
 		}

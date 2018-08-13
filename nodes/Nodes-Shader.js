@@ -1260,6 +1260,7 @@ class SSimplexNoiseNode extends NNode {
 	scompile(pin, varType, data, depth) {
 		const inp = this.inpins["in"];
 		switch (inp.getReturnType().vecOrder) {
+			case 1:
 			case 2:
 				data.functions["permute3"] = {
 					"code": permute3
