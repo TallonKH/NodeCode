@@ -1,3 +1,5 @@
+// TODO 4DD X BUTTONS TO CLOS3 T4BS
+// TODO 4DD CONT3NT TO TH3 R1GHT M3NU (NOD3 D3SCR1PT1ON, NON-1NPUT S3TT1NGS, 3TC)
 const TAU = 2 * Math.PI;
 class Main {
 	constructor() {
@@ -495,8 +497,7 @@ $(function() {
 		}
 	}
 	reader.onload = function(event) {
-		const data = JSON.parse(reader.result);
-		const brd = main.newBoard(data);
+		const brd = main.newBoard(JSON.parse(reader.result));
 
 		console.log("Done importing file!");
 	}

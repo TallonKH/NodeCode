@@ -1,3 +1,5 @@
+// TODO M4K3 COMM3NT NOD3S L3SS STUP1D
+
 class CommentNode extends NNode {
 	constructor(data = null) {
 		super(data);

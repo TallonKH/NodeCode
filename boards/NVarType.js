@@ -299,7 +299,7 @@ NDouble.changeVal = function(inp, nval) {
 
 const NBoolean = new NVarType("Boolean", function(nvar) {
 	nvar.boolean = false;
-}, "#ed2121", NObject);
+}, "#b41616", NObject);
 NBoolean.edit = function(nvar, brd) {
 	const cnt = document.createElement("div");
 	cnt.className = "checkbox boolean container";

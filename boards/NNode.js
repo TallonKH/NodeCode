@@ -944,7 +944,7 @@ class NNode {
 			menu.addOption(op);
 		}
 
-		if (hasInLinks && hasOutLinks) {
+		if (hasInLinks || hasOutLinks) {
 			op = new NCtxMenuOption("Select Linked Nodes");
 			op.action = function(e) {
 				const nodes = node.getLinkedNodes();
@@ -1116,14 +1116,14 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 	}
 	menu.addOption(op);
 
-	op = new NCtxMenuOption("Export as String");
+	op = new NCtxMenuOption("Show as JSON");
 	op.action = function(e) {
-		// TODO M4K3 4 T3XT4R34
-		console.log(JSON.stringify(brd.saveNodes(nodes)));
+		const page = window.open("");
+		page.document.writeln("<head><title>" + brd.name + ".json</title></head>" + JSON.stringify(brd.saveNodes(nodes)));
 	}
 	menu.addOption(op);
 
-	op = new NCtxMenuOption("Go to");
+	op = new NCtxMenuOption("Go To");
 	op.action = function(e) {
 		brd.goToNodes(nodes)
 	}

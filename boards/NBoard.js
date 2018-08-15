@@ -755,23 +755,27 @@ class NBoard {
 					this.draggedNodeInitialPos = this.draggedNode.position;
 				} else if (upTargetClasses.contains("pin")) { // start dragging pin
 					this.draggedPin = this.getDivPin(this.clickStartTarget);
-					this.links[this.draggedPin.pinid] = [this.draggedPin, null];
-					this.draggedPin.pinDiv.setAttribute("linking", true);
-					this.boardDiv.setAttribute("linking", true);
-					for (const nodeid in this.nodes) {
-						const node = this.nodes[nodeid];
-						if (this.draggedPin.side) {
-							for (const pinid in node.inpins) {
-								const pin = node.inpins[pinid]
-								if (this.draggedPin.canPlugInto(pin)) {
-									pin.pinDiv.setAttribute("match", true);
+					if (this.draggedPin.unlinkable) {
+						this.draggedPin = null;
+					} else {
+						this.links[this.draggedPin.pinid] = [this.draggedPin, null];
+						this.draggedPin.pinDiv.setAttribute("linking", true);
+						this.boardDiv.setAttribute("linking", true);
+						for (const nodeid in this.nodes) {
+							const node = this.nodes[nodeid];
+							if (this.draggedPin.side) {
+								for (const pinid in node.inpins) {
+									const pin = node.inpins[pinid]
+									if (this.draggedPin.canPlugInto(pin)) {
+										pin.pinDiv.setAttribute("match", true);
+									}
 								}
-							}
-						} else {
-							for (const pinid in node.outpins) {
-								const pin = node.outpins[pinid]
-								if (pin.canPlugInto(this.draggedPin)) {
-									pin.pinDiv.setAttribute("match", true);
+							} else {
+								for (const pinid in node.outpins) {
+									const pin = node.outpins[pinid]
+									if (pin.canPlugInto(this.draggedPin)) {
+										pin.pinDiv.setAttribute("match", true);
+									}
 								}
 							}
 						}

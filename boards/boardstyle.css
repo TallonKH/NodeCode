@@ -976,8 +976,8 @@ input.vec4:last-child {
 
 .displaynode {
 	margin: 10px;
-	width: 200px;
-	height: 200px;
+	width: calc(100% - 20px);
+	height: calc(100% - 20px);
 }
 
 .compselect>select {

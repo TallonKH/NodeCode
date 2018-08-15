@@ -26,6 +26,7 @@ class NPin {
 		this.links = {}; // pinid : pin
 		this.linkNum = 0;
 		this.setUp = false;
+		this.unlinkable = false;
 	}
 
 	getTypes() {
@@ -36,8 +37,16 @@ class NPin {
 		return this.pinid.toString();
 	}
 
+	setUnlinkable(b) {
+		this.unlinkable = b;
+		if(this.pinDiv){
+			this.updateColors();
+		}
+		return this;
+	}
+
 	setTypes(silent, ...types) {
-		if(this.setUp){
+		if (this.setUp) {
 			if (types.sort().join("") == this.getTypes().sort().join("")) {
 				return this;
 			}
@@ -208,9 +217,9 @@ class NPin {
 		this.node.board.redraw();
 	}
 
-	unlinkAll(silent=false) {
+	unlinkAll(silent = false) {
 		for (const pin of Object.values(this.links)) {
-			this.unlink(pin,silent);
+			this.unlink(pin, silent);
 		}
 	}
 
@@ -223,15 +232,19 @@ class NPin {
 	}
 
 	getReturnType() {
-		if(this.side){
+		if (this.side) {
 			return this.node.getReturnType(this);
-		}else{
+		} else {
 			return this.getSingleLinked().getReturnType();
 		}
 	}
 
 	canPlugInto(otherPin) {
 		if (this.side == otherPin.side) {
+			return false;
+		}
+
+		if(this.unlinkable || otherPin.unlinkable){
 			return false;
 		}
 
@@ -328,6 +341,9 @@ class NPin {
 		} else {
 			this.pinDiv.style.background = this.color;
 			this.pinDiv.style.border = "2px solid " + darkenHex(this.color, 20);
+		}
+		if(this.unlinkable){
+			this.pinDiv.style.background = "none";
 		}
 	}
 

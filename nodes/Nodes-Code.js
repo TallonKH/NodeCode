@@ -1,3 +1,4 @@
+// TODO 4DD LOTS OF NOD3S
 class StringNode extends NNode {
 	constructor(data = null) {
 		super(data);

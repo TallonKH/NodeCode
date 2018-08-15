@@ -275,8 +275,8 @@ class SDisplayNode extends NNode {
 	createNodeDiv() {
 		super.createNodeDiv();
 
-		this.customWidth = 270;
-		this.customHeight = 250;
+		this.customWidth = 370;
+		this.customHeight = 350;
 		this.addCenter();
 		const node = this;
 
@@ -287,14 +287,19 @@ class SDisplayNode extends NNode {
 			node.recompileCanvas();
 		}
 		this.centerDiv.append(refresher);
-
 		this.canvas = document.createElement("canvas");
+		this.canvas.width = 256;
+		this.canvas.height = 256;
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
 
-		this.noPinfo = true;
 		this.addHeader("Shader Display");
-		this.addInPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
+		// this.addInPin(new NPin("Resolution", NVector2).setDefaultVal({
+		// 	"x": 256,
+		// 	"y": 256,
+		// 	"nclass": "Vec2"
+		// }, true).setUnlinkable(true));
 
 		return this.containerDiv;
 	}
@@ -304,7 +309,10 @@ class SDisplayNode extends NNode {
 			this.gl.delete();
 			delete this.board.activeGLContexts[this.pinid]
 		}
-		const inpin = this.inpins["_"];
+		// const res = this.inpins["Resolution"].defaultVal;
+		// this.canvas.width = res.x;
+		// this.canvas.height = res.y;
+		const inpin = this.inpins["Color"];
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
 			const fullCompile = this.fullSCompile(inpin);
@@ -736,16 +744,9 @@ class SHSVNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
-		data.functions["hsv"] = `
-		vec3 hsv(vec3 c){
-	    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-			vec4 p = c.g < c.b ? vec4(c.bg, K.wz) : vec4(c.gb, K.xy);
-    	vec4 q = c.r < p.x ? vec4(p.xyw, c.r) : vec4(c.r, p.yzx);
-
-	    float d = q.x - min(q.w, q.y);
-	    float e = 1.0e-10;
-	    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
-		}`
+		data.functions["hsv"] = {
+			"code": rgb2Hsv
+		};
 		return "hsv(" + this.getSCompile(this.inpins["RGB"], NVector3, data, depth) + ")";
 	}
 
@@ -792,12 +793,9 @@ class SRGBNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
-		data.functions["rgb"] = `
-		vec3 rgb(vec3 c){
-	    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-	    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-	    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-		}`
+		data.functions["rgb"] = {
+			"code": hsvToRgb
+		};
 		return "rgb(" + this.getSCompile(this.inpins["HSV"], NVector3, data, depth) + ")";
 	}
 
@@ -1066,7 +1064,7 @@ class SZeroNode extends NNode {
 	}
 
 	static getTags() {
-		return ["0", "zero"];
+		return ["0", "00", "zero"];
 	}
 }
 
@@ -1102,7 +1100,7 @@ class SOneNode extends NNode {
 	}
 
 	static getTags() {
-		return ["1", "one"];
+		return ["1", "11", "one"];
 	}
 }
 
@@ -1138,7 +1136,7 @@ class STwoNode extends NNode {
 	}
 
 	static getTags() {
-		return ["2", "two"];
+		return ["2", "22", "two"];
 	}
 }
 
@@ -1158,7 +1156,7 @@ class STauNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "3.1415926536";
+		return "6.2831853072";
 	}
 
 	static getName() {
@@ -1166,7 +1164,7 @@ class STauNode extends NNode {
 	}
 
 	static getOutTypes() {
-		return [NVector2];
+		return [NVector1];
 	}
 
 	static getCategory() {
@@ -3671,6 +3669,7 @@ class SMaxNode extends SmartVecNodeN {
 	}
 }
 
+// TODO 4DD V41R14BL3 P1N COUNT B4CK
 class SAppendNode extends NNode {
 	constructor(data = null) {
 		super(data);
