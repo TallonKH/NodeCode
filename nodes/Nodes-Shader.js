@@ -67,8 +67,9 @@ class SVector1Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector1");
 		this.addCenter();
+		this.customWidth = 120;
+		this.customHeight = 55;
 		this.inputDiv = NVector1.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec1";
 		this.centerDiv.append(this.inputDiv);
@@ -117,8 +118,8 @@ class SVector2Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector2");
 		this.addCenter();
+		this.customHeight = 55;
 		this.inputDiv = NVector2.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec2";
 		this.centerDiv.append(this.inputDiv);
@@ -168,8 +169,8 @@ class SVector3Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector3");
 		this.addCenter();
+		this.customHeight = 55;
 		this.inputDiv = NVector3.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec3";
 		this.centerDiv.append(this.inputDiv);
@@ -220,7 +221,7 @@ class SVector4Node extends NNode {
 
 	createNodeDiv() {
 		super.createNodeDiv();
-		this.addHeader("Vector4");
+		this.customHeight = 55;
 		this.addCenter();
 		this.inputDiv = NVector4.edit(this.val, this.board);
 		this.inputDiv.className = "nodeval vec4";
@@ -1248,7 +1249,7 @@ class SSimplexNoiseNode extends NNode {
 		this.addHeader("Simplex Noise");
 		this.addCenter();
 		this.customWidth = 150;
-		this.customHeight = 50;
+		this.customHeight = 75;
 		this.noPinfo = true;
 		this.addInPin(new NPin("in", NVector2, NVector3, NVector4));
 		this.addOutPin(new NPin("rand", NVector1));
