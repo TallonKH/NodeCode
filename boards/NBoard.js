@@ -359,6 +359,7 @@ class NBoard {
 						const node = brd.createNode(type);
 						if (node.autoFocusedInput) {
 							node.autoFocusedInput.focus();
+							node.autoFocusedInput.select();
 						}
 						if (pinFilter.side) {
 							for (const pinn of node.inpinOrder) {

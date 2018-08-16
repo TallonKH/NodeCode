@@ -431,7 +431,7 @@ canvas {
 }
 
 input.nodeval, .nodeval input {
-	text-overflow: ellipsis;
+	text-overflow: clip;
 	display: table;
 	text-align: left;
 	font-family: "Roboto";
@@ -553,6 +553,11 @@ input.nodeval.vec1 {
 	width: 50px;
 }
 
+.nodeval.vec3>input.color, .nodeval.vec4>input.color {
+	width: 25px;
+	height: 27px;
+}
+
 .nodeval.vec4>input {
 	width: 37.5px;
 }
@@ -566,11 +571,11 @@ input.nodeval.vec1 {
 }
 
 .pinfo>div.vec3 {
-	width: 92px;
+	width: 120px;
 }
 
 .pinfo>div.vec4 {
-	width: 92px;
+	width: 120px;
 }
 
 div.vec2 {
@@ -599,6 +604,11 @@ div.vec4 {
 }
 
 .pinfo>div.vec3>input {
+	width: 30px;
+}
+
+.pinfo>div.vec3>input.color, .pinfo>div.vec4>input.color {
+	height: 18px;
 	width: 30px;
 }
 

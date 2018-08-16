@@ -136,8 +136,7 @@ class SVector2Node extends NNode {
 	load(data, loadids) {
 		super.load(data, loadids);
 		Object.assign(this.val, data.val);
-		$(this.inputDiv).find(".vec2x").get(0).value = this.val.x;
-		$(this.inputDiv).find(".vec2y").get(0).value = this.val.y;
+		NVector2.changeVal(this.inputDiv, this.val);
 	}
 
 	scompile(pin, varType, data, depth) {
@@ -187,9 +186,7 @@ class SVector3Node extends NNode {
 	load(data, loadids) {
 		super.load(data, loadids);
 		Object.assign(this.val, data.val);
-		$(this.inputDiv).find(".vec3x").get(0).value = this.val.x;
-		$(this.inputDiv).find(".vec3y").get(0).value = this.val.y;
-		$(this.inputDiv).find(".vec3z").get(0).value = this.val.z;
+		NVector3.changeVal(this.inputDiv, this.val);
 	}
 
 	scompile(pin, varType, data, depth) {
@@ -239,10 +236,7 @@ class SVector4Node extends NNode {
 	load(data, loadids) {
 		super.load(data, loadids);
 		Object.assign(this.val, data.val);
-		$(this.inputDiv).find(".vec4x").get(0).value = this.val.x;
-		$(this.inputDiv).find(".vec4y").get(0).value = this.val.y;
-		$(this.inputDiv).find(".vec4z").get(0).value = this.val.z;
-		$(this.inputDiv).find(".vec4a").get(0).value = this.val.a;
+		NVector4.changeVal(this.inputDiv, this.val);
 	}
 
 	scompile(pin, varType, data, depth) {

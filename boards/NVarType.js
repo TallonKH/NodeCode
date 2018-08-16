@@ -277,7 +277,7 @@ NDouble.edit = function(nvar, brd) {
 		}
 	}
 
-	inp.onfocusout = changeNVal();
+	inp.onfocusout = changeNVal;
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -403,7 +403,7 @@ NVector1.edit = function(nvar, brd) {
 		}
 	}
 
-	inp.onfocusout = changeNVal();
+	inp.onfocusout = changeNVal;
 	inp.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -469,7 +469,7 @@ NVector2.edit = function(nvar, brd) {
 		}
 	}
 
-	inp1.onfocusout = changeNValX();
+	inp1.onfocusout = changeNValX;
 	inp1.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -484,7 +484,7 @@ NVector2.edit = function(nvar, brd) {
 		}
 	}
 
-	inp2.onfocusout = changeNValY();
+	inp2.onfocusout = changeNValY;
 	inp2.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -516,7 +516,6 @@ NVector3.vecOrder = 3;
 NVector3.scompile = function(nvar) {
 	return "vec3(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ")";
 };
-// TODO 4DD 4 COLOR P1CK3R
 NVector3.edit = function(nvar, brd) {
 	const wrapper = document.createElement("div");
 	wrapper.className = "vec3";
@@ -539,14 +538,28 @@ NVector3.edit = function(nvar, brd) {
 	inp3.value = nvar.z;
 	wrapper.append(inp3);
 
+	const picker = document.createElement("input");
+	picker.className = "vec3 color";
+	picker.type = "color";
+	wrapper.append(picker);
+	const updatePicker = function() {
+		picker.value = "#" + ("00" + clamp(Math.floor(nvar.x * 256), 0, 255).toString(16)).substr(-2,2) +
+			("00" + clamp(Math.floor(nvar.y * 256), 0, 255).toString(16)).substr(-2,2) +
+			("00" + clamp(Math.floor(nvar.z * 256), 0, 255).toString(16)).substr(-2,2);
+	}
+
 	const changeNValX = function() {
 		const val = parseFloat(inp1.value) || 0.0;
 		if (val != nvar.x) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"x": val
-			}, null, v => inp1.value = v.x));
+			}, null, function(v){
+				inp1.value = v.x;
+				updatePicker();
+			}));
 			nvar.x = val;
 		}
+		updatePicker();
 	}
 
 	const changeNValY = function() {
@@ -554,9 +567,13 @@ NVector3.edit = function(nvar, brd) {
 		if (val != nvar.y) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"y": val
-			}, null, v => inp2.value = v.y));
+			}, null, function(v){
+				inp2.value = v.y;
+				updatePicker();
+			}));
 			nvar.y = val;
 		}
+		updatePicker();
 	}
 
 	const changeNValZ = function() {
@@ -564,12 +581,16 @@ NVector3.edit = function(nvar, brd) {
 		if (val != nvar.z) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"z": val
-			}, null, v => inp3.value = v.z));
+			}, null, function(v){
+				inp3.value = v.z;
+				updatePicker();
+			}));
 			nvar.z = val;
 		}
+		updatePicker();
 	}
 
-	inp1.onfocusout = changeNValX();
+	inp1.onfocusout = changeNValX;
 	inp1.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -584,7 +605,7 @@ NVector3.edit = function(nvar, brd) {
 		}
 	}
 
-	inp2.onfocusout = changeNValY();
+	inp2.onfocusout = changeNValY;
 	inp2.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -599,7 +620,7 @@ NVector3.edit = function(nvar, brd) {
 		}
 	}
 
-	inp3.onfocusout = changeNValZ();
+	inp3.onfocusout = changeNValZ;
 	inp3.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -613,12 +634,39 @@ NVector3.edit = function(nvar, brd) {
 				break;
 		}
 	}
+	let outs = 0;
+	picker.onfocusout = function(e) {
+		outs++;
+		if (outs % 2 == 0) {
+			const pval = picker.value;
+			const r = parseInt(pval.substring(1, 3), 16) / 256;
+			const g = parseInt(pval.substring(3, 5), 16) / 256;
+			const b = parseInt(pval.substring(5, 7), 16) / 256;
+			inp1.value = r;
+			inp2.value = g;
+			inp3.value = b;
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"x": r, "y": g, "z": b
+			}, null, function(v) {
+				inp1.value = v.x;
+				inp2.value = v.y;
+				inp3.value = v.z;
+				updatePicker();
+			}));
+			nvar.x = r;
+			nvar.y = g;
+			nvar.z = b;
+		}
+	}
 	return wrapper;
-};
+}
 NVector3.changeVal = function(inp, nval) {
 	$(inp).find(".vec3x").get(0).value = nval.x;
 	$(inp).find(".vec3y").get(0).value = nval.y;
 	$(inp).find(".vec3z").get(0).value = nval.z;
+	$(inp).find(".color").get(0).value = "#" + ("00" + clamp(Math.floor(nval.x * 256), 0, 255).toString(16)).substr(-2,2) +
+		("00" + clamp(Math.floor(nval.y * 256), 0, 255).toString(16)).substr(-2,2) +
+		("00" + clamp(Math.floor(nval.z * 256), 0, 255).toString(16)).substr(-2,2);;
 }
 NVector3.hasVal = false;
 
@@ -633,7 +681,6 @@ NVector4.vecOrder = 4;
 NVector4.scompile = function(nvar) {
 	return "vec4(" + fstr(nvar.x) + ", " + fstr(nvar.y) + ", " + fstr(nvar.z) + ", " + fstr(nvar.a) + ")";
 };
-// TODO 4DD 4 COLOR P1CK3R
 NVector4.edit = function(nvar, brd) {
 	const wrapper = document.createElement("div");
 	wrapper.className = "vec4";
@@ -662,14 +709,31 @@ NVector4.edit = function(nvar, brd) {
 	inp4.value = nvar.a;
 	wrapper.append(inp4);
 
+	const picker = document.createElement("input");
+	picker.className = "vec4 color";
+	picker.type = "color";
+	wrapper.append(picker);
+
+	const updatePicker = function() {
+		picker.value = "#" + ("00" + clamp(Math.floor(nvar.x * 256), 0, 255).toString(16)).substr(-2,2) +
+			("00" + clamp(Math.floor(nvar.y * 256), 0, 255).toString(16)).substr(-2,2) +
+			("00" + clamp(Math.floor(nvar.z * 256), 0, 255).toString(16)).substr(-2,2);
+	}
+
+	updatePicker();
+
 	const changeNValX = function() {
 		const val = parseFloat(inp1.value) || 0.0;
 		if (val != nvar.x) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"x": val
-			}, null, v => inp1.value = v.x));
+			}, null, function(v){
+				inp1.value = v.x;
+				updatePicker();
+			}));
 			nvar.x = val;
 		}
+		updatePicker();
 	}
 
 	const changeNValY = function() {
@@ -677,9 +741,13 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.y) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"y": val
-			}, null, v => inp2.value = v.y));
+			}, null, function(v){
+				inp2.value = v.y;
+				updatePicker();
+			}));
 			nvar.y = val;
 		}
+		updatePicker();
 	}
 
 	const changeNValZ = function() {
@@ -687,9 +755,13 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.z) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"z": val
-			}, null, v => inp3.value = v.z));
+			}, null, function(v){
+				inp3.value = v.z;
+				updatePicker();
+			}));
 			nvar.z = val;
 		}
+		updatePicker();
 	}
 
 	const changeNValA = function() {
@@ -697,12 +769,16 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.a) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"a": val
-			}, null, v => inp4.value = v.a));
+			}, null, function(v){
+				inp4.value = v.a;
+				updatePicker();
+			}));
 			nvar.a = val;
 		}
+		updatePicker();
 	}
 
-	inp1.onfocusout = changeNValX();
+	inp1.onfocusout = changeNValX;
 	inp1.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -717,7 +793,7 @@ NVector4.edit = function(nvar, brd) {
 		}
 	}
 
-	inp2.onfocusout = changeNValY();
+	inp2.onfocusout = changeNValY;
 	inp2.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -732,7 +808,7 @@ NVector4.edit = function(nvar, brd) {
 		}
 	}
 
-	inp3.onfocusout = changeNValZ();
+	inp3.onfocusout = changeNValZ;
 	inp3.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -747,7 +823,7 @@ NVector4.edit = function(nvar, brd) {
 		}
 	}
 
-	inp4.onfocusout = changeNValA();
+	inp4.onfocusout = changeNValA;
 	inp4.onkeydown = function(e) {
 		switch (e.which) {
 			case 9: // TAB
@@ -761,12 +837,39 @@ NVector4.edit = function(nvar, brd) {
 				break;
 		}
 	}
+	let outs = 0;
+	picker.onfocusout = function(e) {
+		outs++;
+		if (outs % 2 == 0) {
+			const pval = picker.value;
+			const r = parseInt(pval.substring(1, 3), 16) / 256;
+			const g = parseInt(pval.substring(3, 5), 16) / 256;
+			const b = parseInt(pval.substring(5, 7), 16) / 256;
+			inp1.value = r;
+			inp2.value = g;
+			inp3.value = b;
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"x": r, "y": g, "z": b
+			}, null, function(v) {
+				inp1.value = v.x;
+				inp2.value = v.y;
+				inp3.value = v.z;
+				updatePicker();
+			}));
+			nvar.x = r;
+			nvar.y = g;
+			nvar.z = b;
+		}
+	}
 	return wrapper;
-};
+}
 NVector4.changeVal = function(inp, nval) {
 	$(inp).find(".vec4x").get(0).value = nval.x;
 	$(inp).find(".vec4y").get(0).value = nval.y;
 	$(inp).find(".vec4z").get(0).value = nval.z;
 	$(inp).find(".vec4a").get(0).value = nval.a;
+	$(inp).find(".color").get(0).value = "#" + ("00" + clamp(Math.floor(nval.x * 256), 0, 255).toString(16)).substr(-2,2) +
+		("00" + clamp(Math.floor(nval.y * 256), 0, 255).toString(16)).substr(-2,2) +
+		("00" + clamp(Math.floor(nval.z * 256), 0, 255).toString(16)).substr(-2,2);;
 }
 NVector4.hasVal = false;
