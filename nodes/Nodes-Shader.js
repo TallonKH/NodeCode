@@ -288,8 +288,8 @@ class SDisplayNode extends NNode {
 		}
 		this.centerDiv.append(refresher);
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = 256;
-		this.canvas.height = 256;
+		this.canvas.width = 512;
+		this.canvas.height = 512;
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
 
@@ -566,7 +566,7 @@ class SBreakVec2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["break", ".x", ".y", "split", "break vec2"];
+		return ["break", ".x", ".y", "split", "break2"];
 	}
 }
 
@@ -620,7 +620,7 @@ class SBreakVec3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["break", ".x", ".y", ".z", "split", "break vec3"];
+		return ["break", ".x", ".y", ".z", "split", "break3"];
 	}
 }
 
@@ -722,7 +722,7 @@ class SMakeVec2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector2", "vec2", "make", "xy", "construct", "make vec2"];
+		return ["vector2", "vec2", "make", "xy", "construct", "make2"];
 	}
 }
 
@@ -866,7 +866,7 @@ class SMakeVec3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector3", "vec3", "make", "xyz", "construct", "make vec3"];
+		return ["vector3", "vec3", "make", "xyz", "construct", "make3"];
 	}
 }
 
@@ -914,7 +914,7 @@ class SMakeVec4Node extends NNode {
 	}
 
 	static getTags() {
-		return ["vector4", "vec4", "make", "xyzw", "construct", "make vec3"];
+		return ["vector4", "vec4", "make", "xyzw", "construct", "make4"];
 	}
 }
 
@@ -1309,7 +1309,7 @@ class SSimplexNoiseNode extends NNode {
 	}
 
 	static getInTypes() {
-		return [NVector2, NVector3];
+		return [NVector2, NVector3, NVector4];
 	}
 
 	static getOutTypes() {
@@ -1322,6 +1322,59 @@ class SSimplexNoiseNode extends NNode {
 
 	static getTags() {
 		return ["simplex", "noise", "perlin", "gradient"];
+	}
+
+	getOutputVarName(pin) {
+		return "noice";
+	}
+}
+
+class SNoise1Node extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("1D Noise");
+		this.addCenter();
+		this.customWidth = 150;
+		this.customHeight = 50;
+		this.noPinfo = true;
+		this.addInPin(new NPin("in", NVector1));
+		this.addOutPin(new NPin("rand", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		data.functions["rand1"] = {
+			"code": rand1
+		};
+		data.functions["noise1"] = {
+			"code": noise1,
+			"prereqs": ["rand1"]
+		}
+		return "noise1(" + this.getSCompile(inp, NVector1, data, depth) + ")"
+	}
+
+	static getName() {
+		return "S_1D Noise";
+	}
+
+	static getInTypes() {
+		return [NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["noise"];
 	}
 
 	getOutputVarName(pin) {
