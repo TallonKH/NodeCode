@@ -1,5 +1,3 @@
-// TODO F1X ONFOCUSOUT NOT DO1NG 4NYTH1NG WH3N CL1CK1NG OUT
-
 varTypes = {};
 class NVarType {
 	constructor(name, addValues, color, ...parents) {

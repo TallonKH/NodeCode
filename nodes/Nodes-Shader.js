@@ -106,7 +106,7 @@ class SVector1Node extends NNode {
 	}
 
 	static getTags() {
-		return ["1", "1d", "vec1", "vector1", "double", "int", "float1", "grayscale", "greyscale", "constant", "number"];
+		return ["1", "1d", "v1", "vec1", "vector1", "double", "int", "float1", "constant", "number"];
 	}
 }
 
@@ -156,7 +156,7 @@ class SVector2Node extends NNode {
 	}
 
 	static getTags() {
-		return ["2", "2d", "vec2", "vector2", "float2", "coordinate", "position", "location", "uv"];
+		return ["2", "2d", "v2", "vec2", "vector2", "float2"];
 	}
 }
 
@@ -206,7 +206,7 @@ class SVector3Node extends NNode {
 	}
 
 	static getTags() {
-		return ["3", "3d", "vec3", "vector3", "float3", "color", "colour", "position", "location"];
+		return ["3", "3d", "v3", "vec3", "vector3", "float3", "color", "colour"];
 	}
 }
 

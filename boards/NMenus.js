@@ -94,10 +94,11 @@ class NCtxMenu {
 			menu.matchedList = [];
 
 			const valid = [
-				[],
-				[],
-				[],
-				[]
+				[],	// exact name match
+				[],	// exact tag match
+				[],	// name prefix
+				[],	// tag prefix
+				[],	// name contains
 			];
 
 			menu.searchTerm = menu.searchDiv.value.toLowerCase().replace(/ /g, "");
@@ -119,6 +120,8 @@ class NCtxMenu {
 						} else { // prefix name match
 							valid[2].push(op);
 						}
+					} else if(name.indexOf(menu.searchTerm) > -1){ // name contains
+						valid[4].push(op);
 					} else {
 						for (const tag of op.tags) {
 							if (tag.startsWith(menu.searchTerm)) {
