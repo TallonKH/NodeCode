@@ -385,6 +385,9 @@ class NBoard {
 						if (otherPin) {
 							brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
 							otherPin.linkTo(pinFilter);
+							if(otherPin.side){
+								node.setPosition(node.position.add2(-node.nodeDiv.clientWidth, 0));
+							}
 						} else {
 							brd.addAction(new ActAddNode(brd, node));
 						}

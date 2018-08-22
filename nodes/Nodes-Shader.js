@@ -273,6 +273,7 @@ class SDisplayNode extends NNode {
 		this.customWidth = 370;
 		this.customHeight = 350;
 		this.addCenter();
+		this.noPinfo = true;
 		const node = this;
 
 		const refresher = document.createElement("i");
