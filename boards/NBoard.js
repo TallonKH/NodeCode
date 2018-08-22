@@ -7,6 +7,7 @@ class NBoard {
 			this.zoom = 1;
 			this.zoomCounter = -1.0417;
 			this.displayOffset = new NPoint(0, 0);
+			this.drawGrid = true;
 		} else {
 			console.log("Created board " + data.name);
 			this.name = data.name;
@@ -15,6 +16,7 @@ class NBoard {
 			this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);;
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 			this.activeCategories = new Set(data.cats);
+			this.drawGrid = data.dgrid;
 		}
 		this.tabIndex = env.boards.length;
 		this.tabId = "maintab-" + env.boards.length;
@@ -385,7 +387,7 @@ class NBoard {
 						if (otherPin) {
 							brd.addAction(new NMacro(new ActAddNode(brd, node), new ActCreateLink(brd, pinFilter, otherPin)));
 							otherPin.linkTo(pinFilter);
-							if(otherPin.side){
+							if (otherPin.side) {
 								node.setPosition(node.position.add2(-node.nodeDiv.clientWidth, 0));
 							}
 						} else {
@@ -876,6 +878,10 @@ class NBoard {
 					}
 				}
 				break;
+			case 71: // G
+				this.drawGrid = !this.drawGrid;
+				this.redraw();
+				break;
 			case 87: // W
 				if (this.env.ctrlDown) {
 					this.close();
@@ -1264,11 +1270,41 @@ class NBoard {
 		ctx.clearRect(0, 0, this.canvasDiv.width, this.canvasDiv.height);
 		ctx.restore();
 
-		ctx.lineCap = "round";
-
 		// update transform
 		this.containerDiv.style.transform = "translate3d(" + this.displayOffset.x + "px, " + this.displayOffset.y + "px, 0px) scale(" + this.zoom + ")";
 
+		// draw background grid
+		if(this.drawGrid){
+			ctx.lineCap = "butt";
+			let gridSize = this.env.snapDistance * this.zoom;
+			ctx.strokeStyle = "#c1c1c1";
+			ctx.lineWidth = 0.25 * this.zoom;
+			ctx.beginPath();
+			for (let x = this.displayOffset.x % gridSize, maxX = this.canvasDiv.width; x < maxX; x += gridSize) {
+				ctx.moveTo(x, 0);
+				ctx.lineTo(x, this.canvasDiv.height);
+			}
+			for (let y = this.displayOffset.y % gridSize, maxY = this.canvasDiv.height; y < maxY; y += gridSize) {
+				ctx.moveTo(0, y);
+				ctx.lineTo(this.canvasDiv.width, y);
+			}
+			ctx.stroke();
+
+			let outerGridSize = gridSize * 10;
+			ctx.beginPath();
+			ctx.lineWidth =  this.zoom;
+			for (let x = this.displayOffset.x % outerGridSize, maxX = this.canvasDiv.width; x < maxX; x += outerGridSize) {
+				ctx.moveTo(x, 0);
+				ctx.lineTo(x, this.canvasDiv.height);
+			}
+			for (let y = this.displayOffset.y % outerGridSize, maxY = this.canvasDiv.height; y < maxY; y += outerGridSize) {
+				ctx.moveTo(0, y);
+				ctx.lineTo(this.canvasDiv.width, y);
+			}
+			ctx.stroke();
+		}
+
+		// draw links
 		for (const linkid in this.links) {
 			const link = this.links[linkid];
 			let pinA = link[0];
@@ -1281,6 +1317,7 @@ class NBoard {
 				if (pinB == null) {
 					console.log("Attempted to draw link with 2 null pins");
 				} else {
+					ctx.lineCap = "round";
 					if (pinB.side) {
 						l1 = this.currentMouse.multiply1(this.zoom).addp(this.displayOffset);
 						l2 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);
@@ -1295,6 +1332,7 @@ class NBoard {
 				}
 			} else {
 				if (pinB == null) {
+					ctx.lineCap = "round";
 					if (pinA.side) {
 						l2 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
 						l1 = this.currentMouse.multiply1(this.zoom).addp(this.displayOffset);
@@ -1307,6 +1345,7 @@ class NBoard {
 						c2 = NObject.color + "44";
 					}
 				} else {
+					ctx.lineCap = "butt";
 					if (pinA.side) {
 						l1 = divCenter(pinB.pinDiv).subtractp(this.cvOffset);
 						l2 = divCenter(pinA.pinDiv).subtractp(this.cvOffset);
@@ -1386,6 +1425,7 @@ class NBoard {
 		const data = this.saveAllNodes();
 		data.name = this.name;
 		data.id = this.uid;
+		data.dgrid = this.drawGrid;
 		data.dspoX = this.displayOffset.x;
 		data.dspoY = this.displayOffset.y;
 		data.zoom = this.zoom;
