@@ -270,33 +270,27 @@ class SDisplayNode extends NNode {
 	createNodeDiv() {
 		super.createNodeDiv();
 
-		this.customWidth = 370;
-		this.customHeight = 350;
+		this.customWidth = 300;
+		this.customHeight = 300;
 		this.addCenter();
 		this.noPinfo = true;
 		const node = this;
 
-		const refresher = document.createElement("i");
-		refresher.className = "material-icons";
-		refresher.innerHTML = "refresh";
-		refresher.onclick = function(e) {
-			node.recompileCanvas();
-		}
-		this.centerDiv.append(refresher);
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = 512;
-		this.canvas.height = 512;
+		this.canvas.width = 267;
+		this.canvas.height = 267;
+		this.canvas.style.margin = "2px";
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
+		this.canvas.onclick = function(e) {
+			node.recompileCanvas();
+		}
 
 		this.addHeader("Shader Display");
+		this.headerDiv.style.borderBottom = "2px solid #444444"
 		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
-		// this.addInPin(new NPin("Resolution", NVector2).setDefaultVal({
-		// 	"x": 256,
-		// 	"y": 256,
-		// 	"nclass": "Vec2"
-		// }, true).setUnlinkable(true));
-
+		this.nodeDiv.className += " displaynode";
+		this.inPinsDiv.style.borderRight = "2px solid #444444";
 		return this.containerDiv;
 	}
 
@@ -349,6 +343,92 @@ class SDisplayNode extends NNode {
 
 	static getTags() {
 		return ["output", "preview", "display"];
+	}
+}
+
+class SMiniDisplayNode extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.canvas;
+		this.gl;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+
+		this.customWidth = 150;
+		this.customHeight = 150;
+		this.addCenter();
+		this.noPinfo = true;
+		const node = this;
+
+		this.canvas = document.createElement("canvas");
+		this.canvas.width = 117;
+		this.canvas.height = 117;
+		this.canvas.style.margin = "2px";
+		this.canvas.className = "displaynode";
+		this.centerDiv.append(this.canvas);
+		this.canvas.onclick = function(e) {
+			node.recompileCanvas();
+		}
+
+		this.addHeader("Shader Display (Small)");
+		this.headerDiv.style.borderBottom = "2px solid #444444"
+		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
+		this.nodeDiv.className += " displaynode";
+		this.inPinsDiv.style.borderRight = "2px solid #444444";
+		return this.containerDiv;
+	}
+
+	recompileCanvas() {
+		if (this.gl) {
+			this.gl.delete();
+			delete this.board.activeGLContexts[this.pinid]
+		}
+		// const res = this.inpins["Resolution"].defaultVal;
+		// this.canvas.width = res.x;
+		// this.canvas.height = res.y;
+		const inpin = this.inpins["Color"];
+		if (inpin.linkNum) {
+			const link = inpin.getSingleLinked();
+			const fullCompile = this.fullSCompile(inpin);
+			this.gl = setupWebGLRectangle(this.canvas, fullCompile.text);
+
+			const uniforms = {};
+			for (const unfn in fullCompile.uniforms) {
+				const unf = fullCompile.uniforms[unfn];
+				uniforms[unfn] = Object.assign({}, unf);
+				uniforms[unfn].location = this.gl.context.getUniformLocation(this.gl.program, unfn);
+			}
+
+			this.board.activeGLContexts[this.nodeid] = Object.assign({
+				"uniforms": uniforms
+			}, this.gl);
+		}
+
+	}
+
+	removed() {
+		if (this.gl) {
+			this.gl.delete();
+			delete this.board.activeGLContexts[this.nodeid];
+		}
+	}
+
+	static getName() {
+		return "S_Display (Small)";
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["output", "preview", "display", "mini", "small"];
 	}
 }
 

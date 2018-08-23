@@ -27,10 +27,10 @@ class Main {
 
 		this.maxPanDist = 25;
 		this.lineClickDistance = 10;
-		this.dragDistance = 25;
+		this.dragDistance = 10;
 		this.panSpeed = 0.5;
 		this.snapDistance = 12;
-		this.moveDistance = this.snapDistance * 2;
+		this.moveDistance = this.snapDistance;
 		this.maxExecIterations = 500;
 
 		this.nodeTypeList = [
@@ -48,7 +48,8 @@ class Main {
 			SLengthNode, SPiNode, STauNode, SPosterizeNode, SMixNode, SStepNode, SSmoothStepNode,
 			SRandNode, SBreakVec2Node, SBreakVec3Node, SBreakVec4Node, STimeNode, SRerouteNode,
 			SClampNode, SDistanceNode, SDotProductNode, SCrossProductNode, SReflectNode, SRefractNode,
-			SHSVNode, SRGBNode, SZeroNode, SOneNode, STwoNode, SSimplexNoiseNode, SP1D2Node
+			SHSVNode, SRGBNode, SZeroNode, SOneNode, STwoNode, SSimplexNoiseNode, SP1D2Node,
+			SMiniDisplayNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
@@ -338,6 +339,15 @@ $(function() {
 	$(window).on("resize", function(e) {
 		main.activeBoard.fixSize();
 	});
+
+	window.onbeforeunload = function(e){
+		for(const board of main.boards){
+			if(!board.saved){
+				return true;
+			}
+		}
+		return null;
+	}
 
 	window.onkeydown = function(event) {
 		const divCaptures = event.target.hasAttribute("data-ovrdkeys") || event.target.nodeName == "INPUT" || event.target.nodeName == "TEXTAREA";

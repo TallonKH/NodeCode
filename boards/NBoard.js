@@ -16,8 +16,9 @@ class NBoard {
 			this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);;
 			this.displayOffset = new NPoint(data.dpsoX, data.dspoY);
 			this.activeCategories = new Set(data.cats);
-			this.drawGrid = data.dgrid;
+			this.drawGrid = data.dgrid || true;
 		}
+		this.gridColor = "#c1c1c1";
 		this.tabIndex = env.boards.length;
 		this.tabId = "maintab-" + env.boards.length;
 		this.saved = ~~env.savedBoards[this.name];
@@ -1277,7 +1278,7 @@ class NBoard {
 		if(this.drawGrid){
 			ctx.lineCap = "butt";
 			let gridSize = this.env.snapDistance * this.zoom;
-			ctx.strokeStyle = "#c1c1c1";
+			ctx.strokeStyle = this.gridColor;
 			ctx.lineWidth = 0.25 * this.zoom;
 			ctx.beginPath();
 			for (let x = this.displayOffset.x % gridSize, maxX = this.canvasDiv.width; x < maxX; x += gridSize) {
