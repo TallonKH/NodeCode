@@ -1,4 +1,3 @@
-// TODO 4DD LOTS OF NOD3S
 class StringNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -147,46 +146,6 @@ class DoubleNode extends NNode {
 	}
 }
 
-class DisplayNode extends NNode {
-	constructor(data = null) {
-		super(data);
-	}
-
-	createNodeDiv() {
-		super.createNodeDiv();
-		this.addCenter();
-		this.addHeader();
-		this.addInPin(new NPin("Refresh", NExecution));
-		this.addInPin(new NPin("Value", NObject));
-		this.addOutPin(new NPin("__", NExecution));
-		return this.containerDiv;
-	}
-
-	inputExecuted(pin) {
-		this.execN("__");
-	}
-
-	static getName() {
-		return "Display";
-	}
-
-	static getInTypes() {
-		return [NExecution, NObject];
-	}
-
-	static getOutTypes() {
-		return [NExecution];
-	}
-
-	static getCategory() {
-		return "Code";
-	}
-
-	static getTags() {
-		return ["output"];
-	}
-}
-
 class PrintNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -204,7 +163,10 @@ class PrintNode extends NNode {
 
 	inputExecuted(pin) {
 		const val = this.inputN("Value");
-		this.board.env.logt(shallowStringify(val, 4, 0), Function.prototype);
+		console.log(val);
+		const brd = this.board;
+		const node = this;
+		this.board.env.logt(shallowStringify(val, 4, 0), function(){brd.goToNodes([node])});
 		this.execN("__");
 	}
 

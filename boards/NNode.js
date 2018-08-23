@@ -439,7 +439,7 @@ class NNode {
 	inputExecuted(pin) {}
 
 	getValue(pin) {
-		if (!pin.type || (pin.type && !pin.type.hasValue)) {
+		if (!pin.type || (pin.type && !pin.type.hasVal)) {
 			console.log("Can't get a return value from (" + pin.name + ")!");
 			return null;
 		}
@@ -1178,15 +1178,23 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 }
 
 getGroupBounds = function(nodes) {
-	return {
-		"min": NPoint.min(...nodes.map(x => x.position)).round(2),
-		"max": NPoint.max(...nodes.map(x => x.position.add2(x.nodeDiv.clientWidth, x.nodeDiv.clientHeight))).round(2)
+	nodes = nodes.filter(n => n.onBoard);
+	if(nodes.length){
+		return {
+			"min": NPoint.min(...nodes.map(x => x.position)).round(2),
+			"max": NPoint.max(...nodes.map(x => x.position.add2(x.nodeDiv.clientWidth, x.nodeDiv.clientHeight))).round(2)
+		}
 	}
+	return null;
 }
 
 getGroupCenter = function(nodes) {
 	const bounds = getGroupBounds(nodes);
-	return bounds.min.addp(bounds.max).divide1(2);
+	if(bounds){
+		return bounds.min.addp(bounds.max).divide1(2);
+	}else{
+		return null;
+	}
 }
 
 makeMultiNodeDetailsMenu = function(brd, event, nodes) {

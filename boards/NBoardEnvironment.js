@@ -34,7 +34,7 @@ class Main {
 		this.maxExecIterations = 500;
 
 		this.nodeTypeList = [
-			StringNode, IntegerNode, DoubleNode, DisplayNode, PrintNode,
+			StringNode, IntegerNode, DoubleNode, PrintNode,
 			SubstringNode, AdditionNode, IncrementNode, CommentNode,
 			BranchNode, LogicalAndNode, CustomPinMenuNode,
 			STypeTestNode, SDisplayNode, SVector1Node, SVector2Node, SVector3Node,
@@ -194,7 +194,7 @@ class Main {
 				switch (e.which) {
 					case 13: // ENTER
 						if (inp.value.length) {
-							main.t("> " + inp.value);
+							main.logt("> " + inp.value);
 							main.processCommand(inp.value);
 							inp.value = "";
 						}
@@ -209,7 +209,7 @@ class Main {
 		}
 	}
 
-	t(text, src = null) {
+	logt(text, src = null) {
 		const scrtopPre = this.consoleDiv.scrollHeight - this.consoleDiv.clientHeight;
 
 		const d = document.createElement("div");

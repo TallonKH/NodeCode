@@ -1511,6 +1511,7 @@ class NBoard {
 
 	addNode(node) {
 		node.board = this;
+		node.onBoard = true;
 		this.containerDiv.append(node.containerDiv);
 		this.nodes[node.nodeid] = node;
 		for (const pinid in node.inpins) {
@@ -1525,6 +1526,7 @@ class NBoard {
 
 	removeNode(node) {
 		node.unlinkAllPins();
+		node.onBoard = false;
 		node.removed();
 		this.deselectNode(node);
 		for (const pinid in node.inpins) {
@@ -1559,9 +1561,11 @@ class NBoard {
 	goToNodes(nodes) {
 		const screenDims = new NPoint(this.boardDiv.clientWidth, this.boardDiv.clientHeight);
 		const bounds = getGroupBounds(nodes);
-		this.zoom = Math.max(screenDims.dividep(bounds.max.subtractp(bounds.min)).min() * 0.9, 0.224);
-		this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);
-		this.displayOffset = getGroupCenter(nodes).multiply1(-this.zoom).addp(screenDims.divide1(2));
-		this.redraw();
+		if(bounds){
+			this.zoom = Math.max(screenDims.dividep(bounds.max.subtractp(bounds.min)).min() * 0.9, 0.224);
+			this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);
+			this.displayOffset = getGroupCenter(nodes).multiply1(-this.zoom).addp(screenDims.divide1(2));
+			this.redraw();
+		}
 	}
 }
