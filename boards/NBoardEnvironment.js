@@ -29,7 +29,7 @@ class Main {
 		this.lineClickDistance = 10;
 		this.dragDistance = 10;
 		this.panSpeed = 0.5;
-		this.snapDistance = 12;
+		this.snapDistance = 10;
 		this.moveDistance = this.snapDistance;
 		this.maxExecIterations = 500;
 
@@ -146,6 +146,7 @@ class Main {
 		if (!this.boards.length) {
 			window.open('../homepage/main.html', "_self");
 		}
+		this.refreshFileList();
 	}
 
 	processCommand(cmd) {
