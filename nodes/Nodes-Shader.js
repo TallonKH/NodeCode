@@ -1,3 +1,4 @@
+
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -343,6 +344,21 @@ class SDisplayNode extends NNode {
 
 	static getTags() {
 		return ["output", "preview", "display"];
+	}
+
+	makeContextMenu(pos) {
+		const menu = super.makeContextMenu(pos);
+		const node = this;
+		const brd = this.board;
+
+		const op = new NCtxMenuOption("Save Rendered Image");
+		op.action = function(e) {
+			exportTexture(node.fullSCompile(node.inpins["Color"]));
+			return false;
+		}
+		menu.addOption(op);
+
+		return menu;
 	}
 }
 
@@ -771,6 +787,52 @@ class SMakeVec2Node extends NNode {
 		this.addInPin(new NPin("x", NVector1));
 		this.addInPin(new NPin("y", NVector1));
 		this.addOutPin(new NPin("(x,y)", NVector2));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "vec2(" +
+			this.getSCompile(this.inpins["x"], null, data, depth) + ", " +
+			this.getSCompile(this.inpins["y"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_MakeVec2";
+	}
+
+	static getInTypes() {
+		return [NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["vector2", "vec2", "make", "xy", "construct", "make2"];
+	}
+}
+
+class SAccumulatorNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Accumulate");
+		this.addCenter();
+
+		this.addInPin(new NPin("iteration count", NVector1));
+		this.addInPin(new NPin("next value", NVector1));
+		this.addOutPin(new NPin("current iteration", NVector2));
+		this.addOutPin(new NPin("prev value", NVector2));
+		this.addOutPin(new NPin("final output", NVector2));
 
 		return this.containerDiv;
 	}
@@ -1539,7 +1601,7 @@ class SmartVecNode1 extends NNode {
 			outTypes = getVecChildrenU(inpl.getTypes());
 		} else {
 			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
-			// THERE'S NO SUCH THING AS TOO MANY ARROW FUNCTIONS
+			// THERE"S NO SUCH THING AS TOO MANY ARROW FUNCTIONS
 			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
 			// narrow outTypes down to types that can be cast from the input types
 			outTypes = getVecChildrenU(inpl.getTypes());
