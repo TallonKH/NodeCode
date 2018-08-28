@@ -121,6 +121,7 @@ class Main {
 		brd.fixSize();
 
 		this.refreshFileList();
+		this.rememberOpened();
 		return brd;
 	}
 
@@ -147,6 +148,7 @@ class Main {
 			window.open('../homepage/main.html', "_self");
 		}
 		this.refreshFileList();
+		this.rememberOpened();
 	}
 
 	processCommand(cmd) {
@@ -326,11 +328,14 @@ $(function() {
 
 	main.setupLeftMenu();
 	// set active board on tab switch
+	let startup = true;
 	$(main.mainTabDiv).tabs({
 		activate: function(event, ui) {
 			const href = ui.newTab.context.href;
 			let a = href.substring(href.indexOf("#maintab-") + 9);
-			console.log(": " + a);
+			if(!startup){
+				localStorage.setItem("activeTab", a.toString());
+			}
 			main.activeBoard = main.boards[parseInt(a)];
 			main.activeBoard.redraw();
 			main.activeBoard.fixSize();
@@ -488,14 +493,17 @@ $(function() {
 
 	$(main.mainTabDiv).tabs("option", "active", 0);
 
-	{
-		let tabs = $(".tabs").tabs();
-		tabs.find(".ui-tabs-nav").sortable({
-			axis: "x",
-			stop: function() {
-				tabs.tabs("refresh");
-			}
-		});
+	let tabs = $(".tabs").tabs();
+	tabs.find(".ui-tabs-nav").sortable({
+		axis: "x",
+		stop: function() {
+			tabs.tabs("refresh");
+		}
+	});
+
+	const activeTabIndex = localStorage.getItem("activeTab");
+	if(activeTabIndex !== null){
+		$(main.mainTabDiv).tabs("option", "active", parseInt(activeTabIndex));
 	}
 	// window.onresize = fixAllCanvasSizes;
 	const fopener = $("#fopener").get(0);
@@ -512,4 +520,5 @@ $(function() {
 
 		console.log("Done importing file!");
 	}
+	startup = false;
 });
