@@ -333,7 +333,7 @@ $(function() {
 		activate: function(event, ui) {
 			const href = ui.newTab.context.href;
 			let a = href.substring(href.indexOf("#maintab-") + 9);
-			if(!startup){
+			if (!startup) {
 				localStorage.setItem("activeTab", a.toString());
 			}
 			main.activeBoard = main.boards[parseInt(a)];
@@ -346,9 +346,9 @@ $(function() {
 		main.activeBoard.fixSize();
 	});
 
-	window.onbeforeunload = function(e){
-		for(const board of main.boards){
-			if(!board.saved){
+	window.onbeforeunload = function(e) {
+		for (const board of main.boards) {
+			if (!board.saved) {
 				return true;
 			}
 		}
@@ -465,12 +465,15 @@ $(function() {
 			return main.activeBoard.mouseMoved(event);
 		}
 	}
-	window.onmousewheel = function(event) {
+
+	window.addEventListener("mousewheel", function(event) {
 		if (main.inCurrentBoard(event)) {
-			return main.activeBoard.mouseWheel(event);
+			return main.activeBoard.msWheel(event);
 		}
 		return true;
-	}
+	}, {
+		passive: false
+	});
 
 	const preset = localStorage.getItem("initialPreset");
 	if (preset) {
@@ -502,7 +505,7 @@ $(function() {
 	});
 
 	const activeTabIndex = localStorage.getItem("activeTab");
-	if(activeTabIndex !== null){
+	if (activeTabIndex !== null) {
 		$(main.mainTabDiv).tabs("option", "active", parseInt(activeTabIndex));
 	}
 	// window.onresize = fixAllCanvasSizes;

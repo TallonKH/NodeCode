@@ -78,7 +78,26 @@ class NBoard {
 		this.prevMouseUpTime = 0;
 		this.mouseUpTime = 0;
 
+		const th = this;
 		setInterval(this.shaderClock.bind(this), 16);
+	}
+
+	msWheel(event) {
+		if (this.activeCtxMenu) {
+			return true;
+		}
+		if (event.ctrlKey) {
+			const prevZoom = this.zoom;
+			this.zoomCounter += event.deltaY;
+			this.zoomCounter = Math.min(200, Math.max(-219, this.zoomCounter));
+			this.zoom = Math.pow(1.0075, -this.zoomCounter);
+			this.displayOffset = this.displayOffset.subtractp(this.evntToPtBrd(event).subtractp(this.displayOffset).divide1(prevZoom).multiply1(this.zoom - prevZoom))
+		} else {
+			this.displayOffset = this.displayOffset.subtract2(event.deltaX, event.deltaY);
+		}
+		this.redraw();
+		// return false;
+		event.preventDefault();
 	}
 
 	evntToPt(event) {
@@ -808,23 +827,6 @@ class NBoard {
 		this.env.closeBoard(this);
 	}
 
-	mouseWheel(event) {
-		if (this.activeCtxMenu) {
-			return true;
-		}
-		if (event.ctrlKey) {
-			const prevZoom = this.zoom;
-			this.zoomCounter += event.deltaY;
-			this.zoomCounter = Math.min(200, Math.max(-219, this.zoomCounter));
-			this.zoom = Math.pow(1.0075, -this.zoomCounter);
-			this.displayOffset = this.displayOffset.subtractp(this.evntToPtBrd(event).subtractp(this.displayOffset).divide1(prevZoom).multiply1(this.zoom - prevZoom))
-		} else {
-			this.displayOffset = this.displayOffset.subtract2(event.deltaX, event.deltaY);
-		}
-		this.redraw();
-		return false;
-	}
-
 	keyPressed(event) {
 		switch (event.key) {
 			case 'Alt':
@@ -1275,7 +1277,7 @@ class NBoard {
 		this.containerDiv.style.transform = "translate3d(" + this.displayOffset.x + "px, " + this.displayOffset.y + "px, 0px) scale(" + this.zoom + ")";
 
 		// draw background grid
-		if(this.drawGrid){
+		if (this.drawGrid) {
 			ctx.lineCap = "butt";
 			let gridSize = this.env.snapDistance * this.zoom;
 			ctx.strokeStyle = this.gridColor;
@@ -1293,7 +1295,7 @@ class NBoard {
 
 			let outerGridSize = gridSize * 10;
 			ctx.beginPath();
-			ctx.lineWidth =  this.zoom;
+			ctx.lineWidth = this.zoom;
 			for (let x = this.displayOffset.x % outerGridSize, maxX = this.canvasDiv.width; x < maxX; x += outerGridSize) {
 				ctx.moveTo(x, 0);
 				ctx.lineTo(x, this.canvasDiv.height);
@@ -1561,7 +1563,7 @@ class NBoard {
 	goToNodes(nodes) {
 		const screenDims = new NPoint(this.boardDiv.clientWidth, this.boardDiv.clientHeight);
 		const bounds = getGroupBounds(nodes);
-		if(bounds){
+		if (bounds) {
 			this.zoom = Math.max(screenDims.dividep(bounds.max.subtractp(bounds.min)).min() * 0.9, 0.224);
 			this.zoomCounter = -Math.log(this.zoom) / Math.log(1.0075);
 			this.displayOffset = getGroupCenter(nodes).multiply1(-this.zoom).addp(screenDims.divide1(2));
