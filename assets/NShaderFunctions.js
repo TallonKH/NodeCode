@@ -114,7 +114,7 @@ float snoise3(vec3 v){
 
 const snoise4 = `
 float snoise4(vec4 v){
-  const vec2  C = vec2(0.138196601125010504, 0.309016994374947451); // (sqrt(5) - 1)/4   F4
+  const vec2  C = vec2(0.138196601125010504, 0.309016994374947451);
   vec4 i  = floor(v + dot(v, C.yyyy) );
   vec4 x0 = v -   i + dot(i, C.xxxx);
   vec4 i0;
@@ -171,5 +171,78 @@ vec3 rgb(vec3 c){
 	vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
 	vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
 	return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+`
+
+const wpermute2 = `
+vec3 wpermute2(vec3 x) {
+  return mod((34.0 * x + 1.0) * x, 289.0);
+}
+`
+
+const wdist = `
+vec3 wdist(vec3 x, vec3 y,  bool manhattanDistance) {
+  return manhattanDistance ?  abs(x) + abs(y) :  (x * x + y * y);
+}
+`
+
+const worley2 = `
+float worley2(vec2 P, float jitter, bool manhattanDistance) {
+  float K = 0.142857142857;
+  float Ko = 0.428571428571 ;
+	vec2 Pi = mod(floor(P), 289.0);
+ 	vec2 Pf = fract(P);
+	vec3 oi = vec3(-1.0, 0.0, 1.0);
+	vec3 of = vec3(-0.5, 0.5, 1.5);
+	vec3 px = wpermute2(Pi.x + oi);
+	vec3 p = wpermute2(px.x + Pi.y + oi);
+	vec3 ox = fract(p*K) - Ko;
+	vec3 oy = mod(floor(p*K),7.0)*K - Ko;
+	vec3 dx = Pf.x + 0.5 + jitter*ox;
+	vec3 dy = Pf.y - of + jitter*oy;
+	vec3 d1 = wdist(dx,dy, manhattanDistance);
+	p = wpermute2(px.y + Pi.y + oi);
+	ox = fract(p*K) - Ko;
+	oy = mod(floor(p*K),7.0)*K - Ko;
+	dx = Pf.x - 0.5 + jitter*ox;
+	dy = Pf.y - of + jitter*oy;
+	vec3 d2 = wdist(dx,dy, manhattanDistance);
+	p = wpermute2(px.z + Pi.y + oi);
+	ox = fract(p*K) - Ko;
+	oy = mod(floor(p*K),7.0)*K - Ko;
+	dx = Pf.x - 1.5 + jitter*ox;
+	dy = Pf.y - of + jitter*oy;
+	vec3 d3 = wdist(dx,dy, manhattanDistance);
+	vec3 d1a = min(d1, d2);
+	d2 = max(d1, d2);
+	d2 = min(d2, d3);
+	d1 = min(d1a, d2);
+	d2 = max(d1a, d2);
+	d1.xy = (d1.x < d1.y) ? d1.xy : d1.yx;
+	d1.xz = (d1.x < d1.z) ? d1.xz : d1.zx;
+	d1.yz = min(d1.yz, d2.yz);
+	d1.y = min(d1.y, d1.z);
+	d1.y = min(d1.y, d2.x);
+	vec2 root = sqrt(d1.xy);
+	return root.y - root.x;
+}
+`
+
+const rotateUV = `
+vec2 rotateUV(vec2 uv, float rotation)
+{
+		float cr = cos(rotation);
+		float sr = sin(rotation);
+    return vec2(cr * (uv.x) + sr * (uv.y), cr * (uv.y) - sr * (uv.x));
+}
+`
+
+const rotateUVMid = `
+vec2 rotateUVMid(vec2 uv, float rotation, vec2 mid)
+{
+		uv -= mid;
+		float cr = cos(rotation);
+		float sr = sin(rotation);
+    return vec2(cr * (uv.x) + sr * (uv.y), cr * (uv.y) - sr * (uv.x)) + mid;
 }
 `

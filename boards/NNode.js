@@ -486,8 +486,6 @@ class NNode {
 			"uniforms": {}
 		};
 
-
-
 		let mainPre = "void main() {\n";
 		const type = pin.getSingleLinked().getReturnType();
 		let mainMid = this.getSCompile(pin, type, data, [0]);
@@ -511,7 +509,8 @@ class NNode {
 
 		let preMain = "precision mediump float;\n\n";
 		for (const pvn in data.varying) {
-			preMain += data.varying[pvn] + "\n";
+			const vry = data.varying[pvn];
+			preMain += "varying " + vry.type + " " + vry.name + ";\n";
 		}
 		for (const pvn in data.uniforms) {
 			const unf = data.uniforms[pvn];
@@ -530,13 +529,19 @@ class NNode {
 			mainPre = mainPre + "\t" + v[1].compiled + "\n";
 		}
 
-		const out = preMain + mainPre + "\tgl_FragColor = " + mainMid + ";\n}";
-		console.log(out);
+		const outText = preMain + mainPre + "\tgl_FragColor = " + mainMid + ";\n}";
+		console.log(outText);
 
-		return {
-			"text": out,
-			"uniforms": data.uniforms
+		const retVal = {
+			"text": outText,
+			"uniforms": data.uniforms,
 		};
+
+		if(data.pendingItems){
+			retVal.pendingItems = data.pendingItems;
+		}
+
+		return retVal;
 	}
 
 	getReturnType(outpin) {
@@ -1212,7 +1217,6 @@ makeMultiNodeDetailsMenu = function(brd, event, nodes) {
 }
 
 compileSFunc = function(existing, funcs, fnn) {
-	console.log(fnn);
 	let out = ""
 	if (!existing.has(fnn)) {
 		const func = funcs[fnn];

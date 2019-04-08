@@ -49,7 +49,8 @@ class Main {
 			SRandNode, SBreakVec2Node, SBreakVec3Node, SBreakVec4Node, STimeNode, SRerouteNode,
 			SClampNode, SDistanceNode, SDotProductNode, SCrossProductNode, SReflectNode, SRefractNode,
 			SHSVNode, SRGBNode, SZeroNode, SOneNode, STwoNode, SSimplexNoiseNode, SP1D2Node,
-			SMiniDisplayNode
+			SMiniDisplayNode, STextureNode, SWorleyNoiseNode, SContrastNode, STriangleWaveNode,
+			SRotateUVNode, SRotateUVMidNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};
@@ -142,11 +143,11 @@ class Main {
 		board.paneDiv.remove();
 		board.tabDiv.remove();
 		jtabs.tabs("destroy").tabs();
-		jtabs.tabs("option", "active", active);
-		this.activeBoard = this.boards[Math.min(board.tabIndex, this.boards.length - 1)];
 		if (!this.boards.length) {
 			window.open('../homepage/main.html', "_self");
 		}
+		jtabs.tabs("option", "active", active);
+		this.activeBoard = this.boards[Math.min(board.tabIndex, this.boards.length - 1)];
 		this.refreshFileList();
 		this.rememberOpened();
 	}
@@ -255,7 +256,6 @@ class Main {
 
 			for (const brd of this.boards) {
 				if (brd.name == brdn) {
-					console.log(brdn + " opened");
 					item.setAttribute("open", true);
 				}
 			}

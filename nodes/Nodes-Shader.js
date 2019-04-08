@@ -1,4 +1,3 @@
-
 class STypeTestNode extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -278,8 +277,8 @@ class SDisplayNode extends NNode {
 		const node = this;
 
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = 267;
-		this.canvas.height = 267;
+		this.canvas.width = 269;
+		this.canvas.height = 269;
 		this.canvas.style.margin = "2px";
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
@@ -288,16 +287,16 @@ class SDisplayNode extends NNode {
 		}
 
 		this.addHeader("Shader Display");
-		this.headerDiv.style.borderBottom = "2px solid #444444"
+		this.headerDiv.style.borderBottom = "1px solid #444444"
 		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
 		this.nodeDiv.className += " displaynode";
-		this.inPinsDiv.style.borderRight = "2px solid #444444";
+		this.inPinsDiv.style.borderRight = "1px solid #444444";
 		return this.containerDiv;
 	}
 
 	recompileCanvas() {
-		if (this.gl) {
-			this.gl.delete();
+		if (this.glp) {
+			this.glp.delete();
 			delete this.board.activeGLContexts[this.pinid]
 		}
 		// const res = this.inpins["Resolution"].defaultVal;
@@ -307,25 +306,41 @@ class SDisplayNode extends NNode {
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
 			const fullCompile = this.fullSCompile(inpin);
-			this.gl = setupWebGLRectangle(this.canvas, fullCompile.text);
-
+			this.glp = setupWebGLRectangle(this.canvas, fullCompile.text);
+			const glp = this.glp;
+			const gl = this.glp.context;
 			const uniforms = {};
+
 			for (const unfn in fullCompile.uniforms) {
 				const unf = fullCompile.uniforms[unfn];
 				uniforms[unfn] = Object.assign({}, unf);
-				uniforms[unfn].location = this.gl.context.getUniformLocation(this.gl.program, unfn);
+				const location = gl.getUniformLocation(this.glp.program, unf.name);
+				uniforms[unfn].location = location;
+
+				if (unf.type == "sampler2D") {
+					loadTexture(gl, unf.src, unf.texIndex, location, function(){
+						fullCompile.pendingItems--;
+						if(fullCompile.pendingItems == 0){
+							glp.redraw();
+						}
+						return null;
+					});
+				}
+			}
+			// if nothing left to load, draw immediately
+			if(!fullCompile.pendingItems){
+				glp.redraw();
 			}
 
 			this.board.activeGLContexts[this.nodeid] = Object.assign({
 				"uniforms": uniforms
-			}, this.gl);
+			}, this.glp);
 		}
-
 	}
 
 	removed() {
-		if (this.gl) {
-			this.gl.delete();
+		if (this.glp) {
+			this.glp.delete();
 			delete this.board.activeGLContexts[this.nodeid];
 		}
 	}
@@ -379,8 +394,8 @@ class SMiniDisplayNode extends NNode {
 		const node = this;
 
 		this.canvas = document.createElement("canvas");
-		this.canvas.width = 117;
-		this.canvas.height = 117;
+		this.canvas.width = 119;
+		this.canvas.height = 119;
 		this.canvas.style.margin = "2px";
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
@@ -389,16 +404,16 @@ class SMiniDisplayNode extends NNode {
 		}
 
 		this.addHeader("Shader Display (Small)");
-		this.headerDiv.style.borderBottom = "2px solid #444444"
+		this.headerDiv.style.borderBottom = "1px solid #444444"
 		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
 		this.nodeDiv.className += " displaynode";
-		this.inPinsDiv.style.borderRight = "2px solid #444444";
+		this.inPinsDiv.style.borderRight = "1px solid #444444";
 		return this.containerDiv;
 	}
 
 	recompileCanvas() {
-		if (this.gl) {
-			this.gl.delete();
+		if (this.glp) {
+			this.glp.delete();
 			delete this.board.activeGLContexts[this.pinid]
 		}
 		// const res = this.inpins["Resolution"].defaultVal;
@@ -408,20 +423,36 @@ class SMiniDisplayNode extends NNode {
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
 			const fullCompile = this.fullSCompile(inpin);
-			this.gl = setupWebGLRectangle(this.canvas, fullCompile.text);
-
+			this.glp = setupWebGLRectangle(this.canvas, fullCompile.text);
+			const glp = this.glp;
+			const gl = this.glp.context;
 			const uniforms = {};
+
 			for (const unfn in fullCompile.uniforms) {
 				const unf = fullCompile.uniforms[unfn];
 				uniforms[unfn] = Object.assign({}, unf);
-				uniforms[unfn].location = this.gl.context.getUniformLocation(this.gl.program, unfn);
+				const location = gl.getUniformLocation(this.glp.program, unf.name);
+				uniforms[unfn].location = location;
+
+				if (unf.type == "sampler2D") {
+					loadTexture(gl, unf.src, unf.texIndex, location, function(){
+						fullCompile.pendingItems--;
+						if(fullCompile.pendingItems == 0){
+							glp.redraw();
+						}
+						return null;
+					});
+				}
+			}
+			// if nothing left to load, draw immediately
+			if(!fullCompile.pendingItems){
+				glp.redraw();
 			}
 
 			this.board.activeGLContexts[this.nodeid] = Object.assign({
 				"uniforms": uniforms
-			}, this.gl);
+			}, this.glp);
 		}
-
 	}
 
 	removed() {
@@ -445,6 +476,124 @@ class SMiniDisplayNode extends NNode {
 
 	static getTags() {
 		return ["output", "preview", "display", "mini", "small"];
+	}
+}
+
+class STextureNode extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.canvas;
+		this.finput;
+		this.file;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+
+		this.customWidth = 175;
+		this.customHeight = 150;
+		this.addCenter();
+		this.noPinfo = true;
+		const node = this;
+
+		this.canvas = document.createElement("img");
+		this.canvas.width = 119;
+		this.canvas.height = 119;
+		this.canvas.style.margin = "2px";
+		this.canvas.className = "displaynode";
+		this.centerDiv.append(this.canvas);
+
+		this.canvas.onclick = function(e) {
+			node.finput.click(e);
+		}
+
+		this.finput = document.createElement("input");
+		this.finput.type = "file";
+		this.finput.accept = ".png,.jpeg,.jpg"
+		this.finput.onchange = function(e) {
+			node.inputChanged(node.finput.files);
+		}
+
+		this.addHeader("Texture");
+		this.headerDiv.style.borderBottom = "1px solid #444444"
+		this.addInPin(new NPin("UVs", NVector2));
+		this.addOutPin(new NPin("Color", NVector4));
+		this.nodeDiv.className += " displaynode";
+		this.inPinsDiv.style.borderRight = "1px solid #444444";
+		this.outPinsDiv.style.borderLeft = "1px solid #444444";
+		return this.containerDiv;
+	}
+
+	inputChanged(files) {
+		console.log("Image changed");
+		if (files.length) {
+			const node = this;
+			this.file = this.finput.files[0];
+			this.canvas.file = this.file;
+
+			const reader = new FileReader();
+			reader.onload = (function(aImg) {
+				return function(e) {
+					aImg.src = e.target.result;
+					node.fileUrl = e.target.result;
+				};
+			})(this.canvas);
+			reader.readAsDataURL(this.file); // this is captured by the onload function
+		} else {
+			this.file = null;
+			this.fileUrl = null;
+		}
+	}
+
+	scompile(pin, varType, data, depth) {
+		let texIndex = 0;
+		let name = "texture0";
+		while (data.uniforms[name] != null) {
+			texIndex++;
+			name = "texture" + texIndex.toString();
+		}
+
+		let uname = "u_texture" + texIndex.toString();
+		data.pendingItems = (data.pendingItems || 0) + 1
+		data.uniforms[name] = {
+			"type": "sampler2D",
+			"name": uname,
+			"src": this.fileUrl,
+			"texIndex": texIndex
+		}
+
+		return "texture2D(" + uname + ", " + this.getSCompile(this.inpins["UVs"], NVector2, data, depth) + ")";
+	}
+// TODO F1X 1M4G3S NOT B31NG R3LO4D4BL3
+	load(data, loadids) {
+		console.log(data.imgSrc);
+		super.load(data, loadids);
+	}
+
+	saveExtra(data) {
+		if (this.file) {
+			data.imgSrc = this.file;
+		}
+	}
+
+	static getName() {
+		return "S_Texture";
+	}
+
+	static getInTypes() {
+		return [NVector2];
+	}
+
+	static getOutTypes() {
+		return [NVector4];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["texture", "file", "image"];
 	}
 }
 
@@ -838,21 +987,18 @@ class SAccumulatorNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
-		return "vec2(" +
-			this.getSCompile(this.inpins["x"], null, data, depth) + ", " +
-			this.getSCompile(this.inpins["y"], null, data, depth) + ")";
 	}
 
 	static getName() {
-		return "S_MakeVec2";
+		return "S_Accumulate";
 	}
 
 	static getInTypes() {
-		return [NVector1];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getOutTypes() {
-		return [NVector2];
+		return [NVector1, NVector2, NVector3, NVector4];
 	}
 
 	static getCategory() {
@@ -860,7 +1006,7 @@ class SAccumulatorNode extends NNode {
 	}
 
 	static getTags() {
-		return ["vector2", "vec2", "make", "xy", "construct", "make2"];
+		return ["for", "loop", "accumulate", "accumulator"];
 	}
 }
 
@@ -1072,7 +1218,10 @@ class STexCoordNode extends NNode {
 	}
 
 	scompile(pin, varType, data, depth) {
-		data.varying["fragTexCoord"] = "varying vec2 fragTexCoord;";
+		data.varying["fragTexCoord"] = {
+			"name": "fragTexCoord",
+			"type": "vec2"
+		};
 		return "fragTexCoord";
 	}
 
@@ -1389,7 +1538,7 @@ class SSimplexNoiseNode extends NNode {
 		this.customHeight = 75;
 		this.noPinfo = true;
 		this.addInPin(new NPin("in", NVector2, NVector3, NVector4));
-		this.addOutPin(new NPin("rand", NVector1));
+		this.addOutPin(new NPin("noise", NVector1));
 		return this.containerDiv;
 	}
 
@@ -1460,6 +1609,71 @@ class SSimplexNoiseNode extends NNode {
 
 	static getTags() {
 		return ["simplex", "noise", "perlin", "gradient"];
+	}
+
+	getOutputVarName(pin) {
+		return "noice";
+	}
+}
+
+class SWorleyNoiseNode extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Worley Noise");
+		this.addCenter();
+		this.customWidth = 150;
+		this.customHeight = 75;
+		this.noPinfo = true;
+		this.addInPin(new NPin("coord", NVector2));
+		this.addInPin(new NPin("jitter", NVector1));
+		this.addOutPin(new NPin("noise", NVector1));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		const inp = this.inpins["coord"];
+		switch (inp.getReturnType().vecOrder) {
+			case 1:
+			case 2:
+				data.functions["wpermute2"] = {
+					"code": wpermute2
+				};
+				data.functions["wdist"] = {
+					"code": wdist
+				};
+				data.functions["worley2"] = {
+					"code": worley2,
+					"prereqs": ["wpermute2", "wdist"]
+				};
+				return "worley2(" + this.getSCompile(inp, NVector2, data, depth) + ", " +
+					this.getSCompile(this.inpins["jitter"], NVector1, data, depth) + ", false)";
+			case 3:
+			case 4:
+		}
+	}
+
+	static getName() {
+		return "S_WorleyNoise";
+	}
+
+	static getInTypes() {
+		return [NVector2];
+	}
+
+	static getOutTypes() {
+		return [NVector1];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["worley", "voronoi"];
 	}
 
 	getOutputVarName(pin) {
@@ -1870,7 +2084,7 @@ class SSineNode extends SmartVecNode1 {
 	}
 
 	static getTags() {
-		return ["sin", "sine", "trig"];
+		return ["sin", "sine", "trig", "wave"];
 	}
 
 	static getInTypes() {
@@ -1883,6 +2097,48 @@ class SSineNode extends SmartVecNode1 {
 
 	getOutputVarName(pin) {
 		return "sine";
+	}
+}
+
+class STriangleWaveNode extends SmartVecNode1 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Triangle Wave");
+		this.addCenter("╱╲╱");
+		this.customWidth = 150;
+		this.centerText.style.fontSize = "20px";
+		this.noPinfo = false;
+		this.addInPin(new NPin("in", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "(1.0 - 4.0 * abs(0.5 - fract(0.5 * " + this.getSCompile(this.inpins["in"], null, data, depth) + " + 0.25)))";
+	}
+
+	static getName() {
+		return "S_TriangleWave";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["wave", "triangle"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "wave";
 	}
 }
 
@@ -1911,7 +2167,7 @@ class SCosineNode extends SmartVecNode1 {
 	}
 
 	static getTags() {
-		return ["cos", "cosine", "trig"];
+		return ["cos", "cosine", "trig", "wave"];
 	}
 
 	static getInTypes() {
@@ -2331,6 +2587,97 @@ class SCrossProductNode extends NNode {
 
 	static getOutTypes() {
 		return [NVector3];
+	}
+
+	getOutputVarName(pin) {
+		return "crosp";
+	}
+}
+
+class SRotateUVNode extends NNode {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Rotate");
+		this.addCenter("⟳");
+		this.customWidth = 200;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("UVs", NVector2));
+		this.addInPin(new NPin("θ (rads)", NVector1));
+		this.addOutPin(new NPin("Rotated UV", NVector2));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		data.functions["rotateUV"] = {
+			"code": rotateUV
+		};
+		return "rotateUV(" + this.getSCompile(this.inpins["UVs"], NVector2, data, depth) + ", " + this.getSCompile(this.inpins["θ (rads)"], NVector1, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_RotateUV";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["rotate", "transform", "spin"];
+	}
+
+	static getInTypes() {
+		return [NVector2, NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector2];
+	}
+
+	getOutputVarName(pin) {
+		return "crosp";
+	}
+}
+
+class SRotateUVMidNode extends NNode {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Rotate Around");
+		this.addCenter("⟳");
+		this.customWidth = 200;
+		this.centerText.style.fontSize = "40px";
+		this.addInPin(new NPin("UVs", NVector2));
+		this.addInPin(new NPin("θ (rads)", NVector1));
+		this.addInPin(new NPin("Center", NVector2));
+		this.addOutPin(new NPin("Rotated UV", NVector2));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		data.functions["rotateUVMid"] = {
+			"code": rotateUVMid
+		};
+		return "rotateUVMid(" + this.getSCompile(this.inpins["UVs"], NVector2, data, depth) + ", " + this.getSCompile(this.inpins["θ (rads)"], NVector1, data, depth) + "," + this.getSCompile(this.inpins["Center"], NVector2, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_RotateUV (axis)";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["rotate", "transform", "spin", "axis", "around", "center"];
+	}
+
+	static getInTypes() {
+		return [NVector2, NVector1];
+	}
+
+	static getOutTypes() {
+		return [NVector2];
 	}
 
 	getOutputVarName(pin) {
@@ -3214,6 +3561,47 @@ class SSubtractNode extends SmartVecNode2 {
 
 	static getTags() {
 		return ["subtract", "minus", "-", "difference"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "diff";
+	}
+}
+
+class SContrastNode extends SmartVecNode2 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter();
+		this.addHeader("Contrast");
+		this.customWidth = 150;
+		this.addInPin(new NPin("Value", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Contrast", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("_", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "((" + this.getSCompile(this.inpins["Value"], null, data, depth) + " - 0.5) *" + this.getSCompile(this.inpins["Contrast"], null, data, depth) + "+ 0.5)";
+	}
+
+	static getName() {
+		return "S_Contrast";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["contrast"];
 	}
 
 	static getInTypes() {
