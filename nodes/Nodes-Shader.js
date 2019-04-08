@@ -480,6 +480,39 @@ class SMiniDisplayNode extends NNode {
 }
 
 class STextureNode extends NNode {
+	load(data, loadids) {
+		console.log(data.imgSrc);
+		super.load(data, loadids);
+	}
+
+	saveExtra(data) {
+		if (this.file) {
+			data.imgSrc = this.file;
+		}
+	}
+
+	static getName() {
+		return "S_Texture";
+	}
+
+	static getInTypes() {
+		return [NVector2];
+	}
+
+	static getOutTypes() {
+		return [NVector4];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["texture", "file", "image"];
+	}
+}
+
+class STextureMapNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.canvas;
@@ -564,7 +597,6 @@ class STextureNode extends NNode {
 
 		return "texture2D(" + uname + ", " + this.getSCompile(this.inpins["UVs"], NVector2, data, depth) + ")";
 	}
-// TODO F1X 1M4G3S NOT B31NG R3LO4D4BL3
 	load(data, loadids) {
 		console.log(data.imgSrc);
 		super.load(data, loadids);

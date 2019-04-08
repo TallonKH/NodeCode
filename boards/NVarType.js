@@ -338,6 +338,49 @@ NBoolean.changeVal = function(inp, nval) {
 	$(inp).find("input").get(0).checked = nval.boolean;
 }
 
+const NTexture = new NVarType("Texture", function(nvar) {
+	nvar.boolean = false;
+}, "#e6a414", NObject);
+NTexture.edit = function(nvar, brd) {
+	const cnt = document.createElement("div");
+	cnt.className = "checkbox boolean container";
+	const id = (~~(Math.random() * 8388607)).toString();
+
+	const inp = document.createElement("input");
+	inp.className = "checkbox boolean";
+	inp.id = id;
+	inp.type = "checkbox";
+	if (nvar.boolean) {
+		inp.checked = true;
+	}
+	cnt.append(inp);
+
+	const lbl = document.createElement("label");
+	lbl.className = "checkbox boolean";
+	lbl.htmlFor = id;
+	cnt.append(lbl);
+
+	const changeNVal = function() {
+		const val = inp.checked;
+		if (val != nvar.boolean) {
+			brd.addAction(new ActChangeDefVal(brd, nvar, {
+				"boolean": val
+			}, null, v => inp.checked = v.boolean));
+			nvar.boolean = val;
+		}
+	}
+
+	inp.oninput = function(e) {
+		changeNVal();
+		nvar.boolean = inp.checked;
+	}
+
+	return cnt;
+};
+NTexture.changeVal = function(inp, nval) {
+	$(inp).find("input").get(0).checked = nval.boolean;
+}
+
 const NString = new NVarType("String", function(nvar) {
 	nvar.string = "";
 }, "#e963c0", NObject);
