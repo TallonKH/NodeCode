@@ -41,7 +41,7 @@ class Main {
 			SVector4Node, STexCoordNode, SRoundNode, SFloorNode, SCeilNode, SFractNode,
 			SComponentNode, SSubtractNode, SModuloNode, SExponentNode, SSineNode,
 			SCosineNode, STangentNode, SMinNode, SMaxNode, SRadiansNode, SDegreesNode,
-			SASineNode, SACosineNode, SATangentNode, SLnNode, SSqrtNode, SISqrtNode,
+			SASineNode, SACosineNode, SATangentNode, SATangent2Node, SLnNode, SSqrtNode, SISqrtNode,
 			SExp2Node, SEExpNode, SLogNode, SLog2Node, SSignNode, SAbsValNode, SNegateNode,
 			SAdditionNode, SMultiplyNode, SDivideNode, SMakeVec2Node, SMakeVec3Node,
 			SMakeVec4Node, SAppendNode, SOneMinusNode, SInverseNode, SNormalizeNode,
