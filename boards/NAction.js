@@ -343,7 +343,7 @@ class ActRemoveNode extends NAction {
 		super(board);
 		this.node = node;
 		this.isSelected = node.selected;
-		this.data = board.saveNodes([node]);
+		this.data = board.saveNodes([node]).nodes;
 	}
 
 	redo() {
@@ -352,7 +352,7 @@ class ActRemoveNode extends NAction {
 
 	undo() {
 		this.board.addNode(this.node);
-		this.board.loadLinks(this.data.nodes);
+		this.board.loadLinks(this.data);
 		if (this.isSelected) {
 			this.node.select();
 		}
@@ -443,7 +443,7 @@ class ActDuplicateNodes extends NAction {
 	constructor(board, newNodes) {
 		super(board);
 		this.newNodes = newNodes;
-		this.linkData = board.saveNodes(newNodes).nodes;
+		this.linkData = board.saveNodes(newNodes).links;
 		this.selected = Object.values(board.selectedNodes);
 	}
 

@@ -950,6 +950,25 @@ class NBoard {
 					}
 				}
 				break;
+			case 68: // D
+				if(this.env.shiftDown){
+					if(this.selectedNodeCount){
+						const newNodes = this.duplicateNodes(Object.values(this.selectedNodes));
+						this.addAction(new ActDuplicateNodes(this, newNodes));
+						this.deselectAllNodes();
+						for(const node of newNodes){
+							this.selectNode(node);
+						}
+					}
+				}else if(this.env.ctrlDown || this.env.metaDown){
+					const selected = Object.values(this.selectedNodes);
+					this.addAction(new ActRemoveSelectedNodes(this));
+					for (const node of selected) {
+						this.removeNode(node);
+					}
+					break;
+				}
+				break;
 			case 69: // E
 				if (this.env.ctrlDown || this.env.metaDown) {
 					if (confirm("Download?")) {
