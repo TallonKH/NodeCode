@@ -338,48 +338,10 @@ NBoolean.changeVal = function(inp, nval) {
 	$(inp).find("input").get(0).checked = nval.boolean;
 }
 
-const NTexture = new NVarType("Texture", function(nvar) {
-	nvar.boolean = false;
-}, "#e6a414", NObject);
-NTexture.edit = function(nvar, brd) {
-	const cnt = document.createElement("div");
-	cnt.className = "checkbox boolean container";
-	const id = (~~(Math.random() * 8388607)).toString();
-
-	const inp = document.createElement("input");
-	inp.className = "checkbox boolean";
-	inp.id = id;
-	inp.type = "checkbox";
-	if (nvar.boolean) {
-		inp.checked = true;
-	}
-	cnt.append(inp);
-
-	const lbl = document.createElement("label");
-	lbl.className = "checkbox boolean";
-	lbl.htmlFor = id;
-	cnt.append(lbl);
-
-	const changeNVal = function() {
-		const val = inp.checked;
-		if (val != nvar.boolean) {
-			brd.addAction(new ActChangeDefVal(brd, nvar, {
-				"boolean": val
-			}, null, v => inp.checked = v.boolean));
-			nvar.boolean = val;
-		}
-	}
-
-	inp.oninput = function(e) {
-		changeNVal();
-		nvar.boolean = inp.checked;
-	}
-
-	return cnt;
+const NTexture = new NVarType("Texture", function(nvar) {}, "#f9c716", NObject);
+NTexture.scompile = function(nvar) {
+	return fstr(nvar.float);
 };
-NTexture.changeVal = function(inp, nval) {
-	$(inp).find("input").get(0).checked = nval.boolean;
-}
 
 const NString = new NVarType("String", function(nvar) {
 	nvar.string = "";
@@ -584,9 +546,9 @@ NVector3.edit = function(nvar, brd) {
 	picker.type = "color";
 	wrapper.append(picker);
 	const updatePicker = function() {
-		picker.value = "#" + ("00" + clamp(Math.floor(nvar.x * 256), 0, 255).toString(16)).substr(-2,2) +
-			("00" + clamp(Math.floor(nvar.y * 256), 0, 255).toString(16)).substr(-2,2) +
-			("00" + clamp(Math.floor(nvar.z * 256), 0, 255).toString(16)).substr(-2,2);
+		picker.value = "#" + ("00" + clamp(Math.floor(nvar.x * 256), 0, 255).toString(16)).substr(-2, 2) +
+			("00" + clamp(Math.floor(nvar.y * 256), 0, 255).toString(16)).substr(-2, 2) +
+			("00" + clamp(Math.floor(nvar.z * 256), 0, 255).toString(16)).substr(-2, 2);
 	}
 
 	const changeNValX = function() {
@@ -594,7 +556,7 @@ NVector3.edit = function(nvar, brd) {
 		if (val != nvar.x) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"x": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp1.value = v.x;
 				updatePicker();
 			}));
@@ -608,7 +570,7 @@ NVector3.edit = function(nvar, brd) {
 		if (val != nvar.y) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"y": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp2.value = v.y;
 				updatePicker();
 			}));
@@ -622,7 +584,7 @@ NVector3.edit = function(nvar, brd) {
 		if (val != nvar.z) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"z": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp3.value = v.z;
 				updatePicker();
 			}));
@@ -687,7 +649,9 @@ NVector3.edit = function(nvar, brd) {
 			inp2.value = g;
 			inp3.value = b;
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
-				"x": r, "y": g, "z": b
+				"x": r,
+				"y": g,
+				"z": b
 			}, null, function(v) {
 				inp1.value = v.x;
 				inp2.value = v.y;
@@ -705,9 +669,9 @@ NVector3.changeVal = function(inp, nval) {
 	$(inp).find(".vec3x").get(0).value = nval.x;
 	$(inp).find(".vec3y").get(0).value = nval.y;
 	$(inp).find(".vec3z").get(0).value = nval.z;
-	$(inp).find(".color").get(0).value = "#" + ("00" + clamp(Math.floor(nval.x * 256), 0, 255).toString(16)).substr(-2,2) +
-		("00" + clamp(Math.floor(nval.y * 256), 0, 255).toString(16)).substr(-2,2) +
-		("00" + clamp(Math.floor(nval.z * 256), 0, 255).toString(16)).substr(-2,2);;
+	$(inp).find(".color").get(0).value = "#" + ("00" + clamp(Math.floor(nval.x * 256), 0, 255).toString(16)).substr(-2, 2) +
+		("00" + clamp(Math.floor(nval.y * 256), 0, 255).toString(16)).substr(-2, 2) +
+		("00" + clamp(Math.floor(nval.z * 256), 0, 255).toString(16)).substr(-2, 2);;
 }
 NVector3.hasVal = false;
 
@@ -756,9 +720,9 @@ NVector4.edit = function(nvar, brd) {
 	wrapper.append(picker);
 
 	const updatePicker = function() {
-		picker.value = "#" + ("00" + clamp(Math.floor(nvar.x * 256), 0, 255).toString(16)).substr(-2,2) +
-			("00" + clamp(Math.floor(nvar.y * 256), 0, 255).toString(16)).substr(-2,2) +
-			("00" + clamp(Math.floor(nvar.z * 256), 0, 255).toString(16)).substr(-2,2);
+		picker.value = "#" + ("00" + clamp(Math.floor(nvar.x * 256), 0, 255).toString(16)).substr(-2, 2) +
+			("00" + clamp(Math.floor(nvar.y * 256), 0, 255).toString(16)).substr(-2, 2) +
+			("00" + clamp(Math.floor(nvar.z * 256), 0, 255).toString(16)).substr(-2, 2);
 	}
 
 	updatePicker();
@@ -768,7 +732,7 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.x) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"x": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp1.value = v.x;
 				updatePicker();
 			}));
@@ -782,7 +746,7 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.y) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"y": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp2.value = v.y;
 				updatePicker();
 			}));
@@ -796,7 +760,7 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.z) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"z": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp3.value = v.z;
 				updatePicker();
 			}));
@@ -810,7 +774,7 @@ NVector4.edit = function(nvar, brd) {
 		if (val != nvar.a) {
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
 				"a": val
-			}, null, function(v){
+			}, null, function(v) {
 				inp4.value = v.a;
 				updatePicker();
 			}));
@@ -890,7 +854,9 @@ NVector4.edit = function(nvar, brd) {
 			inp2.value = g;
 			inp3.value = b;
 			brd.addAction(new ActChangeDefVal(brd, nvar, {
-				"x": r, "y": g, "z": b
+				"x": r,
+				"y": g,
+				"z": b
 			}, null, function(v) {
 				inp1.value = v.x;
 				inp2.value = v.y;
@@ -909,8 +875,8 @@ NVector4.changeVal = function(inp, nval) {
 	$(inp).find(".vec4y").get(0).value = nval.y;
 	$(inp).find(".vec4z").get(0).value = nval.z;
 	$(inp).find(".vec4a").get(0).value = nval.a;
-	$(inp).find(".color").get(0).value = "#" + ("00" + clamp(Math.floor(nval.x * 256), 0, 255).toString(16)).substr(-2,2) +
-		("00" + clamp(Math.floor(nval.y * 256), 0, 255).toString(16)).substr(-2,2) +
-		("00" + clamp(Math.floor(nval.z * 256), 0, 255).toString(16)).substr(-2,2);;
+	$(inp).find(".color").get(0).value = "#" + ("00" + clamp(Math.floor(nval.x * 256), 0, 255).toString(16)).substr(-2, 2) +
+		("00" + clamp(Math.floor(nval.y * 256), 0, 255).toString(16)).substr(-2, 2) +
+		("00" + clamp(Math.floor(nval.z * 256), 0, 255).toString(16)).substr(-2, 2);;
 }
 NVector4.hasVal = false;

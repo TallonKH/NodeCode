@@ -672,9 +672,9 @@ class SDisplayNode extends NNode {
 				uniforms[unfn].location = location;
 
 				if (unf.type == "sampler2D") {
-					loadTexture(gl, unf.src, unf.texIndex, location, function(){
+					loadTexture(gl, unf.src, unf.texIndex, location, function() {
 						fullCompile.pendingItems--;
-						if(fullCompile.pendingItems == 0){
+						if (fullCompile.pendingItems == 0) {
 							glp.redraw();
 						}
 						return null;
@@ -682,7 +682,7 @@ class SDisplayNode extends NNode {
 				}
 			}
 			// if nothing left to load, draw immediately
-			if(!fullCompile.pendingItems){
+			if (!fullCompile.pendingItems) {
 				glp.redraw();
 			}
 
@@ -789,9 +789,9 @@ class SMiniDisplayNode extends NNode {
 				uniforms[unfn].location = location;
 
 				if (unf.type == "sampler2D") {
-					loadTexture(gl, unf.src, unf.texIndex, location, function(){
+					loadTexture(gl, unf.src, unf.texIndex, location, function() {
 						fullCompile.pendingItems--;
-						if(fullCompile.pendingItems == 0){
+						if (fullCompile.pendingItems == 0) {
 							glp.redraw();
 						}
 						return null;
@@ -799,7 +799,7 @@ class SMiniDisplayNode extends NNode {
 				}
 			}
 			// if nothing left to load, draw immediately
-			if(!fullCompile.pendingItems){
+			if (!fullCompile.pendingItems) {
 				glp.redraw();
 			}
 
@@ -833,64 +833,32 @@ class SMiniDisplayNode extends NNode {
 	}
 }
 
-class STexturedNode extends NNode {
-	load(data, loadids) {
-		console.log(data.imgSrc);
-		super.load(data, loadids);
-	}
-
-	saveExtra(data) {
-		if (this.file) {
-			data.imgSrc = this.file;
-		}
-	}
-
-	static getName() {
-		return "S_Texture";
-	}
-
-	static getInTypes() {
-		return [NVector2];
-	}
-
-	static getOutTypes() {
-		return [NVector4];
-	}
-
-	static getCategory() {
-		return "Shader";
-	}
-
-	static getTags() {
-		return ["texture", "file", "image"];
-	}
-}
-
-class STextureNode extends NNode {
+class STextureInputNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.canvas;
 		this.finput;
-		this.file;
+		this.colorDataUrl;
+		this.neverVar = true;
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 
-		this.customWidth = 175;
+		this.customWidth = 150;
 		this.customHeight = 150;
 		this.addCenter();
 		this.noPinfo = true;
 		const node = this;
 
-		this.canvas = document.createElement("img");
-		this.canvas.width = 119;
-		this.canvas.height = 119;
-		this.canvas.style.margin = "2px";
-		this.canvas.className = "displaynode";
-		this.centerDiv.append(this.canvas);
+		this.display = document.createElement("img");
+		this.display.width = 119;
+		this.display.height = 119;
+		this.display.style.margin = "2px";
+		this.display.className = "displaynode";
+		this.centerDiv.append(this.display);
 
-		this.canvas.onclick = function(e) {
+		this.display.onclick = function(e) {
 			node.finput.click(e);
 		}
 
@@ -901,12 +869,10 @@ class STextureNode extends NNode {
 			node.inputChanged(node.finput.files);
 		}
 
-		this.addHeader("Texture");
+		this.addHeader("Texture Input");
 		this.headerDiv.style.borderBottom = "1px solid #444444"
-		this.addInPin(new NPin("UVs", NVector2));
-		this.addOutPin(new NPin("Color", NVector4));
+		this.addOutPin(new NPin("Texture", NTexture));
 		this.nodeDiv.className += " displaynode";
-		this.inPinsDiv.style.borderRight = "1px solid #444444";
 		this.outPinsDiv.style.borderLeft = "1px solid #444444";
 		return this.containerDiv;
 	}
@@ -914,59 +880,101 @@ class STextureNode extends NNode {
 	inputChanged(files) {
 		if (files.length) {
 			const node = this;
-			this.file = this.finput.files[0];
-			this.canvas.file = this.file;
 
 			const reader = new FileReader();
-			reader.onload = (function(aImg) {
-				return function(e) {
-					aImg.src = e.target.result;
-					node.fileUrl = e.target.result;
-				};
-			})(this.canvas);
-			reader.readAsDataURL(this.file); // this is captured by the onload function
+			reader.onload = function(e) {
+				node.colorDataUrl = e.target.result;
+				node.display.src = e.target.result;
+			}
+			reader.readAsDataURL(this.finput.files[0]); // this is captured by the onload function above
 		} else {
-			this.file = null;
-			this.fileUrl = null;
+			this.colorDataUrl = null;
 		}
 	}
 
 	scompile(pin, varType, data, depth) {
-		let texIndex = 0;
-		let name = "texture0";
-		while (data.uniforms[name] != null) {
-			texIndex++;
-			name = "texture" + texIndex.toString();
-		}
+		const alreadyCompiledName = data.textureNodes[this.nodeid];
+		if(alreadyCompiledName){
+			return alreadyCompiledName;
+		}else{
+			let texIndex = 0;
+			let name = "texture0";
+			while (data.uniforms[name] != null) {
+				texIndex++;
+				name = "texture" + texIndex.toString();
+			}
 
-		let uname = "u_texture" + texIndex.toString();
-		data.pendingItems = (data.pendingItems || 0) + 1
-		data.uniforms[name] = {
-			"type": "sampler2D",
-			"name": uname,
-			"src": this.fileUrl,
-			"texIndex": texIndex
+			let uname = "u_texture" + texIndex.toString();
+			data.pendingItems = (data.pendingItems || 0) + 1
+			data.uniforms[name] = {
+				"type": "sampler2D",
+				"name": uname,
+				"src": this.colorDataUrl,
+				"texIndex": texIndex
+			}
+			data.textureNodes[this.nodeid] = uname;
+			return uname;
 		}
-
-		return "texture2D(" + uname + ", " + this.getSCompile(this.inpins["UVs"], NVector2, data, depth) + ")";
 	}
 
 	load(data, loadids) {
+		if (data.colorDataUrl) {
+			this.colorDataUrl = data.colorDataUrl;
+			this.display.src = data.colorDataUrl;
+		}
 		super.load(data, loadids);
 	}
 
 	saveExtra(data) {
-		if (this.file) {
-			data.imgSrc = this.file;
+		if (this.colorDataUrl) {
+			data.colorDataUrl = this.colorDataUrl;
 		}
 	}
 
 	static getName() {
-		return "S_Texture";
+		return "S_Texture Input";
 	}
 
 	static getInTypes() {
-		return [NVector2];
+		return [];
+	}
+
+	static getOutTypes() {
+		return [NTexture];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["texture", "input", "file", "image"];
+	}
+}
+
+class STextureSamplerNode extends NNode {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addHeader("Texture Sampler");
+		this.addCenter();
+		this.customWidth = 150;
+		this.addInPin(new NPin("Texture", NTexture));
+		this.addInPin(new NPin("UVs", NVector2));
+		this.addOutPin(new NPin("Value", NVector4));
+
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		return "texture2D(" + this.getSCompile(this.inpins["Texture"], NTexture, data, depth) + ", " + this.getSCompile(this.inpins["UVs"], NVector2, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_Texture Sampler";
+	}
+
+	static getInTypes() {
+		return [NVector2, NTexture];
 	}
 
 	static getOutTypes() {
@@ -978,7 +986,7 @@ class STextureNode extends NNode {
 	}
 
 	static getTags() {
-		return ["texture", "file", "image"];
+		return ["texture", "sampler", "image"];
 	}
 }
 
@@ -1371,8 +1379,7 @@ class SAccumulatorNode extends NNode {
 		return this.containerDiv;
 	}
 
-	scompile(pin, varType, data, depth) {
-	}
+	scompile(pin, varType, data, depth) {}
 
 	static getName() {
 		return "S_Accumulate";

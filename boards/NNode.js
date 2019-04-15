@@ -480,6 +480,7 @@ class NNode {
 		}
 		const data = {
 			"varNameSet": new Set(),
+			"textureNodes": {},
 			"varMap": {},
 			"functions": {},
 			"varying": {},
@@ -537,7 +538,7 @@ class NNode {
 			"uniforms": data.uniforms,
 		};
 
-		if(data.pendingItems){
+		if (data.pendingItems) {
 			retVal.pendingItems = data.pendingItems;
 		}
 
@@ -614,7 +615,11 @@ class NNode {
 								case "Vec4":
 									this.board.env.logt("Cannot convert Vec4 to Vec1 at " + pin.name + ":" + this.type);
 									return null;
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec1 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
 						case "Vec2":
 							switch (otherType.name) {
 								case "Vec1":
@@ -627,7 +632,11 @@ class NNode {
 								case "Vec4":
 									this.board.env.logt("Cannot convert Vec4 to Vec2 at " + pin.name + ":" + this.type);
 									return null;
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec2 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
 						case "Vec3":
 							switch (otherType.name) {
 								case "Vec1":
@@ -640,7 +649,11 @@ class NNode {
 								case "Vec4":
 									this.board.env.logt("Cannot convert Vec4 to Vec3 at " + pin.name + ":" + this.type);
 									return null;
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec3 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
 						case "Vec4":
 							switch (otherType.name) {
 								case "Vec1":
@@ -653,7 +666,29 @@ class NNode {
 									return null;
 								case "Vec4":
 									return link.node.getSCompile(link, NVector4, data, depth, forceVar);
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec4 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
+						case "Texture":
+							switch (otherType.name) {
+								case "Vec1":
+									this.board.env.logt("Cannot convert Vec1 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec4 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec4":
+									this.board.env.logt("Cannot convert Vec4 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Texture":
+									return link.node.getSCompile(link, NTexture, data, depth, forceVar);
+							}
+							break;
 					}
 				}
 			} else {
@@ -675,7 +710,11 @@ class NNode {
 								case "Vec3":
 									this.board.env.logt("Cannot convert Vec4 to Vec1 at " + pin.name + ":" + this.type);
 									return null;
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec1 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
 						case "Vec2":
 							switch (pin.type.name) {
 								case "Vec1":
@@ -688,7 +727,11 @@ class NNode {
 								case "Vec3":
 									this.board.env.logt("Cannot convert Vec4 to Vec2 at " + pin.name + ":" + this.type);
 									return null;
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec2 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
 						case "Vec3":
 							switch (pin.type.name) {
 								case "Vec1":
@@ -701,7 +744,11 @@ class NNode {
 								case "Vec4":
 									this.board.env.logt("Cannot convert Vec4 to Vec3 at " + pin.name + ":" + this.type);
 									return null;
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec3 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
 						case "Vec4":
 							switch (pin.type.name) {
 								case "Vec1":
@@ -714,7 +761,29 @@ class NNode {
 									return null;
 								case "Vec4":
 									return NVector4.scompile(pin.defaultVal);
+								case "Texture":
+									this.board.env.logt("Cannot convert Texture to Vec4 at " + pin.name + ":" + this.type);
+									return null;
 							}
+							break;
+						case "Texture":
+							switch (otherType.name) {
+								case "Vec1":
+									this.board.env.logt("Cannot convert Vec1 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec2":
+									this.board.env.logt("Cannot convert Vec2 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec3":
+									this.board.env.logt("Cannot convert Vec4 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Vec4":
+									this.board.env.logt("Cannot convert Vec4 to Texture at " + pin.name + ":" + this.type);
+									return null;
+								case "Texture":
+									return NTexture.compile(pin.defaultValue); // can textures even have default values?
+							}
+							break;
 					}
 				}
 			}
@@ -1184,7 +1253,7 @@ makeMultiNodeMenu = function(brd, event, nodes) {
 
 getGroupBounds = function(nodes) {
 	nodes = nodes.filter(n => n.onBoard);
-	if(nodes.length){
+	if (nodes.length) {
 		return {
 			"min": NPoint.min(...nodes.map(x => x.position)).round(2),
 			"max": NPoint.max(...nodes.map(x => x.position.add2(x.nodeDiv.clientWidth, x.nodeDiv.clientHeight))).round(2)
@@ -1195,9 +1264,9 @@ getGroupBounds = function(nodes) {
 
 getGroupCenter = function(nodes) {
 	const bounds = getGroupBounds(nodes);
-	if(bounds){
+	if (bounds) {
 		return bounds.min.addp(bounds.max).divide1(2);
-	}else{
+	} else {
 		return null;
 	}
 }
