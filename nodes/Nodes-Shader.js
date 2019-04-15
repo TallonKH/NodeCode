@@ -660,35 +660,11 @@ class SDisplayNode extends NNode {
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
 			const fullCompile = this.fullSCompile(inpin);
-			this.glp = setupWebGLRectangle(this.canvas, fullCompile.text);
-			const glp = this.glp;
-			const gl = this.glp.context;
-			const uniforms = {};
+			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function(glp){
+				glp.redraw(); //identical to node.glp.redraw()
+			});
 
-			for (const unfn in fullCompile.uniforms) {
-				const unf = fullCompile.uniforms[unfn];
-				uniforms[unfn] = Object.assign({}, unf);
-				const location = gl.getUniformLocation(this.glp.program, unf.name);
-				uniforms[unfn].location = location;
-
-				if (unf.type == "sampler2D") {
-					loadTexture(gl, unf.src, unf.texIndex, location, function() {
-						fullCompile.pendingItems--;
-						if (fullCompile.pendingItems == 0) {
-							glp.redraw();
-						}
-						return null;
-					});
-				}
-			}
-			// if nothing left to load, draw immediately
-			if (!fullCompile.pendingItems) {
-				glp.redraw();
-			}
-
-			this.board.activeGLContexts[this.nodeid] = Object.assign({
-				"uniforms": uniforms
-			}, this.glp);
+			this.board.activeGLContexts[this.nodeid] = this.glp;
 		}
 	}
 
@@ -722,7 +698,7 @@ class SDisplayNode extends NNode {
 
 		const op = new NCtxMenuOption("Save Rendered Image");
 		op.action = function(e) {
-			exportTexture(node.fullSCompile(node.inpins["Color"]));
+			exportTexturePrompt(node.fullSCompile(node.inpins["Color"]));
 			return false;
 		}
 		menu.addOption(op);
