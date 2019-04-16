@@ -618,13 +618,15 @@ class SDisplayNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.canvas;
+		this.lastColorDataUrl
 		this.gl;
+		this.neverVar = true;
 	}
 
 	createNodeDiv() {
 		super.createNodeDiv();
 
-		this.customWidth = 300;
+		this.customWidth = 325;
 		this.customHeight = 300;
 		this.addCenter();
 		this.noPinfo = true;
@@ -643,8 +645,10 @@ class SDisplayNode extends NNode {
 		this.addHeader("Shader Display");
 		this.headerDiv.style.borderBottom = "1px solid #444444"
 		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Texture", NTexture));
 		this.nodeDiv.className += " displaynode";
 		this.inPinsDiv.style.borderRight = "1px solid #444444";
+		this.outPinsDiv.style.borderRight = "1px solid #444444";
 		return this.containerDiv;
 	}
 
@@ -659,9 +663,11 @@ class SDisplayNode extends NNode {
 		const inpin = this.inpins["Color"];
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
+			const node = this;
 			const fullCompile = this.fullSCompile(inpin);
-			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function(glp){
+			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function(glp) {
 				glp.redraw(); //identical to node.glp.redraw()
+				node.lastColorDataUrl = node.canvas.toDataURL();
 			});
 
 			this.board.activeGLContexts[this.nodeid] = this.glp;
@@ -675,12 +681,41 @@ class SDisplayNode extends NNode {
 		}
 	}
 
+	scompile(pin, varType, data, depth) {
+		const alreadyCompiledName = data.textureNodes[this.nodeid];
+		if (alreadyCompiledName) {
+			return alreadyCompiledName;
+		} else {
+			let texIndex = 0;
+			let name = "texture0";
+			while (data.uniforms[name] != null) {
+				texIndex++;
+				name = "texture" + texIndex.toString();
+			}
+
+			let uname = "u_texture" + texIndex.toString();
+			data.pendingItems = (data.pendingItems || 0) + 1
+			data.uniforms[name] = {
+				"type": "sampler2D",
+				"name": uname,
+				"src": this.lastColorDataUrl,
+				"texIndex": texIndex
+			}
+			data.textureNodes[this.nodeid] = uname;
+			return uname;
+		}
+	}
+
 	static getName() {
 		return "S_Display";
 	}
 
 	static getInTypes() {
 		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NTexture];
 	}
 
 	static getCategory() {
@@ -698,7 +733,20 @@ class SDisplayNode extends NNode {
 
 		const op = new NCtxMenuOption("Save Rendered Image");
 		op.action = function(e) {
-			exportTexturePrompt(node.fullSCompile(node.inpins["Color"]));
+			const dims = exportDimensionsPrompt();
+
+			const cvs = document.createElement("canvas");
+			cvs.width = dims[0];
+			cvs.height = dims[1];
+
+			setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"]), function(glp){
+				glp.redraw();
+				const link = document.createElement("a");
+				link.setAttribute("download", "texture.png");
+				link.setAttribute("href", cvs.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+				link.click();
+			}, true);
+
 			return false;
 		}
 		menu.addOption(op);
@@ -870,9 +918,9 @@ class STextureInputNode extends NNode {
 
 	scompile(pin, varType, data, depth) {
 		const alreadyCompiledName = data.textureNodes[this.nodeid];
-		if(alreadyCompiledName){
+		if (alreadyCompiledName) {
 			return alreadyCompiledName;
-		}else{
+		} else {
 			let texIndex = 0;
 			let name = "texture0";
 			while (data.uniforms[name] != null) {
@@ -3249,7 +3297,7 @@ class SRerouteNode extends SmartVecNode1 {
 	}
 
 	static getName() {
-		return "S_Reroute";
+		return "S_Reroute Vector";
 	}
 
 	static getCategory() {
@@ -3269,7 +3317,7 @@ class SRerouteNode extends SmartVecNode1 {
 	}
 
 	getOutputVarName(pin) {
-		return "log";
+		return "val";
 	}
 }
 
