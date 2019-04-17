@@ -359,6 +359,7 @@ body {
 	border: 1px solid #444444;
 	border-radius: 0px;
 	background: none;
+	image-rendering: pixelated;
 }
 
 .node.comment {
