@@ -1569,7 +1569,7 @@ class NBoard {
 			let changed = false;
 			if (timel) {
 				changed = true;
-				const time = (currentTimeMillis() / 1000.0) % 8192;
+				const time = (currentTimeMillis() / 1000.0) % 65536;
 				const x = info.context.uniform1f(timel.location, time);
 			}
 

@@ -731,25 +731,66 @@ class SDisplayNode extends NNode {
 		const node = this;
 		const brd = this.board;
 
-		const op = new NCtxMenuOption("Save Rendered Image");
-		op.action = function(e) {
+		const opImg = new NCtxMenuOption("Save Rendered Image");
+		opImg.action = function(e) {
 			const dims = exportDimensionsPrompt();
+			if (dims) {
+				const cvs = document.createElement("canvas");
+				cvs.width = dims[0];
+				cvs.height = dims[1];
 
-			const cvs = document.createElement("canvas");
-			cvs.width = dims[0];
-			cvs.height = dims[1];
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"]), function(glp) {
+					glp.redraw();
 
-			setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"]), function(glp){
-				glp.redraw();
-				const link = document.createElement("a");
-				link.setAttribute("download", "texture.png");
-				link.setAttribute("href", cvs.toDataURL("image/png").replace("image/png", "image/octet-stream"));
-				link.click();
-			}, true);
+					const link = document.createElement("a");
+					link.setAttribute("download", "texture.png");
+					link.setAttribute("href", cvs.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+					link.click();
+				}, true);
+			}
+
 
 			return false;
 		}
-		menu.addOption(op);
+		menu.addOption(opImg);
+
+		const opGif = new NCtxMenuOption("Save Animated GIF");
+		opGif.action = function(e) {
+			const info = exportAnimationPrompt();
+			if (info) {
+				const cvs = document.createElement("canvas");
+				cvs.width = info.width;
+				cvs.height = info.height;
+
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"]), function(glp) {
+					let gif = new GIF({
+						workers: 4,
+						quality: 1,
+						width: info.width,
+						height: info.height,
+					});
+					const timel = glp.uniforms["time"];
+					for (let i = 0; i < info.frameCount; i++) {
+						console.log(i * info.frameDelay / 1000.0);
+						glp.context.uniform1f(timel.location, i * info.frameDelay / 1000.0);
+						glp.redraw();
+
+						gif.addFrame(cvs, {copy: true, delay: info.frameDelay});
+					}
+
+					gif.on('finished', function(blob) {
+						const link = document.createElement("a");
+						link.setAttribute("download", "animation.gif");
+						link.setAttribute("href", URL.createObjectURL(blob));
+						link.click();
+					});
+
+					gif.render();
+				}, true);
+			}
+			return false;
+		}
+		menu.addOption(opGif);
 
 		return menu;
 	}
