@@ -50,7 +50,7 @@ class Main {
 			SClampNode, SDistanceNode, SDotProductNode, SCrossProductNode, SReflectNode, SRefractNode,
 			SHSVNode, SRGBNode, SZeroNode, SOneNode, STwoNode, SSimplexNoiseNode, SP1D2Node,
 			/*SMiniDisplayNode,*/ STextureInputNode, STextureSamplerNode, SWorleyNoiseNode,
-			SContrastNode, STriangleWaveNode, SRotateUVNode, SRotateUVMidNode
+			SContrastNode, STriangleWaveNode, SRotateUVNode, SRotateUVMidNode, SReMapNode
 		];
 		this.nodeCategories = {};
 		this.nodeTypeDict = {};

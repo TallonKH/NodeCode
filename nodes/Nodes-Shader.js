@@ -495,6 +495,104 @@ class SmartVecNode3 extends NNode {
 	}
 }
 
+class SmartVecNode5 extends NNode {
+	constructor(data = null) {
+		super(data);
+	}
+
+	linkedPinChangedType(self, linked, from, to) {
+		self.unlink(linked, true);
+		this.updateTypes();
+		self.linkTo(linked);
+	}
+
+	pinLinked(self, other) {
+		this.updateTypes();
+	}
+
+	pinUnlinked(self, other) {
+		this.updateTypes();
+	}
+
+	updateTypes() {
+		const inp1 = this.inpins[this.inpinOrder[0]];
+		const inp2 = this.inpins[this.inpinOrder[1]];
+		const inp3 = this.inpins[this.inpinOrder[2]];
+		const inp4 = this.inpins[this.inpinOrder[3]];
+		const inp5 = this.inpins[this.inpinOrder[4]];
+
+		let inpl = [];
+		if (inp1.linkNum) {
+			inpl.push(inp1.getSingleLinked());
+		}
+		if (inp2.linkNum) {
+			inpl.push(inp2.getSingleLinked());
+		}
+		if (inp3.linkNum) {
+			inpl.push(inp3.getSingleLinked());
+		}
+		if (inp4.linkNum) {
+			inpl.push(inp4.getSingleLinked());
+		}
+		if (inp5.linkNum) {
+			inpl.push(inp5.getSingleLinked());
+		}
+		if (!inpl.length) {
+			inpl = null;
+		}
+
+		const outp = this.outpins[this.outpinOrder[0]];
+		const outpl = outp.linkNum ? Object.values(outp.links) : null;
+
+		let inTypes;
+		let outTypes;
+
+		if (inpl === null && outpl === null) {
+			inTypes = [NVector1, NVector2, NVector3, NVector4];
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (inpl === null) {
+			// narrow inTypes down to types that are acceptable by (any types for all pins linked to output)
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only output is connected, outTypes can be anything
+			outTypes = [NVector1, NVector2, NVector3, NVector4];
+		} else if (outpl === null) {
+			// narrow outTypes down to types that can be cast from the input types
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			// if only input is connected, limit inTypes to types that can be cast from acceptable out types
+			inTypes = getVecParentsU(outTypes);
+		} else {
+			// combo of prev 2 statements
+			outTypes = inpl.map(x => getVecChildrenU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0));
+			const t = getVecParentsU(outTypes);
+			inTypes = outpl.map(x => getVecParentsU(x.getTypes())).reduce((a, b) => a.filter(x => b.indexOf(x) >= 0)).filter(x => t.indexOf(x) >= 0);
+		}
+
+		const iprev = inp1.getTypes();
+		if (iprev.sort().join(",") !== inTypes.sort().join(",")) {
+			inp1.setTypes(false, ...inTypes);
+			inp2.setTypes(false, ...inTypes);
+			inp3.setTypes(false, ...inTypes);
+			inp4.setTypes(false, ...inTypes);
+			inp5.setTypes(false, ...inTypes);
+		}
+
+		const oprev = outp.getTypes();
+		if (oprev.sort().join(",") !== outTypes.sort().join(",")) {
+			outp.setTypes(false, ...outTypes);
+		}
+	}
+
+	getReturnType(outpin) {
+		return getHighestOrderVec([
+			this.inpins[this.inpinOrder[0]].getReturnType(),
+			this.inpins[this.inpinOrder[1]].getReturnType(),
+			this.inpins[this.inpinOrder[2]].getReturnType(),
+			this.inpins[this.inpinOrder[3]].getReturnType(),
+			this.inpins[this.inpinOrder[4]].getReturnType()
+		]);
+	}
+}
+
 class SmartVecNodeN extends NNode {
 	constructor(data = null) {
 		super(data);
@@ -3089,7 +3187,7 @@ class SRotateUVMidNode extends NNode {
 		this.centerText.style.fontSize = "40px";
 		this.addInPin(new NPin("UVs", NVector2));
 		this.addInPin(new NPin("θ (rads)", NVector1));
-		this.addInPin(new NPin("Center", NVector2));
+		this.addInPin(new NPin("Center", NVector2, NVector1));
 		this.addOutPin(new NPin("Rotated UV", NVector2));
 		return this.containerDiv;
 	}
@@ -4228,6 +4326,58 @@ class SLogNode extends SmartVecNode2 {
 
 	getOutputVarName(pin) {
 		return "log";
+	}
+}
+
+class SReMapNode extends SmartVecNode5 {
+	createNodeDiv() {
+		super.createNodeDiv();
+		this.addCenter();
+		this.addHeader("ReMap");
+		this.customWidth = 200;
+		this.addInPin(new NPin("Value In", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Min In", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Max In", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Min Out", NVector1, NVector2, NVector3, NVector4));
+		this.addInPin(new NPin("Max Out", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Value Out", NVector1, NVector2, NVector3, NVector4));
+		return this.containerDiv;
+	}
+
+	scompile(pin, varType, data, depth) {
+		// return "(" + a - min) / (max - min) * (omax - omin) + omin
+		return "((" +
+			this.getSCompile(this.inpins["Value In"], null, data, depth) + " - " +
+			this.getSCompile(this.inpins["Min In"], null, data, depth) + ") / (" +
+			this.getSCompile(this.inpins["Max In"], null, data, depth) + " - " +
+			this.getSCompile(this.inpins["Min In"], null, data, depth) + ") * (" +
+			this.getSCompile(this.inpins["Max Out"], null, data, depth) + " - " +
+			this.getSCompile(this.inpins["Min Out"], null, data, depth) + ") + " +
+			this.getSCompile(this.inpins["Min Out"], null, data, depth) + ")";
+	}
+
+	static getName() {
+		return "S_ReMap";
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["map", "remap"];
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	getOutputVarName(pin) {
+		return "mapped";
 	}
 }
 
