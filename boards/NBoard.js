@@ -141,8 +141,14 @@ class NBoard {
 		nodes.forEach(x => x.remove());
 	}
 
-	pasteNodes(position) {
-		const parsed = scrambleIDs(JSON.parse(localStorage.getItem("clipboard")));
+	pasteNodesIClipboard(position) {
+		return pasteNodesData(position, localStorage.getItem("clipboard"));
+	}
+
+	pasteNodesData(position, data){
+		const dat = JSON.parse(data);
+		console.log(dat);
+		const parsed = scrambleIDs(dat);
 		this.deselectAllNodes();
 		const nodes = this.loadNodes(parsed);
 		const offset = position.subtractp(getGroupCenter(nodes));
@@ -246,7 +252,7 @@ class NBoard {
 			op = new NCtxMenuOption("Paste");
 			op.action = function(p) {
 				const prevSelected = Object.values(brd.selectedNodes);
-				const nodes = brd.pasteNodes(p);
+				const nodes = brd.pasteNodesIClipboard(p);
 				brd.addAction(new ActPasteClipboard(brd, prevSelected, nodes));
 			}
 			menu.addOption(op);
@@ -256,6 +262,15 @@ class NBoard {
 		op.action = function(p) {
 			// TODO M4K3 4 T3XT4R34
 			console.log(JSON.stringify(brd.exportBoard()));
+		}
+		menu.addOption(op);
+
+		op = new NCtxMenuOption("Import Nodes");
+		op.action = function(p){
+			const data = prompt("JSON data:");
+			if(data){
+				brd.pasteNodesData(p, data);
+			}
 		}
 		menu.addOption(op);
 
@@ -984,7 +999,7 @@ class NBoard {
 				if (this.env.ctrlDown || this.env.metaDown) {
 					if (this.lastMousePosition) {
 						const prevSelected = Object.values(this.selectedNodes);
-						const nodes = this.pasteNodes(this.lastMousePosition);
+						const nodes = this.pasteNodesIClipboard(this.lastMousePosition);
 						this.addAction(new ActPasteClipboard(this, prevSelected, nodes));
 					}
 				}

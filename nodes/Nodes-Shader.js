@@ -652,7 +652,7 @@ class SDisplayNode extends NNode {
 		return this.containerDiv;
 	}
 
-	recompileCanvas() {
+	recompileCanvas(doneFunction = Function.prototype) {
 		if (this.glp) {
 			this.glp.delete();
 			delete this.board.activeGLContexts[this.pinid]
@@ -664,10 +664,11 @@ class SDisplayNode extends NNode {
 		if (inpin.linkNum) {
 			const link = inpin.getSingleLinked();
 			const node = this;
-			const fullCompile = this.fullSCompile(inpin);
+			const fullCompile = this.fullSCompile(inpin, true);
 			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function(glp) {
 				glp.redraw(); //identical to node.glp.redraw()
 				node.lastColorDataUrl = node.canvas.toDataURL();
+				doneFunction();
 			});
 
 			this.board.activeGLContexts[this.nodeid] = this.glp;
@@ -695,12 +696,15 @@ class SDisplayNode extends NNode {
 
 			let uname = "u_texture" + texIndex.toString();
 			data.pendingItems = (data.pendingItems || 0) + 1
+
+			const node = this;
 			data.uniforms[name] = {
 				"type": "sampler2D",
 				"name": uname,
-				"src": this.lastColorDataUrl,
+				"src": data.rebake ? node : node.lastColorDataUrl,
 				"texIndex": texIndex
 			}
+
 			data.textureNodes[this.nodeid] = uname;
 			return uname;
 		}
@@ -775,7 +779,10 @@ class SDisplayNode extends NNode {
 						glp.context.uniform1f(timel.location, i * info.frameDelay / 1000.0);
 						glp.redraw();
 
-						gif.addFrame(cvs, {copy: true, delay: info.frameDelay});
+						gif.addFrame(cvs, {
+							copy: true,
+							delay: info.frameDelay
+						});
 					}
 
 					gif.on('finished', function(blob) {
@@ -796,7 +803,7 @@ class SDisplayNode extends NNode {
 	}
 }
 
-class SMiniDisplayNode extends NNode {
+/*class SMiniDisplayNode extends NNode {
 	constructor(data = null) {
 		super(data);
 		this.canvas;
@@ -896,7 +903,7 @@ class SMiniDisplayNode extends NNode {
 	static getTags() {
 		return ["output", "preview", "display", "mini", "small"];
 	}
-}
+}*/
 
 class STextureInputNode extends NNode {
 	constructor(data = null) {

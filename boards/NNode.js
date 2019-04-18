@@ -473,12 +473,17 @@ class NNode {
 		return "var";
 	}
 
-	fullSCompile(pin) {
+	fullSCompile(pin, rebake=false) {
 		if (pin.linkNum !== 1) {
 			console.log(pin.name + " has invalid number of inputs!");
 			return null;
 		}
 		const data = {
+			"rebake": rebake,
+			"rebakeDoneFunction": function(){
+				data.pendingBake--;
+			},
+			"pendingBake": null,
 			"varNameSet": new Set(),
 			"textureNodes": {},
 			"varMap": {},
