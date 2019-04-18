@@ -1177,7 +1177,7 @@ class SComponentNode extends NNode {
 		this.addCenter();
 
 		const node = this;
-		const inp = new NPin("in", NVector4, NVector3, NVector2, NVector1);
+		const inp = new NPin("in", NVector4, NVector3, NVector2);
 		const outp = new NPin("out", NVector1);
 		this.addInPin(inp);
 		this.addOutPin(outp);
@@ -1253,7 +1253,7 @@ class SComponentNode extends NNode {
 				}
 
 				if (sw.adjustedVal != sw.prevAVal) {
-					inp.setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...switches.map(x => x.adjustedVal))));
+					inp.setTypes(false, ...[NVector4, NVector3, NVector2].slice(0, 5 - Math.max(...switches.map(x => x.adjustedVal))));
 
 					if (inp.linkNum) {
 						const otherp = inp.getSingleLinked();
@@ -1296,7 +1296,7 @@ class SComponentNode extends NNode {
 			}
 		}
 
-		this.inpins["in"].setTypes(false, ...[NVector4, NVector3, NVector2, NVector1].slice(0, 5 - Math.max(...this.switches.map(x => x.adjustedVal))));
+		this.inpins["in"].setTypes(false, ...[NVector4, NVector3, NVector2].slice(0, 5 - Math.max(...this.switches.map(x => x.adjustedVal))));
 		this.outpins["out"].setTypes(false, [NVector1, NVector2, NVector3, NVector4][v]);
 
 		super.load(data, loadids);
@@ -1931,7 +1931,7 @@ class SOneNode extends NNode {
 		this.customWidth = 75;
 		this.centerText.style.fontSize = "40px";
 		this.noPinfo = true;
-		this.addOutPin(new NPin("one", NVector1));
+		this.addOutPin(new NPin("one", NVector1, NVector2, NVector3, NVector4));
 		return this.containerDiv;
 	}
 
