@@ -774,24 +774,28 @@ class SDisplayNode extends NNode {
 						height: info.height,
 					});
 					const timel = glp.uniforms["time"];
-					for (let i = 0; i < info.frameCount; i++) {
-						glp.context.uniform1f(timel.location, i * info.frameDelay / 1000.0);
-						glp.redraw();
+					if (timel) {
+						for (let i = 0; i < info.frameCount; i++) {
+							glp.context.uniform1f(timel.location, i * info.frameDelay / 1000.0);
+							glp.redraw();
 
-						gif.addFrame(cvs, {
-							copy: true,
-							delay: info.frameDelay
+							gif.addFrame(cvs, {
+								copy: true,
+								delay: info.frameDelay
+							});
+						}
+
+						gif.on('finished', function(blob) {
+							const link = document.createElement("a");
+							link.setAttribute("download", "animation.gif");
+							link.setAttribute("href", URL.createObjectURL(blob));
+							link.click();
 						});
+
+						gif.render();
+					} else {
+						alert("No time node detected! Unable to make animation.");
 					}
-
-					gif.on('finished', function(blob) {
-						const link = document.createElement("a");
-						link.setAttribute("download", "animation.gif");
-						link.setAttribute("href", URL.createObjectURL(blob));
-						link.click();
-					});
-
-					gif.render();
 				}, true);
 			}
 			return false;
