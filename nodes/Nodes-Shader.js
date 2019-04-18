@@ -743,7 +743,7 @@ class SDisplayNode extends NNode {
 				cvs.width = dims[0];
 				cvs.height = dims[1];
 
-				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"]), function(glp) {
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function(glp) {
 					glp.redraw();
 
 					const link = document.createElement("a");
@@ -766,7 +766,7 @@ class SDisplayNode extends NNode {
 				cvs.width = info.width;
 				cvs.height = info.height;
 
-				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"]), function(glp) {
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function(glp) {
 					let gif = new GIF({
 						workers: 4,
 						quality: 1,
@@ -775,7 +775,6 @@ class SDisplayNode extends NNode {
 					});
 					const timel = glp.uniforms["time"];
 					for (let i = 0; i < info.frameCount; i++) {
-						console.log(i * info.frameDelay / 1000.0);
 						glp.context.uniform1f(timel.location, i * info.frameDelay / 1000.0);
 						glp.redraw();
 
