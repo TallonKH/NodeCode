@@ -142,7 +142,7 @@ class NBoard {
 	}
 
 	pasteNodesIClipboard(position) {
-		return pasteNodesData(position, localStorage.getItem("clipboard"));
+		return this.pasteNodesData(position, localStorage.getItem("clipboard"));
 	}
 
 	pasteNodesData(position, data){

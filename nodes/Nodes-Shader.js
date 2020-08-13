@@ -684,7 +684,7 @@ class SmartVecNodeN extends NNode {
 		const brd = this.board;
 		if (node.inpinOrder.length < 26) {
 			const op = new NCtxMenuOption("Add Input");
-			op.action = function(e) {
+			op.action = function (e) {
 				const pin = new NPin(alphabet[node.inpinOrder.length], ...node.inTypes);
 				node.addInPin(pin);
 				brd.addAction(new ActAddPin(brd, pin, node.inpinOrder.length - 1));
@@ -694,7 +694,7 @@ class SmartVecNodeN extends NNode {
 		}
 		if (node.inpinOrder.length > 2) {
 			const op = new NCtxMenuOption("Remove Input");
-			op.action = function(e) {
+			op.action = function (e) {
 				const pin = node.inpins[node.inpinOrder[node.inpinOrder.length - 1]];
 				brd.addAction(new ActRemovePin(brd, pin, node.inpinOrder.length - 1));
 				node.removeInPin(pin);
@@ -736,7 +736,7 @@ class SDisplayNode extends NNode {
 		this.canvas.style.margin = "2px";
 		this.canvas.className = "displaynode";
 		this.centerDiv.append(this.canvas);
-		this.canvas.onclick = function(e) {
+		this.canvas.onclick = function (e) {
 			node.recompileCanvas();
 		}
 
@@ -763,7 +763,7 @@ class SDisplayNode extends NNode {
 			const link = inpin.getSingleLinked();
 			const node = this;
 			const fullCompile = this.fullSCompile(inpin, true);
-			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function(glp) {
+			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function (glp) {
 				glp.redraw(); //identical to node.glp.redraw()
 				node.lastColorDataUrl = node.canvas.toDataURL();
 				doneFunction();
@@ -834,14 +834,14 @@ class SDisplayNode extends NNode {
 		const brd = this.board;
 
 		const opImg = new NCtxMenuOption("Save Rendered Image");
-		opImg.action = function(e) {
+		opImg.action = function (e) {
 			const dims = exportDimensionsPrompt();
 			if (dims) {
 				const cvs = document.createElement("canvas");
 				cvs.width = dims[0];
 				cvs.height = dims[1];
 
-				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function(glp) {
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function (glp) {
 					glp.redraw();
 
 					const link = document.createElement("a");
@@ -857,14 +857,14 @@ class SDisplayNode extends NNode {
 		menu.addOption(opImg);
 
 		const opGif = new NCtxMenuOption("Save Animated GIF");
-		opGif.action = function(e) {
+		opGif.action = function (e) {
 			const info = exportAnimationPrompt();
 			if (info) {
 				const cvs = document.createElement("canvas");
 				cvs.width = info.width;
 				cvs.height = info.height;
 
-				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function(glp) {
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function (glp) {
 					let gif = new GIF({
 						workers: 4,
 						quality: 1,
@@ -883,7 +883,199 @@ class SDisplayNode extends NNode {
 							});
 						}
 
-						gif.on('finished', function(blob) {
+						gif.on('finished', function (blob) {
+							const link = document.createElement("a");
+							link.setAttribute("download", "animation.gif");
+							link.setAttribute("href", URL.createObjectURL(blob));
+							link.click();
+						});
+
+						gif.render();
+					} else {
+						alert("No time node detected! Unable to make animation.");
+					}
+				}, true);
+			}
+			return false;
+		}
+		menu.addOption(opGif);
+
+		return menu;
+	}
+}
+
+class SBigDisplayNode extends NNode {
+	constructor(data = null) {
+		super(data);
+		this.canvas;
+		this.lastColorDataUrl
+		this.gl;
+		this.neverVar = true;
+	}
+
+	createNodeDiv() {
+		super.createNodeDiv();
+
+		this.customWidth = 656;
+		this.customHeight = 631;
+		this.addCenter();
+		this.noPinfo = true;
+		const node = this;
+
+		this.canvas = document.createElement("canvas");
+		this.canvas.width = 600;
+		this.canvas.height = 600;
+		this.canvas.style.margin = "2px";
+		this.canvas.className = "displaynode";
+		this.centerDiv.append(this.canvas);
+		this.canvas.onclick = function (e) {
+			node.recompileCanvas();
+		}
+
+		this.addHeader("Big Shader Display");
+		this.headerDiv.style.borderBottom = "1px solid #444444"
+		this.addInPin(new NPin("Color", NVector1, NVector2, NVector3, NVector4));
+		this.addOutPin(new NPin("Texture", NTexture));
+		this.nodeDiv.className += " displaynode";
+		this.inPinsDiv.style.borderRight = "1px solid #444444";
+		this.outPinsDiv.style.borderRight = "1px solid #444444";
+		return this.containerDiv;
+	}
+
+	recompileCanvas(doneFunction = Function.prototype) {
+		if (this.glp) {
+			this.glp.delete();
+			delete this.board.activeGLContexts[this.pinid]
+		}
+		// const res = this.inpins["Resolution"].defaultVal;
+		// this.canvas.width = res.x;
+		// this.canvas.height = res.y;
+		const inpin = this.inpins["Color"];
+		if (inpin.linkNum) {
+			const link = inpin.getSingleLinked();
+			const node = this;
+			const fullCompile = this.fullSCompile(inpin, true);
+			this.glp = setupWebGLRectangle(this.canvas, fullCompile, function (glp) {
+				glp.redraw(); //identical to node.glp.redraw()
+				node.lastColorDataUrl = node.canvas.toDataURL();
+				doneFunction();
+			});
+
+			this.board.activeGLContexts[this.nodeid] = this.glp;
+		}
+	}
+
+	removed() {
+		if (this.glp) {
+			this.glp.delete();
+			delete this.board.activeGLContexts[this.nodeid];
+		}
+	}
+
+	scompile(pin, varType, data, depth) {
+		const alreadyCompiledName = data.textureNodes[this.nodeid];
+		if (alreadyCompiledName) {
+			return alreadyCompiledName;
+		} else {
+			let texIndex = 0;
+			let name = "texture0";
+			while (data.uniforms[name] != null) {
+				texIndex++;
+				name = "texture" + texIndex.toString();
+			}
+
+			let uname = "u_texture" + texIndex.toString();
+			data.pendingItems = (data.pendingItems || 0) + 1
+
+			const node = this;
+			data.uniforms[name] = {
+				"type": "sampler2D",
+				"name": uname,
+				"src": data.rebake ? node : node.lastColorDataUrl,
+				"texIndex": texIndex
+			}
+
+			data.textureNodes[this.nodeid] = uname;
+			return uname;
+		}
+	}
+
+	static getName() {
+		return "S_BigDisplay";
+	}
+
+	static getInTypes() {
+		return [NVector1, NVector2, NVector3, NVector4];
+	}
+
+	static getOutTypes() {
+		return [NTexture];
+	}
+
+	static getCategory() {
+		return "Shader";
+	}
+
+	static getTags() {
+		return ["output", "preview", "display"];
+	}
+
+	makeContextMenu(pos) {
+		const menu = super.makeContextMenu(pos);
+		const node = this;
+		const brd = this.board;
+
+		const opImg = new NCtxMenuOption("Save Rendered Image");
+		opImg.action = function (e) {
+			const dims = exportDimensionsPrompt();
+			if (dims) {
+				const cvs = document.createElement("canvas");
+				cvs.width = dims[0];
+				cvs.height = dims[1];
+
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function (glp) {
+					glp.redraw();
+
+					const link = document.createElement("a");
+					link.setAttribute("download", "texture.png");
+					link.setAttribute("href", cvs.toDataURL("image/png").replace("image/png", "image/octet-stream"));
+					link.click();
+				}, true);
+			}
+
+
+			return false;
+		}
+		menu.addOption(opImg);
+
+		const opGif = new NCtxMenuOption("Save Animated GIF");
+		opGif.action = function (e) {
+			const info = exportAnimationPrompt();
+			if (info) {
+				const cvs = document.createElement("canvas");
+				cvs.width = info.width;
+				cvs.height = info.height;
+
+				setupWebGLRectangle(cvs, node.fullSCompile(node.inpins["Color"], true), function (glp) {
+					let gif = new GIF({
+						workers: 4,
+						quality: 1,
+						width: info.width,
+						height: info.height,
+					});
+					const timel = glp.uniforms["time"];
+					if (timel) {
+						for (let i = 0; i < info.frameCount; i++) {
+							glp.context.uniform1f(timel.location, i * info.frameDelay / 1000.0);
+							glp.redraw();
+
+							gif.addFrame(cvs, {
+								copy: true,
+								delay: info.frameDelay
+							});
+						}
+
+						gif.on('finished', function (blob) {
 							const link = document.createElement("a");
 							link.setAttribute("download", "animation.gif");
 							link.setAttribute("href", URL.createObjectURL(blob));
@@ -1031,14 +1223,14 @@ class STextureInputNode extends NNode {
 		this.display.className = "displaynode";
 		this.centerDiv.append(this.display);
 
-		this.display.onclick = function(e) {
+		this.display.onclick = function (e) {
 			node.finput.click(e);
 		}
 
 		this.finput = document.createElement("input");
 		this.finput.type = "file";
 		this.finput.accept = ".png,.jpeg,.jpg"
-		this.finput.onchange = function(e) {
+		this.finput.onchange = function (e) {
 			node.inputChanged(node.finput.files);
 		}
 
@@ -1055,7 +1247,7 @@ class STextureInputNode extends NNode {
 			const node = this;
 
 			const reader = new FileReader();
-			reader.onload = function(e) {
+			reader.onload = function (e) {
 				node.colorDataUrl = e.target.result;
 				node.display.src = e.target.result;
 			}
@@ -1208,7 +1400,7 @@ class SComponentNode extends NNode {
 			switches.push(sw);
 			this.switchboard.append(sw);
 
-			sw.onchange = function(e, silent = undefined) {
+			sw.onchange = function (e, silent = undefined) {
 				sw.adjustedVal = (i == 0) ? (parseInt(sw.value) + 1) : parseInt(sw.value);
 				if (!silent) {
 					node.board.addAction(new ActChangeCompNode(this.board, node, sw, sw.prevVal, sw.value));
@@ -4566,20 +4758,22 @@ class SAppendNode extends NNode {
 	createNodeDiv() {
 		super.createNodeDiv();
 		this.addCenter("⇒");
-		this.centerText.style.transform = "translate(0px, -14px)"
+		// this.addCenter("(+)");
+		this.centerText.style.transform = "translate(0px, -6px)"
 		this.customWidth = 150;
-		this.noPinfo = true;
+		this.customHeight = 100;
+		// this.noPinfo = true;
 		this.addHeader("Append");
 		this.in1 = new NPin("A", NVector1, NVector2, NVector3);
 		this.in2 = new NPin("B", NVector1, NVector2, NVector3);
-		this.in3 = new NPin("C", NVector1, NVector2);
-		this.in4 = new NPin("D", NVector1);
+		// this.in3 = new NPin("C", NVector1, NVector2);
+		// this.in4 = new NPin("D", NVector1);
 		this.addInPin(this.in1);
 		this.addInPin(this.in2);
-		this.addInPin(this.in3);
-		this.addInPin(this.in4);
-		this.removePin(this.in3);
-		this.removePin(this.in4);
+		// this.addInPin(this.in3);
+		// this.addInPin(this.in4);
+		// this.removePin(this.in3);
+		// this.removePin(this.in4);
 		this.outp = new NPin("out", NVector2, NVector3, NVector4);
 		this.addOutPin(this.outp);
 
@@ -4679,40 +4873,40 @@ class SAppendNode extends NNode {
 
 	saveExtra(data) {}
 
-	setInCount(count) {
-		if (this.inpinOrder.length == count) {
-			return false;
-		}
-		switch (count) {
-			case 2:
-				this.centerText.innerHTML = "⇒";
-				this.centerText.style.transform = "translate(0px, -14px)"
-				if (this.inpinOrder.length > 2) {
-					this.removeInPin(this.in3);
-					if (this.inpinOrder.length == 4) {
-						this.removeInPin(this.in4);
-					}
-				}
-				this.updateTypes(false);
-				break;
-			case 3:
-				this.centerText.innerHTML = "⇛";
-				this.centerText.style.transform = "translate(0px, -6px)";
-				this.reAddInPin(this.in3);
-				if (this.inpinOrder.length == 4) {
-					this.removeInPin(this.in4);
-				}
-				this.updateTypes(false);
-				break;
-			case 4:
-				this.centerText.innerHTML = "⭆";
-				this.centerText.style.transform = "translate(0px, -1.5px)";
-				this.reAddInPin(this.in3);
-				this.reAddInPin(this.in4);
-				this.updateTypes(false);
-				break;
-		}
-	}
+	// setInCount(count) {
+	// 	if (this.inpinOrder.length == count) {
+	// 		return false;
+	// 	}
+	// 	switch (count) {
+	// 		case 2:
+	// 			this.centerText.innerHTML = "⇒";
+	// 			this.centerText.style.transform = "translate(0px, -14px)"
+	// 			if (this.inpinOrder.length > 2) {
+	// 				this.removeInPin(this.in3);
+	// 				if (this.inpinOrder.length == 4) {
+	// 					this.removeInPin(this.in4);
+	// 				}
+	// 			}
+	// 			this.updateTypes(false);
+	// 			break;
+	// 		case 3:
+	// 			this.centerText.innerHTML = "⇛";
+	// 			this.centerText.style.transform = "translate(0px, -6px)";
+	// 			this.reAddInPin(this.in3);
+	// 			if (this.inpinOrder.length == 4) {
+	// 				this.removeInPin(this.in4);
+	// 			}
+	// 			this.updateTypes(false);
+	// 			break;
+	// 		case 4:
+	// 			this.centerText.innerHTML = "⭆";
+	// 			this.centerText.style.transform = "translate(0px, -1.5px)";
+	// 			this.reAddInPin(this.in3);
+	// 			this.reAddInPin(this.in4);
+	// 			this.updateTypes(false);
+	// 			break;
+	// 	}
+	// }
 
 	// makeContextMenu(pos) {
 	// 	const menu = super.makeContextMenu(pos);

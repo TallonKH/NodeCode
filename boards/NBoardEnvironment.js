@@ -49,7 +49,7 @@ class Main {
 			SRandNode, SBreakVec2Node, SBreakVec3Node, SBreakVec4Node, STimeNode, SRerouteNode,
 			SClampNode, SDistanceNode, SDotProductNode, SCrossProductNode, SReflectNode, SRefractNode,
 			SHSVNode, SRGBNode, SZeroNode, SOneNode, STwoNode, SSimplexNoiseNode, SP1D2Node,
-			/*SMiniDisplayNode,*/ STextureInputNode, STextureSamplerNode, SWorleyNoiseNode,
+			/*SMiniDisplayNode,*/ SBigDisplayNode, STextureInputNode, STextureSamplerNode, SWorleyNoiseNode,
 			SContrastNode, STriangleWaveNode, SRotateUVNode, SRotateUVMidNode, SReMapNode
 		];
 		this.nodeCategories = {};
@@ -313,9 +313,15 @@ $(function() {
 	main.rightMenuDiv = document.getElementById("rightmenu");
 
 	// splitpane
-	main.outerSplit = Split(["#leftsplit", "#maintabs", "#rightsplit"], {
-		sizes: [15, 70, 15],
-		minSize: [15, 400, 15],
+	// main.outerSplit = Split(["#leftsplit", "#maintabs", "#rightsplit"], {
+	// 	sizes: [15, 70, 15],
+	// 	minSize: [15, 400, 15],
+	// 	gutterSize: 5,
+	// 	snapOffset: 5
+	// });
+	main.outerSplit = Split(["#leftsplit", "#maintabs"], {
+		sizes: [15, 85],
+		minSize: [15, 415],
 		gutterSize: 5,
 		snapOffset: 5
 	});
